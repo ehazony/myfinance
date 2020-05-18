@@ -1,0 +1,11 @@
+<form method="post">
+    {{ transaction_formset.management_form }}
+    {% for form in transaction_formset %}
+        <ul>
+            <li>{{ form.name }}</li>
+            <li>{{ form.value }}</li>
+            <li>{{ form.date }}</li>
+            <li>{{ form.tag }}</li>
+        </ul>
+    {% endfor %}
+</form>

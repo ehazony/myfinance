@@ -1,0 +1,192 @@
+# -*- encoding: utf-8 -*-
+"""
+License: MIT
+Copyright (c) 2019 - present AppSeed.us
+"""
+from django.contrib.auth.decorators import login_required
+from django.forms import formset_factory
+from django.shortcuts import render
+from django.template import loader
+from django.http import HttpResponse
+from django.template.defaulttags import register
+
+from app.forms import TransactionForm
+from app.graph_api import monthly_average_by_category, total_by_month_bar, all_by_tag, total_by_month_line, \
+    accumelatating_by_month, Tag, bar_monthly_by_tag, scatter_by_tag, line_by_tag, monthly_by_name
+from myFinance.models import Transaction, TransactionNameTag
+import openpyxl
+
+NO_DATA_HTML = "<div id=chartContainer style=height: 360px; width: 100%;> No data found</div>"
+
+
+def load_index_figures(user):
+    data = dict()
+    data["month average by catergory"] = monthly_average_by_category(user)
+    data["total expenses by month bar"] = total_by_month_bar(user)
+    data["total expenses by month line"] = total_by_month_line(user)
+    data["all tags by month"] = all_by_tag(user)
+    data["accumelating expenses by month"] = accumelatating_by_month(user)
+    for name, fig in data.items():
+        if not fig:
+            data[name] = NO_DATA_HTML
+        else:
+            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
+    return data
+
+
+def load_tag_figures(user, tag):
+    data = dict()
+    data["Total expenses by month for tag {}".format(tag.name)] = bar_monthly_by_tag(user, tag)
+    data["Scatter expenses for {}".format(tag.name)] = scatter_by_tag(user, tag)
+    data["Graph expenses for {}".format(tag.name)] = line_by_tag(user, tag)
+    for name, fig in data.items():
+        if not fig:
+            data[name] = NO_DATA_HTML
+        else:
+            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
+    return data
+
+
+def load_transaction_name_figuers(user, name):
+    data = dict()
+    data["Total expenses by month for transaction name {}".format(name)] = monthly_by_name(user, name)
+
+    for name, fig in data.items():
+        if not fig:
+            data[name] = NO_DATA_HTML
+        else:
+            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
+    return data
+
+
+@login_required(login_url="/login/")
+def index(request):
+    data = load_index_figures(request.user)
+    return render(request, "index.html", context={"data": data})
+
+
+pass
+
+
+@login_required(login_url="/login/")
+def pages(request):
+    context = {}
+    # All resource paths end in .html.
+    # Pick out the html file name from the url. And load that template.
+    try:
+        load_template = request.path.split('/')[-1]
+        if 'transaction.html' in request.path:
+            return by_name(request)
+        if 'tag.html' in request.path:
+            return by_tag(request)
+        if 'tables.html' in request.path:
+            return index1(request)
+        template = loader.get_template('pages/' + load_template)
+        return HttpResponse(template.render(context, request))
+
+    except:
+
+        template = loader.get_template('pages/error-404.html')
+        return HttpResponse(template.render(context, request))
+
+
+def by_tag(request):
+    context = {"taglist": Tag.objects.all()}
+    if not request.path.split('/')[-1] == 'tag.html':
+        tag = Tag.objects.get(id=request.path.split('/')[-1])
+        context['graphs'] = load_tag_figures(request.user, tag)
+    load_template = request.path.split('/')[1]
+    template = loader.get_template('pages/' + load_template)
+    return HttpResponse(template.render(context, request))
+
+
+def by_name(request):
+    context = {"namelist": Transaction.objects.all().values_list('name', flat=True).distinct()}
+    if request.GET.get('name', None):
+        context['graphs'] = load_transaction_name_figuers(request.user, request.GET.get('name'))
+        # context['graphs'] = load_tag_figures(tag)
+    load_template = request.path.split('/')[1]
+    template = loader.get_template('pages/' + load_template)
+    return HttpResponse(template.render(context, request))
+
+
+def tabels(request):
+    if "GET" == request.method:
+        TransactionFormSet = formset_factory(TransactionForm, extra=5)
+
+        # Get our existing link data for this user.  This is used as initial data.
+        # user_links = UserLink.objects.filter(user=user).order_by('anchor')
+        link_data = []
+        sorted_transaction_formset = TransactionFormSet(form_kwargs={'user': request.user})
+
+        context = {
+            'transaction_formset': sorted_transaction_formset
+        }
+        return render(request, 'pages/tables.html', context)
+    else:
+        if len(request.FILES) > 0:
+            excel_file = request.FILES["excel_file"]
+
+            # you may put validations here to check extension or file size
+
+            wb = openpyxl.load_workbook(excel_file)
+            # creating a formset
+            # getting a particular sheet by name out of many sheets
+            worksheet = wb.worksheets[0]
+            sorted_transactions = load_excel_file(worksheet, request.user)
+            TransactionFormSet = formset_factory(TransactionForm, extra=0)
+            sorted_transaction_formset = TransactionFormSet(initial=sorted_transactions,
+                                                            form_kwargs={'user': request.user})
+
+            # unsorted_transaction_formset = TransactionFormSet(initial=unsorted_transactions,
+            #                                                   form_kwargs={'user': request.user})
+            taglist = Tag.objects.all()
+            context = {"taglist": taglist, 'sorted_transaction_formset': sorted_transaction_formset}
+            # 'unsorted_transactions_formset': unsorted_transaction_formset}
+            return render(request, 'pages/tables_transactions.html', context)
+        TransactionFormSet = formset_factory(TransactionForm, extra=0)
+        s = TransactionFormSet(request.POST, form_kwargs={'user': request.user})
+        if s.is_valid():
+            for transaction in s.forms:
+                if transaction.is_valid():
+                    Transaction.objects.create(user=request.user, name=transaction.cleaned_data.get('name'),
+                                               value=transaction.cleaned_data.get('value'),
+                                               date=transaction.cleaned_data.get('date'),
+                                               tag=transaction.cleaned_data.get('tag'))
+            return render(request, 'pages/tables.html', {})
+        taglist = Tag.objects.all()
+
+        context = {"taglist": taglist, 'sorted_transaction_formset': s,
+                   'unsorted_transactions_formset': []}
+        return render(request, 'pages/tables_transactions.html', context)
+
+
+def load_excel_file(ws, user):
+    sorted_transactions = list()
+    unsorted_transactions = list()
+    # iterating over the rows and
+    # getting value from each cell in row
+    for row in list(ws.iter_rows()):
+        if not row[1].value or not row[3].value or not row[0].value:
+            continue
+        row_data = {}
+        row_data["name"] = row[1].value
+        row_data["value"] = row[3].value.replace("₪", "").replace(",", "").strip()
+        row_data["date"] = row[0].value
+        tag = TransactionNameTag.get_tag(row_data["name"], user)
+        if tag:
+            row_data["tag"] = tag.name
+            sorted_transactions.append(row_data)
+        else:
+            unsorted_transactions.append(row_data)
+    return sorted_transactions + unsorted_transactions
+
+
+@register.simple_tag
+def query_transform(request, **kwargs):
+    updated = request.GET.copy()
+    updated.update(kwargs)
+    return updated.urlencode()

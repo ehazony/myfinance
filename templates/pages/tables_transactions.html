@@ -1,0 +1,199 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tables {% endblock title %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
+        <div class="container-fluid">
+            <div class="header-body">
+                <!-- Card stats -->
+                <div class="row">
+                    <div class="col-xl-3 col-lg-6">
+                        <div class="card card-stats mb-4 mb-xl-0">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col">
+                                        {#                      <h5 class="card-title text-uppercase text-muted mb-0">Traffic</h5>#}
+                                        {#                      <span class="h2 font-weight-bold mb-0">350,897</span>#}
+                                        {#                                        <form action="{% url "load_statements" %}" method="get"#}
+                                        {#                                              enctype="multipart/form-data">#}
+                                        {#                                            {% csrf_token %}#}
+                                        {#                                            <input type="file"#}
+                                        {#                                                   title="Upload excel file"#}
+                                        {#                                                   name="excel_file"#}
+                                        {#                                                   style="border: 1px solid black; padding: 5px;"#}
+                                        {#                                                   required="required">#}
+                                        {#                                            <p>#}
+                                        {#                                                <input type="submit"#}
+                                        {#                                                       value="Upload"#}
+                                        {#                                                       style="border: 1px solid green; padding:5px; border-radius: 2px; cursor: pointer;">#}
+                                        {#                                        </form>#}
+
+                                    </div>
+                                    <div class="col-auto">
+                                        <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="container-fluid mt--7">
+            <!-- Table -->
+{#            <div class="row">#}
+{#                <div class="col">#}
+{#                    <div class="card shadow">#}
+{#                        <div class="card-header border-0">#}
+{#                            <h3 class="mb-0">Transactions</h3>#}
+{#                        </div>#}
+{##}
+{##}
+{#                        <div class="table-responsive">#}
+{#                            <table class="table align-items-center table-flush">#}
+{#                                <thead class="thead-light">#}
+{#                                <tr>#}
+{#                                    <th scope="col">Company Name</th>#}
+{#                                    <th scope="col">Value</th>#}
+{#                                    <th scope="col">date</th>#}
+{#                                    <th scope="col">TAG</th>#}
+{#                                </tr>#}
+{#                                </thead>#}
+{#                                <tbody>#}
+{#                                {{ unsorted_transactions_formset.management_form }}#}
+{#                                {{ form.media }}#}
+{#                                {% for form in unsorted_transactions_formset %}#}
+{#                                    <tr>#}
+{#                                        <th scope="row">#}
+{#                                            <div class="media align-items-center">#}
+{#                                                <a href="#" class="avatar rounded-circle mr-3">#}
+{#                                                    <img alt="Image placeholder"#}
+{#                                                         src="/static/assets/img/theme/angular.jpg">#}
+{#                                                </a>#}
+{#                                                <div class="media-body">#}
+{#                                                    <span class="mb-0 text-sm">{{ form.name }}</span>#}
+{#                                                </div>#}
+{#                                            </div>#}
+{#                                        </th>#}
+{#                                        <td>#}
+{#                                            {{ form.value }}#}
+{#                                        </td>#}
+{#                                        <th data-type="date" type="date"#}
+{#                                            data-format-string="Do MMMM YYYY">{{ form.date }}</th>#}
+{#                                        <td ALIGN="center">#}
+{#                                            <label>#}
+{#                                                {{ form.tag }}#}
+{#                                            </label>#}
+{#                                        </td>#}
+{#                                    </tr>#}
+{#                                {% endfor %}#}
+{#                                </tbody>#}
+{#                            </table>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
+
+            <div class="ro mt-5">
+                <!-- Table -->
+                <div class="row">
+                    <div class="col">
+                        <div class="card shadow">
+                            <div class="card-header border-0">
+                                <h3 class="mb-0">Sorted Transactions</h3>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table align-items-center table-flush">
+                                    <thead class="thead-light">
+                                    <tr>
+                                        <th scope="col">Company Name</th>
+                                        <th scope="col">Value</th>
+                                        <th scope="col">date</th>
+                                        <th scope="col">TAG</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{ sorted_transaction_formset.management_form }}
+                                    {% for form in sorted_transaction_formset %}
+                                        <tr>
+                                            <th scope="row">
+                                                <div class="media align-items-center">
+                                                    <a href="#" class="avatar rounded-circle mr-3">
+                                                        <img alt="Image placeholder"
+                                                             src="/static/assets/img/theme/angular.jpg">
+                                                    </a>
+                                                    <div class="media-body">
+                                                        <span class="mb-0 text-sm">{{ form.name }}</span>
+                                                        {% for error in form.name.errors %}
+                                                            <div class="alert alert-danger">
+                                                                <strong>{{ error|escape }}</strong>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <td>
+                                                {{ form.value }}
+                                                {% for error in form.value.errors %}
+                                                    <div class="alert alert-danger">
+                                                        <strong>{{ error|escape }}</strong>
+                                                    </div>
+                                                {% endfor %}
+
+                                            </td>
+                                            <th data-type="date" type="date"
+                                                data-format-string="Do MMMM YYYY">{{ form.date }}</th>
+                                            {% for error in form.date.errors %}
+                                                <div class="alert alert-danger">
+                                                    <strong>{{ error|escape }}</strong>
+                                                </div>
+                                            {% endfor %}
+                                            <td ALIGN="center">
+                                                <label>
+                                                    {{ form.tag }}
+                                                    {% for error in form.tag.errors %}
+                                                        <div class="alert alert-danger">
+                                                            <strong>{{ error|escape }}</strong>
+                                                        </div>
+                                                    {% endfor %}
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="card shadow">
+                        <div class="card-header border-0">
+                            <input type="submit" name=un_sorted value="Submit Transactions" class="button"
+                                   style="float: right;"/>
+                            {#                        <h3 class="mb-0">Transactions</h3>#}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% include "includes/footer.html" %}
+        </div>
+    </form>
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}{% endblock javascripts %}
