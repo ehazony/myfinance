@@ -72,7 +72,7 @@ def total_by_month_bar(user):
 
 
 def total_by_month_line(user):
-    trans = Transaction.objects.filter(month__in=[0, 1, 2, 3], user=user).values('month_date').annotate(Sum('value'))
+    trans = Transaction.objects.filter(month__in=[12, 1, 2, 3, 4], user=user).values('month_date').annotate(Sum('value'))
     if trans.count() == 0:
         return None
     trans = pd.DataFrame(list(trans))
@@ -81,8 +81,8 @@ def total_by_month_line(user):
 
 
 def all_by_tag(user):
-    trans = Transaction.objects.filter(month__in=[12, 1, 2, 3], user=user).values('month_date',
-                                                                                  'tag_ref__name').annotate(
+    trans = Transaction.objects.filter(month__in=[12, 1, 2, 3, 4], user=user).values('month_date',
+                                                                                     'tag_ref__name').annotate(
         Sum('value'))
     if trans.count() == 0:
         return None
@@ -121,6 +121,14 @@ def accumelatating_by_month(user):
     fig.add_trace(fig1.data[0])
 
     trans = Transaction.objects.filter(month__in=[3], user=user).order_by('date').values('month', 'date', 'value')
+    if trans.count() == 0:
+        return None
+    df = pd.DataFrame(list(trans))
+    gb = df.groupby(["month", "date"]).sum().cumsum()
+    fig1 = px.line(gb, x=df.date.unique(), y="value")
+    fig.add_trace(fig1.data[0])
+
+    trans = Transaction.objects.filter(month__in=[4], user=user).order_by('date').values('month', 'date', 'value')
     if trans.count() == 0:
         return None
     df = pd.DataFrame(list(trans))

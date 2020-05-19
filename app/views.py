@@ -16,6 +16,8 @@ from app.graph_api import monthly_average_by_category, total_by_month_bar, all_b
 from myFinance.models import Transaction, TransactionNameTag
 import openpyxl
 
+from sorting.excel_parssers import ExcelParser
+
 NO_DATA_HTML = "<div id=chartContainer style=height: 360px; width: 100%;> No data found</div>"
 
 
@@ -130,13 +132,7 @@ def tabels(request):
         if len(request.FILES) > 0:
             excel_file = request.FILES["excel_file"]
 
-            # you may put validations here to check extension or file size
-
-            wb = openpyxl.load_workbook(excel_file)
-            # creating a formset
-            # getting a particular sheet by name out of many sheets
-            worksheet = wb.worksheets[0]
-            sorted_transactions = load_excel_file(worksheet, request.user)
+            sorted_transactions = ExcelParser().parse_excel(excel_file, request.user)
             TransactionFormSet = formset_factory(TransactionForm, extra=0)
             sorted_transaction_formset = TransactionFormSet(initial=sorted_transactions,
                                                             form_kwargs={'user': request.user})
@@ -148,6 +144,7 @@ def tabels(request):
             # 'unsorted_transactions_formset': unsorted_transaction_formset}
             return render(request, 'pages/tables_transactions.html', context)
         TransactionFormSet = formset_factory(TransactionForm, extra=0)
+        is_bank_statements = True if request.POST.get('is_bank') else False
         s = TransactionFormSet(request.POST, form_kwargs={'user': request.user})
         if s.is_valid():
             for transaction in s.forms:
@@ -155,7 +152,7 @@ def tabels(request):
                     Transaction.objects.create(user=request.user, name=transaction.cleaned_data.get('name'),
                                                value=transaction.cleaned_data.get('value'),
                                                date=transaction.cleaned_data.get('date'),
-                                               tag=transaction.cleaned_data.get('tag'))
+                                               tag=transaction.cleaned_data.get('tag'), bank=is_bank_statements)
             return render(request, 'pages/tables.html', {})
         taglist = Tag.objects.all()
 

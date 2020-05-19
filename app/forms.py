@@ -26,6 +26,10 @@ class TransactionForm(forms.Form):
         self.fields['tag'].choices = self.fields['tag'].choices + [(tag.name, tag.name) for tag in
                                                                    Tag.objects.filter(user=user)]
 
+class IsBankStatements(forms.Form):
+    is_bank_statement = forms.BooleanField()
+
+
 
 # class NewTransactionFormset(BaseModelFormSet):
 #     def __init__(self, *args, **kwargs):

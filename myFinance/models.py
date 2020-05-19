@@ -55,7 +55,7 @@ class Transaction(models.Model):
         try:
             self.tag_ref = Tag.objects.get(user= self.user, name=self.tag)
         except:
-            raise Exception("tag matching tag name '{}' dose not exist".format(self.name))
+            raise Exception("tag matching tag name '{}' dose not exist".format(self.tag))
         super(Transaction, self).save(*args, **kwargs)
 
 
