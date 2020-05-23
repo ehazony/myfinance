@@ -153,6 +153,9 @@ def tabels(request):
                                                value=transaction.cleaned_data.get('value'),
                                                date=transaction.cleaned_data.get('date'),
                                                tag=transaction.cleaned_data.get('tag'), bank=is_bank_statements)
+                    tag = Tag.objects.get(name=transaction.cleaned_data.get('tag'))
+                    TransactionNameTag.objects.update_or_create(transaction_name=transaction.cleaned_data.get('name'),
+                                                                user=request.user, defualts={'tag': tag})
             return render(request, 'pages/tables.html', {})
         taglist = Tag.objects.all()
 

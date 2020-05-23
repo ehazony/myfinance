@@ -47,7 +47,6 @@ class CalExcelParser(_ExcelParser):
 
 
 class MaxExcelParser(_ExcelParser):
-
     def load_transactions(self, ws, user):
         sorted_transactions = list()
         unsorted_transactions = list()
@@ -94,7 +93,24 @@ class MaxExcelParser(_ExcelParser):
 class DiscountBankExcelParser(_ExcelParser):
 
     def load_transactions(self, ws, user):
-        pass
+        sorted_transactions = list()
+        unsorted_transactions = list()
+        # iterating over the rows and
+        # getting value from each cell in row
+        for row in list(ws.iter_rows())[13:]:
+            if not row[0].value or not row[2].value or not row[3].value:
+                return sorted_transactions + unsorted_transactions
+            row_data = {}
+            row_data["name"] = row[2].value
+            row_data["value"] = -row[3].value
+            row_data["date"] = row[0].value
+            tag = TransactionNameTag.get_tag(row_data["name"], user)
+            if tag:
+                row_data["tag"] = tag.name
+                sorted_transactions.append(row_data)
+            else:
+                unsorted_transactions.append(row_data)
+        return sorted_transactions + unsorted_transactions
 
     def is_right_format(self, ws):
         titels = ['תאריך',
@@ -107,9 +123,6 @@ class DiscountBankExcelParser(_ExcelParser):
                   'ערוץ ביצוע']
         lines = list(ws.iter_rows())
         return [x.value for x in lines[12]] == titels
-
-
-
 
 
 def load_excel_file(ws, user):
