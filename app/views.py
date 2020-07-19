@@ -79,7 +79,7 @@ def pages(request):
 
 
 def by_tag(request):
-    context = {"taglist": Tag.objects.all()}
+    context = {"taglist": Tag.objects.filter(user= request.user)}
     if request.GET.get('id', None):
         tag = Tag.objects.get(id=request.GET.get('id', None))
         context['graphs'] = load_tag_figures(request.user, tag)
@@ -89,7 +89,7 @@ def by_tag(request):
 
 
 def by_name(request):
-    context = {"namelist": Transaction.objects.all().values_list('name', flat=True).distinct()}
+    context = {"namelist": Transaction.objects.filter(user=request.user).values_list('name', flat=True).distinct()}
     if request.GET.get('name', None):
         context['graphs'] = load_transaction_name_figuers(request.user, request.GET.get('name'))
         # context['graphs'] = load_tag_figures(tag)
