@@ -106,7 +106,8 @@
           <div class="card shadow border-0">
                 <select id="selectbox" name="" onchange="javascript:location.href = this.value;">
                 {% for element in taglist %}
-                    <option value=http://localhost:8000/tag.html/{{ element.id }}>{{ element.name }}</option>
+                    <option value={% url "tag"%}?{% query_transform request id=element.id%}>{{element}}</option>
+{#                    <option value=http://localhost:8000/tag.html/{{ element.id }}>{{ element.name }}</option>#}
                 {% endfor %}
                 </select>
           </div>

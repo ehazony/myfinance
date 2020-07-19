@@ -21,7 +21,7 @@ urlpatterns = [
     # re_path(r'^.*\.html', views.pages, name='pages'),
 
     # The home page
-    re_path(r'tag.html.*$', views.by_tag),
+    re_path(r'tag.html.*$', views.by_tag, name="tag"),
     re_path(r'transaction.html.*$', views.by_name, name="transaction"),
     re_path(r'tables.html.*$', views.tabels, name="load_statements"),
     path('', views.index, name='home'),

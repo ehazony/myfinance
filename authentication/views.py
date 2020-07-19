@@ -3,6 +3,7 @@
 License: MIT
 Copyright (c) 2019 - present AppSeed.us
 """
+import datetime
 
 from django.shortcuts import render
 
@@ -12,6 +13,8 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
+
+from myFinance.models import DateInput
 from .forms import LoginForm, SignUpForm
 
 
@@ -51,7 +54,7 @@ def register_user(request):
             grant_permissions(user)
             msg = 'User created.'
             success = True
-
+            DateInput.objects.create(user=user, name='start_date', date=datetime.date.today())
             # return redirect("/login/")
 
         else:

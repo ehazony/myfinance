@@ -6,7 +6,7 @@ from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'value', 'tag', 'month', 'date', 'tag_ref', 'month_date')
+    list_display = ('name', 'value', 'tag', 'month', 'date', 'tag_ref', 'month_date', 'bank')
 
     class Meta:
         model = Transaction

@@ -11,66 +11,49 @@ from django.http import HttpResponse
 from django.template.defaulttags import register
 
 from app.forms import TransactionForm
-from app.graph_api import monthly_average_by_category, total_by_month_bar, all_by_tag, total_by_month_line, \
-    accumelatating_by_month, Tag, bar_monthly_by_tag, scatter_by_tag, line_by_tag, monthly_by_name
-from myFinance.models import Transaction, TransactionNameTag
-import openpyxl
+from app.graph.graph_api import monthly_average_by_category, line_fig_by_tag_by_month, line_fig_by_month, \
+    Tag, \
+    bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates
+from myFinance.models import Transaction, TransactionNameTag, DateInput
 
-from sorting.excel_parssers import ExcelParser
+from app.excel_parssers import ExcelParser
 
 NO_DATA_HTML = "<div id=chartContainer style=height: 360px; width: 100%;> No data found</div>"
 
 
 def load_index_figures(user):
     data = dict()
+    transactions_exp = expenses_transactions(user)
+    transactions_all = all_transactions_in_dates(user)
     data["month average by catergory"] = monthly_average_by_category(user)
-    data["total expenses by month bar"] = total_by_month_bar(user)
-    data["total expenses by month line"] = total_by_month_line(user)
-    data["all tags by month"] = all_by_tag(user)
-    data["accumelating expenses by month"] = accumelatating_by_month(user)
-    for name, fig in data.items():
-        if not fig:
-            data[name] = NO_DATA_HTML
-        else:
-            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
-    return data
+    data["total expenses by month bar"] = bar_fig_by_month(transactions_exp)
+    data["all tags by month"] = line_fig_by_tag_by_month(transactions_all)
+    # data["total expenses by month line"] = total_by_month_line(user)
+    # data["accumelating expenses by month"] = accumelatating_by_month(user)
+    data["All Transactions"] = scatter(transactions_all)
+    return reformat_figs(data)
 
 
 def load_tag_figures(user, tag):
     data = dict()
-    data["Total expenses by month for tag {}".format(tag.name)] = bar_monthly_by_tag(user, tag)
-    data["Scatter expenses for {}".format(tag.name)] = scatter_by_tag(user, tag)
-    data["Graph expenses for {}".format(tag.name)] = line_by_tag(user, tag)
-    for name, fig in data.items():
-        if not fig:
-            data[name] = NO_DATA_HTML
-        else:
-            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
-    return data
+    transaction = Transaction.objects.all().filter(tag_ref=tag, user=user)
+    data["Total expenses by month for tag {}".format(tag.name)] = bar_fig_by_month(transaction)
+    data["Scatter expenses for {}".format(tag.name)] = scatter(transaction)
+    data["Graph expenses for {}".format(tag.name)] = line_fig_by_month(transaction)
+    return reformat_figs(data)
 
 
 def load_transaction_name_figuers(user, name):
     data = dict()
-    data["Total expenses by month for transaction name {}".format(name)] = monthly_by_name(user, name)
-
-    for name, fig in data.items():
-        if not fig:
-            data[name] = NO_DATA_HTML
-        else:
-            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
-    return data
+    transaction = Transaction.objects.all().filter(name=name, user=user)
+    data["Total expenses by month for transaction name {}".format(name)] = bar_fig_by_month(transaction)
+    return reformat_figs(data)
 
 
 @login_required(login_url="/login/")
 def index(request):
     data = load_index_figures(request.user)
     return render(request, "index.html", context={"data": data})
-
-
-pass
 
 
 @login_required(login_url="/login/")
@@ -97,8 +80,8 @@ def pages(request):
 
 def by_tag(request):
     context = {"taglist": Tag.objects.all()}
-    if not request.path.split('/')[-1] == 'tag.html':
-        tag = Tag.objects.get(id=request.path.split('/')[-1])
+    if request.GET.get('id', None):
+        tag = Tag.objects.get(id=request.GET.get('id', None))
         context['graphs'] = load_tag_figures(request.user, tag)
     load_template = request.path.split('/')[1]
     template = loader.get_template('pages/' + load_template)
@@ -149,13 +132,20 @@ def tabels(request):
         if s.is_valid():
             for transaction in s.forms:
                 if transaction.is_valid():
-                    Transaction.objects.create(user=request.user, name=transaction.cleaned_data.get('name'),
-                                               value=transaction.cleaned_data.get('value'),
-                                               date=transaction.cleaned_data.get('date'),
-                                               tag=transaction.cleaned_data.get('tag'), bank=is_bank_statements)
+                    t = Transaction.objects.create(user=request.user, name=transaction.cleaned_data.get('name'),
+                                                   value=transaction.cleaned_data.get('value'),
+                                                   date=transaction.cleaned_data.get('date'),
+                                                   tag=transaction.cleaned_data.get('tag'), bank=is_bank_statements)
+                    print("created transaction: {}, with date {} and value {}".format(t.name, t.date, t.value))
                     tag = Tag.objects.get(name=transaction.cleaned_data.get('tag'))
-                    TransactionNameTag.objects.update_or_create(transaction_name=transaction.cleaned_data.get('name'),
-                                                                user=request.user, defaults={'tag': tag})
+                    tt, created = TransactionNameTag.objects.update_or_create(
+                        transaction_name=transaction.cleaned_data.get('name'),
+                        user=request.user, defaults={'tag': tag})
+                    if created:
+                        assert TransactionNameTag.objects.filter(user=tt.user,
+                                                                 transaction_name=tt.transaction_name).count() == 1
+                    DateInput.objects.filter(user=request.user, name='start_date').update(
+                        date=Transaction.objects.filter(user=request.user).order_by('month_date')[0].month_date)
             return render(request, 'pages/tables.html', {})
         taglist = Tag.objects.all()
 
@@ -190,3 +180,13 @@ def query_transform(request, **kwargs):
     updated = request.GET.copy()
     updated.update(kwargs)
     return updated.urlencode()
+
+
+def reformat_figs(data):
+    for name, fig in data.items():
+        if not fig:
+            data[name] = NO_DATA_HTML
+        else:
+            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
+    return data

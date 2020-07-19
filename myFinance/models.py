@@ -35,14 +35,14 @@ class Transaction(models.Model):
     bank = models.BooleanField(default=False)
 
     def get_month(self):
-        start_date = DateInput.objects.get(name="start_date").date
+        start_date = DateInput.objects.get(name="start_date", user= self.user).date
         if self.date.day >= start_date.day:
             return self.date.month
         else:
             return 12 if self.date.month == 1 else self.date.month - 1
 
     def get_month_date(self):
-        start_date = DateInput.objects.get(name="start_date").date
+        start_date = DateInput.objects.get(name="start_date", user = self.user).date
         if self.date.day < start_date.day:
             return (self.date - datetime.timedelta(days=start_date.day)).replace(day=start_date.day)
         else:
@@ -53,7 +53,8 @@ class Transaction(models.Model):
         self.month_date = self.get_month_date()
 
         try:
-            self.tag_ref = Tag.objects.get(user= self.user, name=self.tag)
+            self.tag_ref = Tag.objects.get(user=self.user, name=self.tag)
+
         except:
             raise Exception("tag matching tag name '{}' dose not exist".format(self.tag))
         super(Transaction, self).save(*args, **kwargs)
@@ -64,7 +65,10 @@ class TransactionNameTag(models.Model):
     transaction_name = models.CharField(max_length=200)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
+    class Meta:
+        unique_together = ('user', 'transaction_name')
+
     @classmethod
     def get_tag(cls, name, user):
-        trnt = TransactionNameTag.objects.filter(transaction_name=name, user = user).first()
+        trnt = TransactionNameTag.objects.filter(transaction_name=name, user=user).first()
         return trnt.tag if trnt else None

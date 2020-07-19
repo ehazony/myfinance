@@ -28,7 +28,10 @@ class CalExcelParser(_ExcelParser):
                 continue
             row_data = {}
             row_data["name"] = row[1].value
-            row_data["value"] = row[3].value.replace("₪", "").replace(",", "").strip()
+            if type(row[3].value) == int or type(row[3].value) == float:
+                row_data["value"] = row[3].value
+            else:
+                row_data["value"] = row[3].value.replace("₪", "").replace(",", "").strip()
             row_data["date"] = row[0].value
             tag = TransactionNameTag.get_tag(row_data["name"], user)
             if tag:
