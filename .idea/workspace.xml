@@ -1,21 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7bea3e36-44a0-4ec4-b3a4-61b858cfccb1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/graph/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/myFinance/migrations/0017_auto_20200619_1648.py" afterDir="false" />
+    <list default="true" id="7bea3e36-44a0-4ec4-b3a4-61b858cfccb1" name="Default Changelist" comment="changes for server appache">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/graph_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/graph/graph_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/authentication/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/authentication/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myFinance/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/myFinance/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myFinance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/myFinance/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sorting/excel_parssers.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sorting/excel_parssers.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/excel_parssers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/pages/tag.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/pages/tag.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -106,7 +94,7 @@
           <entry key="po" value="2" />
           <entry key="py" value="14216" />
           <entry key="py@finance" value="890" />
-          <entry key="txt" value="105" />
+          <entry key="txt" value="144" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
@@ -115,7 +103,7 @@
           <entry key="HTML" value="1320" />
           <entry key="JavaScript" value="16" />
           <entry key="Locale" value="2" />
-          <entry key="PLAIN_TEXT" value="293" />
+          <entry key="PLAIN_TEXT" value="332" />
           <entry key="Python" value="18238" />
         </counts>
       </usages-collector>
@@ -160,40 +148,17 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="18" column="41" selection-start-line="18" selection-start-column="41" selection-end-line="18" selection-end-column="41" />
+            <state relative-caret-position="222">
+              <caret line="170" column="38" lean-forward="true" selection-start-line="170" selection-start-column="38" selection-end-line="170" selection-end-column="38" />
               <folding>
+                <element signature="e#87#144#0" expanded="true" />
                 <marker date="1595188000257" expanded="true" signature="1875:2105" ph="..." />
                 <marker date="1595188000257" expanded="true" signature="3441:3442" ph="..." />
                 <marker date="1595188000257" expanded="true" signature="8249:8250" ph="..." />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/excel_parssers.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="14" column="20" lean-forward="true" selection-start-line="14" selection-start-column="20" selection-end-line="14" selection-end-column="20" />
-              <folding>
-                <element signature="e#0#30#0" expanded="true" />
-                <marker date="1592288168579" expanded="true" signature="331:337" ph="..." />
-                <marker date="1592288168579" expanded="true" signature="375:1348" ph="..." />
-                <marker date="1592288168579" expanded="true" signature="3326:3327" ph="..." />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/Anaconda3/Lib/site-packages/django/contrib/auth/decorators.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
             </state>
           </provider>
         </entry>
@@ -207,11 +172,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/authentication/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="182">
-              <caret line="56" column="24" lean-forward="true" selection-start-line="56" selection-start-column="24" selection-end-line="56" selection-end-column="24" />
+            <state relative-caret-position="234">
+              <caret line="70" lean-forward="true" selection-start-line="70" selection-end-line="70" />
               <folding>
                 <element signature="e#87#102#0" expanded="true" />
                 <marker date="1595186879715" expanded="true" signature="1962:1963" ph="..." />
@@ -427,31 +392,6 @@
               <item name="finance" type="b2602c69:ProjectViewProjectNode" />
               <item name="finance" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="finance" type="b2602c69:ProjectViewProjectNode" />
-              <item name="finance" type="462c0819:PsiDirectoryNode" />
-              <item name="core" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="finance" type="b2602c69:ProjectViewProjectNode" />
-              <item name="finance" type="462c0819:PsiDirectoryNode" />
-              <item name="finance" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="finance" type="b2602c69:ProjectViewProjectNode" />
-              <item name="finance" type="462c0819:PsiDirectoryNode" />
-              <item name="myFinance" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="finance" type="b2602c69:ProjectViewProjectNode" />
-              <item name="finance" type="462c0819:PsiDirectoryNode" />
-              <item name="sorting" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="finance" type="b2602c69:ProjectViewProjectNode" />
-              <item name="finance" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -468,18 +408,19 @@
     <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/templates/Finance/index.html" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\efrai\Desktop\bills\finance\app" />
+      <recent name="C:\Users\efrai\Desktop\bills\finance\app\graph" />
+      <recent name="C:\Users\efrai\Desktop\bills\finance\myFinance" />
+      <recent name="C:\Users\efrai\Desktop\bills\finance\TAG_DB" />
+      <recent name="C:\Users\efrai\Desktop\bills\finance\myFinance\managements" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\efrai\Desktop\bills\finance\bank_statements\temp" />
       <recent name="C:\Users\efrai\Desktop\bills\finance\core\static\assets\img\theme" />
       <recent name="C:\Users\efrai\Desktop\bills\finance\templates\pages" />
       <recent name="C:\Users\efrai\Desktop\bills\finance\finance" />
       <recent name="C:\Users\efrai\Desktop\bills\finance" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\efrai\Desktop\bills\finance\app\graph" />
-      <recent name="C:\Users\efrai\Desktop\bills\finance\myFinance" />
-      <recent name="C:\Users\efrai\Desktop\bills\finance\TAG_DB" />
-      <recent name="C:\Users\efrai\Desktop\bills\finance\myFinance\managements" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -632,7 +573,14 @@
       <option name="project" value="LOCAL" />
       <updated>1590440883647</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="changes for server appache">
+      <created>1595188037919</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1595188037920</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -653,13 +601,13 @@
     <frame x="-7" y="-7" width="1295" height="704" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49866667" visible="true" weight="0.28178138" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49866667" visible="true" weight="0.28178138" />
       <window_info id="Favorites" order="1" side_tool="true" />
       <window_info id="Structure" order="2" sideWeight="0.50133336" weight="0.23805667" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.2872154" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.21096346" />
-      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.32924694" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.32924694" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32890365" />
@@ -668,7 +616,7 @@
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Database Changes" order="10" show_stripe_button="false" />
       <window_info active="true" anchor="bottom" id="manage.py@finance" order="11" visible="true" weight="0.37127846" />
-      <window_info anchor="bottom" id="Terminal" order="12" weight="0.32749563" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="12" visible="true" weight="0.32749563" />
       <window_info anchor="bottom" id="Python Console" order="13" weight="0.3625219" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -711,7 +659,8 @@
     <MESSAGE value="added is_bank checkbox" />
     <MESSAGE value="save tag prefrences. &#10;added parser for DiscontBank" />
     <MESSAGE value="save tag prefrences. &#10;fix." />
-    <option name="LAST_COMMIT_MESSAGE" value="save tag prefrences. &#10;fix." />
+    <MESSAGE value="changes for server appache" />
+    <option name="LAST_COMMIT_MESSAGE" value="changes for server appache" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1231,24 +1180,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/authentication/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/authentication/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="182">
-          <caret line="56" column="24" lean-forward="true" selection-start-line="56" selection-start-column="24" selection-end-line="56" selection-end-column="24" />
-          <folding>
-            <element signature="e#87#102#0" expanded="true" />
-            <marker date="1595186879715" expanded="true" signature="1962:1963" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/myFinance/models.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-127">
@@ -1275,12 +1206,31 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="18" column="41" selection-start-line="18" selection-start-column="41" selection-end-line="18" selection-end-column="41" />
+        <state relative-caret-position="222">
+          <caret line="170" column="38" lean-forward="true" selection-start-line="170" selection-start-column="38" selection-end-line="170" selection-end-column="38" />
           <folding>
+            <element signature="e#87#144#0" expanded="true" />
             <marker date="1595188000257" expanded="true" signature="1875:2105" ph="..." />
             <marker date="1595188000257" expanded="true" signature="3441:3442" ph="..." />
             <marker date="1595188000257" expanded="true" signature="8249:8250" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/authentication/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/authentication/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="70" lean-forward="true" selection-start-line="70" selection-end-line="70" />
+          <folding>
+            <element signature="e#87#102#0" expanded="true" />
+            <marker date="1595186879715" expanded="true" signature="1962:1963" ph="..." />
           </folding>
         </state>
       </provider>
