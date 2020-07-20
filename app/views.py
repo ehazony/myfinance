@@ -13,7 +13,8 @@ from django.template.defaulttags import register
 from app.forms import TransactionForm
 from app.graph.graph_api import monthly_average_by_category, line_fig_by_tag_by_month, line_fig_by_month, \
     Tag, \
-    bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates
+    bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates, average_expenses, average_income, \
+    number_of_months, average_bank_expenses
 from myFinance.models import Transaction, TransactionNameTag, DateInput
 
 from app.excel_parssers import ExcelParser
@@ -53,7 +54,10 @@ def load_transaction_name_figuers(user, name):
 @login_required(login_url="/login/")
 def index(request):
     data = load_index_figures(request.user)
-    return render(request, "index.html", context={"data": data})
+    return render(request, "index.html", context={"data": data, "average_expenses": average_expenses(request.user),
+                                                  "average_income": average_income(request.user),
+                                                  "number_of_months": number_of_months(request.user),
+                                                  "average_bank_expenses":average_bank_expenses(request.user)})
 
 
 @login_required(login_url="/login/")
@@ -79,7 +83,7 @@ def pages(request):
 
 
 def by_tag(request):
-    context = {"taglist": Tag.objects.filter(user= request.user)}
+    context = {"taglist": Tag.objects.filter(user=request.user)}
     if request.GET.get('id', None):
         tag = Tag.objects.get(id=request.GET.get('id', None))
         context['graphs'] = load_tag_figures(request.user, tag)

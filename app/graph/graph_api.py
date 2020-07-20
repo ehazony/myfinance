@@ -26,6 +26,13 @@ def all_transactions_in_dates(user):
     return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user)
 
 
+def income_transactions(user):
+    """:returns anything that should not be excluded from the monthly expenses calculation"""
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = Transaction.objects.order_by('month_date').last().month_date
+    return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user, tag__in=['salary'])
+
+
 # ----------------------------------------------------------
 # graph functions
 # ----------------------------------------------------------
@@ -36,7 +43,6 @@ def bar(transaction_set):
     ts_pd = pd.DataFrame(list(transaction_set))
     fig = px.bar(ts_pd, x='month_date', y='value__sum', color='value__sum')
     return fig
-
 
 
 def scatter(transactions_set):
@@ -77,6 +83,7 @@ def line_fig_by_month(transactions):
     trans = transactions.values('month_date').annotate(Sum('value'))
     return line(trans)
 
+
 def line_fig_by_tag_by_month(transactions_set):
     trans = transactions_set.values(
         'month_date',
@@ -89,7 +96,8 @@ def line_fig_by_tag_by_month(transactions_set):
                   hover_name="tag_ref__name")
     return fig
 
- # ----------------------------------------------------------
+
+# ----------------------------------------------------------
 # complex figures
 # ----------------------------------------------------------
 
@@ -112,6 +120,41 @@ def monthly_average_by_category(user):
     return fig
 
 
+def average_expenses(user):
+    trans = expenses_transactions(user)
+    if not trans.exists():
+        return 0
+    some = trans.aggregate(Sum('value'))['value__sum']
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = Transaction.objects.filter(user= user).order_by('month_date').last().month_date
+    return round(some / relativedelta.relativedelta(end, start_date).months)
+
+def average_bank_expenses(user):
+    trans = expenses_transactions(user)
+    if not trans.exists():
+        return 0
+    some = trans.filter(bank= True).aggregate(Sum('value'))['value__sum']
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = Transaction.objects.filter(user= user).order_by('month_date').last().month_date
+    return round(some / relativedelta.relativedelta(end, start_date).months)
+
+def average_income(user):
+    trans = income_transactions(user)
+    if not trans.exists():
+        return 0
+    some = trans.aggregate(Sum('value'))['value__sum']
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = Transaction.objects.filter(user = user).order_by('month_date').last().month_date
+    if end > datetime.date.today():
+        end = datetime.date.today()
+    return -round(some / relativedelta.relativedelta(end, start_date).months)
+
+def number_of_months(user):
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = Transaction.objects.filter(user = user).order_by('month_date').last().month_date
+    if end > datetime.date.today():
+        end = datetime.date.today()
+    return relativedelta.relativedelta(end, start_date).months
 def accumelatating_by_month(user):
     # only works for one month.
     trans = Transaction.objects.filter(month__in=[12], user=user).order_by('date').values('name', 'month', 'date',
