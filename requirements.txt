@@ -1,0 +1,8 @@
+django
+openpyxl
+django_heroku
+django-graphos
+django-extensions
+python-dateutil
+plotly
+pandas
