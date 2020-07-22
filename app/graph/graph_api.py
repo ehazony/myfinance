@@ -13,6 +13,8 @@ import pandas as pd
 
 def expenses_transactions(user):
     """:returns anything that should not be excluded from the monthly expenses calculation"""
+    if not Transaction.objects.filter(user= user):
+        return Transaction.objects.filter(user= user)
     start_date = DateInput.objects.get(name='start_date', user=user).date
     end = datetime.datetime.now()
     return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user).exclude(
@@ -21,6 +23,8 @@ def expenses_transactions(user):
 
 def all_transactions_in_dates(user):
     """:returns anything that should not be excluded from the monthly expenses calculation"""
+    if not Transaction.objects.filter(user= user):
+        return Transaction.objects.filter(user= user)
     start_date = DateInput.objects.get(name='start_date', user=user).date
     end = datetime.datetime.now()
     return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user)
@@ -28,6 +32,8 @@ def all_transactions_in_dates(user):
 
 def income_transactions(user):
     """:returns anything that should not be excluded from the monthly expenses calculation"""
+    if not Transaction.objects.filter(user= user).exists():
+        return Transaction.objects.filter(user= user)
     start_date = DateInput.objects.get(name='start_date', user=user).date
     end = Transaction.objects.order_by('month_date').last().month_date
     return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user, tag__in=['salary'])
@@ -150,6 +156,8 @@ def average_income(user):
     return -round(some / relativedelta.relativedelta(end, start_date).months)
 
 def number_of_months(user):
+    if not Transaction.objects.filter(user= user).exists():
+        return 0
     start_date = DateInput.objects.get(name='start_date', user=user).date
     end = Transaction.objects.filter(user = user).order_by('month_date').last().month_date
     if end > datetime.date.today():
