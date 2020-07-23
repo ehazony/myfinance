@@ -194,3 +194,19 @@ def reformat_figs(data):
             fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
             data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
     return data
+
+
+def add_tag(request):
+    TransactionFormSet = formset_factory(TransactionForm, extra=5)
+    name = request.POST['fname']
+    if name:
+        Tag.objects.create(name=name, user = request.user)
+    # Get our existing link data for this user.  This is used as initial data.
+    # user_links = UserLink.objects.filter(user=user).order_by('anchor')
+    link_data = []
+    sorted_transaction_formset = TransactionFormSet(form_kwargs={'user': request.user})
+
+    context = {
+        'transaction_formset': sorted_transaction_formset
+    }
+    return render(request, 'pages/tables.html', context)
