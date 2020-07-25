@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphos',
     'app',
-    'rest_framework.authtoken'
     # 'session_security',
 ]
 INSTALLED_APPS += ['django_extensions']
