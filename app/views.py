@@ -57,7 +57,7 @@ def index(request):
     return render(request, "index.html", context={"data": data, "average_expenses": average_expenses(request.user),
                                                   "average_income": average_income(request.user),
                                                   "number_of_months": number_of_months(request.user),
-                                                  "average_bank_expenses":average_bank_expenses(request.user)})
+                                                  "average_bank_expenses": average_bank_expenses(request.user)})
 
 
 @login_required(login_url="/login/")
@@ -81,9 +81,12 @@ def pages(request):
         template = loader.get_template('pages/error-404.html')
         return HttpResponse(template.render(context, request))
 
-
+def popup(reuest):
+    print("hrere")
 def by_tag(request):
-    context = {"taglist": Tag.objects.filter(user=request.user)}
+    tag_list = ['--------'] + list(
+        Tag.objects.filter(user=request.user))
+    context = {"taglist": tag_list}
     if request.GET.get('id', None):
         tag = Tag.objects.get(id=request.GET.get('id', None))
         context['graphs'] = load_tag_figures(request.user, tag)
@@ -93,7 +96,9 @@ def by_tag(request):
 
 
 def by_name(request):
-    context = {"namelist": Transaction.objects.filter(user=request.user).values_list('name', flat=True).distinct()}
+    name_list = ['--------'] + list(
+        Transaction.objects.filter(user=request.user).values_list('name', flat=True).distinct())
+    context = {"namelist": name_list}
     if request.GET.get('name', None):
         context['graphs'] = load_transaction_name_figuers(request.user, request.GET.get('name'))
         # context['graphs'] = load_tag_figures(tag)
