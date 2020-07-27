@@ -122,10 +122,7 @@ def monthly_average_by_category(user):
     trans = trans[['monthly average', 'tag']]
     ts_pd = pd.DataFrame(list(trans))
     fig = px.bar(ts_pd, x=trans['tag'], y=trans['monthly average'], color=trans['monthly average'])
-    fig = px.pie(ts_pd, values=trans['monthly average'], names=trans['tag'], color=['#e6f2ff', '#99ccff', '#ccccff',
-                            '#cc99ff', '#ff99ff', '#ff6699',
-                            '#ff9966', '#ff6600', '#ff5050',
-                            '#ff0000'])
+    fig = px.pie(ts_pd, values=trans['monthly average'], names=trans['tag'], color_discrete_sequence=trans['monthly average'])
     fig.show()
     fig.update_layout(xaxis_title='tag', yaxis_title='monthly average', margin=dict(l=0, r=0, t=0, b=0), )
     return fig
