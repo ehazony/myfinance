@@ -20,95 +20,107 @@
 {% load static %}
 
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  
-  <title>
-    Django Dashboard Argon - {% block title %} Open-Source Admin Panel {% endblock %} | AppSeed
-  </title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-  <!-- Favicon - loaded as static -->
-  <link href="{% static 'assets/img/brand/favicon.png' %}" rel="icon" type="image/png">
-  
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
-  <!-- Icons -->
-  <link href="/static/assets/js/plugins/nucleo/css/nucleo.css" rel="stylesheet" />
-  <link href="/static/assets/js/plugins/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet" />
-  <!-- CSS Files -->
-  <link href="/static/assets/css/argon-dashboard.css?v=1.1.0" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" />
-<style>
-      select {
-      width: 140px;
-      height: 35px;
-      padding: 4px;
-      border-radius:4px;
-      box-shadow: 2px 2px 8px #999;
-      background: #eee;
-      border: none;
-      outline: none;
-      display: inline-block;
-      -webkit-appearance:none;
-      -moz-appearance: none;
-      appearance: none;
-      cursor: pointer;
-      }
-      label {
-      position: relative;
-      }
-      label:after {
-      content:'<>';
-      font: 11px "Consolas", monospace;
-      color: #666;
-      -webkit-transform: rotate(90deg);
-      -moz-transform: rotate(90deg);
-      -ms-transform: rotate(90deg);
-      transform: rotate(90deg);
-      right: 8px;
-      top:2px;
-      padding: 0 0 2px;
-      border-bottom: 1px solid #ddd;
-      position: absolute;
-      pointer-events: none;
-      }
-      label:before {
-      content: '';
-      right: 6px;
-      top:0px;
-      width: 20px;
-      height: 20px;
-      background: #eee;
-      position: absolute;
-      pointer-events: none;
-      display: block;
-      }
+    <title>
+        Django Dashboard Argon - {% block title %} Open-Source Admin Panel {% endblock %} | AppSeed
+    </title>
+
+    <!-- Favicon - loaded as static -->
+    <link href="{% static 'assets/img/brand/favicon.png' %}" rel="icon" type="image/png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
+    <!-- Icons -->
+    <link href="/static/assets/js/plugins/nucleo/css/nucleo.css" rel="stylesheet"/>
+    <link href="/static/assets/js/plugins/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet"/>
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <link href="/static/assets/css/argon-dashboard.css?v=1.1.0" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css"/>
+    <style>
+        select {
+            width: 140px;
+            height: 35px;
+            padding: 4px;
+            border-radius: 4px;
+            box-shadow: 2px 2px 8px #999;
+            background: #eee;
+            border: none;
+            outline: none;
+            display: inline-block;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        label {
+            position: relative;
+        }
+
+        label:after {
+            content: '<>';
+            font: 11px "Consolas", monospace;
+            color: #666;
+            -webkit-transform: rotate(90deg);
+            -moz-transform: rotate(90deg);
+            -ms-transform: rotate(90deg);
+            transform: rotate(90deg);
+            right: 8px;
+            top: 2px;
+            padding: 0 0 2px;
+            border-bottom: 1px solid #ddd;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        label:before {
+            content: '';
+            right: 6px;
+            top: 0px;
+            width: 20px;
+            height: 20px;
+            background: #eee;
+            position: absolute;
+            pointer-events: none;
+            display: block;
+        }
+
+        test {
+            color: orange;
+        }
     </style>
 
-  <!-- Specific CSS goes HERE -->
-  {% block stylesheets %}
-
-  {% endblock stylesheets %}
+    <!-- Specific CSS goes HERE -->
+    {% block stylesheets %}
+        <link href="/core/static/assets/css/effi.css" rel="stylesheet"/>
+    {% endblock stylesheets %}
 
 </head>
 
 <body class="">
 
-  {% include "includes/sidenav.html" %}
+{% include "includes/sidenav.html" %}
 
-  <div class="main-content">
+<div class="main-content">
 
     {% include "includes/navigation.html" %}
 
     {% block content %}{% endblock content %}
 
-  </div>
+</div>
 
-  {% include "includes/scripts.html" %}
+{% include "includes/scripts.html" %}
 
-  <!-- Specific JS goes HERE --> 
-  {% block javascripts %}{% endblock javascripts %}
-
+<!-- Specific JS goes HERE -->
+{% block javascripts %}{% endblock javascripts %}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
 </body>
 
 </html>
