@@ -14,7 +14,7 @@ from django.contrib.auth.models import User, Group
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
 
-from myFinance.models import DateInput
+from myFinance.models import DateInput, Tag
 from .forms import LoginForm, SignUpForm
 
 
@@ -56,6 +56,9 @@ def register_user(request):
             msg = 'User created.'
             success = True
             DateInput.objects.create(user=user, name='start_date', date=datetime.date.today())
+            Tag.objects.create(user= user, name='exclude')
+            Tag.objects.create(user= user, name='credit cards')
+            Tag.objects.create(user= user, name='salary')
             # return redirect("/login/")
 
         else:
