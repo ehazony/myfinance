@@ -127,6 +127,61 @@ class DiscountBankExcelParser(_ExcelParser):
         lines = list(ws.iter_rows())
         return [x.value for x in lines[12]] == titels
 
+class FibiBankExcelParser(_ExcelParser):
+
+    def load_transactions(self, ws, user):
+        sorted_transactions = list()
+        unsorted_transactions = list()
+        # iterating over the rows and
+        # getting value from each cell in row
+        for row in list(ws.iter_rows())[2:]:
+            if not row[3].value or not row[7].value or (not row[5].value and not not row[6].value):
+                return sorted_transactions + unsorted_transactions
+            row_data = {}
+            row_data["name"] = row[3].value
+            row_data["value"] = row[6] if row[6] else row[5]
+            row_data["date"] = row[7].value
+            tag = TransactionNameTag.get_tag(row_data["name"], user)
+            if tag:
+                row_data["tag"] = tag.name
+                sorted_transactions.append(row_data)
+            else:
+                unsorted_transactions.append(row_data)
+        return sorted_transactions + unsorted_transactions
+
+    def is_right_format(self, ws):
+        titels = ['סוג פעולה', 'תיאור', 'אסמכתא', 'זכות', 'חובה', 'תאריך ערך', 'יתרה']
+        lines = list(ws.iter_rows())
+        return [x.value for x in lines[1][2:]] == titels
+
+
+class FibiCredetCaredExcelParser(_ExcelParser):
+
+    def load_transactions(self, ws, user):
+        sorted_transactions = list()
+        unsorted_transactions = list()
+        # iterating over the rows and
+        # getting value from each cell in row
+        for row in list(ws.iter_rows())[2:]:
+            if not row[2].value or not row[4].value or not row[1].value:
+                return sorted_transactions + unsorted_transactions
+            row_data = {}
+            row_data["name"] = row[2].value
+            row_data["value"] = row[4].value
+            row_data["date"] = row[1].value
+            tag = TransactionNameTag.get_tag(row_data["name"], user)
+            if tag:
+                row_data["tag"] = tag.name
+                sorted_transactions.append(row_data)
+            else:
+                unsorted_transactions.append(row_data)
+        return sorted_transactions + unsorted_transactions
+
+    def is_right_format(self, ws):
+        titels = ['תאריך עסקה', 'שם  העסק', 'סכום עסקה', 'סכום חיוב', 'פירוט']
+        lines = list(ws.iter_rows())
+        return [x.value for x in lines[5][1:]] == titels
+
 
 def load_excel_file(ws, user):
     sorted_transactions = list()
@@ -149,8 +204,10 @@ def load_excel_file(ws, user):
     return sorted_transactions + unsorted_transactions
 
 
+
+
 class ExcelParser:
-    parsers = [CalExcelParser(), MaxExcelParser(), DiscountBankExcelParser()]
+    parsers = [FibiCredetCaredExcelParser(), FibiBankExcelParser(), CalExcelParser(), MaxExcelParser(), DiscountBankExcelParser()]
 
     def parse_excel(self, excel_file, user):
         wb = openpyxl.load_workbook(excel_file)
