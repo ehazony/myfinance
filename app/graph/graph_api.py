@@ -56,7 +56,7 @@ def scatter(transactions_set):
 		return None
 	transactions_df = pd.DataFrame(list(transactions_set.values()))
 	fig = px.scatter(transactions_df, x="date", y="value",
-	                 hover_name="tag", hover_data=["name"])
+	                 hover_name="tag", hover_data=["name"], color="bank")
 	return fig
 
 
