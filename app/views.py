@@ -83,6 +83,7 @@ def pages(request):
 
 def popup(reuest):
     print("hrere")
+
 def by_tag(request):
     tag_list = ['--------'] + list(
         Tag.objects.filter(user=request.user))
@@ -92,6 +93,10 @@ def by_tag(request):
         context['graphs'] = load_tag_figures(request.user, tag)
     load_template = request.path.split('/')[1]
     template = loader.get_template('pages/' + load_template)
+    context = {**context, **{"average_expenses": average_expenses(request.user),
+                                                  "average_income": average_income(request.user),
+                                                  "number_of_months": number_of_months(request.user),
+                                                  "average_bank_expenses": average_bank_expenses(request.user)}}
     return HttpResponse(template.render(context, request))
 
 
@@ -104,6 +109,10 @@ def by_name(request):
         # context['graphs'] = load_tag_figures(tag)
     load_template = request.path.split('/')[1]
     template = loader.get_template('pages/' + load_template)
+    context = {**context, **{"average_expenses": average_expenses(request.user),
+                                                  "average_income": average_income(request.user),
+                                                  "number_of_months": number_of_months(request.user),
+                                                  "average_bank_expenses": average_bank_expenses(request.user)}}
     return HttpResponse(template.render(context, request))
 
 
