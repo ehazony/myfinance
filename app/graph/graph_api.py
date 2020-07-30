@@ -102,6 +102,18 @@ def line_fig_by_tag_by_month(transactions_set):
 	              hover_name="tag_ref__name")
 	return fig
 
+def line_fig_by_name_by_month(transactions_set):
+	trans = transactions_set.values(
+		'month_date',
+		'name').annotate(
+		Sum('value'))
+	if trans.count() == 0:
+		return None
+	trans = pd.DataFrame(list(trans))
+	fig = px.line(trans, x="month_date", y="value__sum", color="name", line_group="name",
+	              hover_name="name")
+	return fig
+
 
 # ----------------------------------------------------------
 # complex figures
