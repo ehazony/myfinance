@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphos',
     'app',
+    'core',
     # 'session_security',
 ]
 INSTALLED_APPS += ['django_extensions']
