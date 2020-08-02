@@ -12,9 +12,9 @@ from django.template.defaulttags import register
 
 from app.forms import TransactionForm
 from app.graph.graph_api import monthly_average_by_category, line_fig_by_tag_by_month, line_fig_by_month, \
-	Tag, \
-	bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates, average_expenses, average_income, \
-	number_of_months, average_bank_expenses, line_fig_by_name_by_month
+    Tag, \
+    bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates, average_expenses, average_income, \
+    number_of_months, average_bank_expenses, line_fig_by_name_by_month, monthly_average_by_name
 from myFinance.models import Transaction, TransactionNameTag, DateInput
 
 from app.excel_parssers import ExcelParser
@@ -41,7 +41,8 @@ def load_tag_figures(user, tag):
     data["Total expenses by month for tag {}".format(tag.name)] = bar_fig_by_month(transaction)
     data["Scatter expenses for {}".format(tag.name)] = scatter(transaction)
     data["Graph expenses for {}".format(tag.name)] = line_fig_by_month(transaction)
-    data["Group by Expenses {}".format(tag.name)] = line_fig_by_name_by_month(transaction)
+    # data["Group by Expenses {}".format(tag.name)] = line_fig_by_name_by_month(transaction)
+    data["Group by Expenses {}".format(tag.name)] = monthly_average_by_name(transaction, user)
     return reformat_figs(data)
 
 

@@ -129,7 +129,7 @@ def monthly_average_by_category(user):
 
 	start_date = DateInput.objects.get(name='start_date', user=user).date
 	end = datetime.datetime.now()
-	trans["value__sum"] = trans["value__sum"] / relativedelta.relativedelta(end, start_date).months
+	trans["value__sum"] = trans["value__sum"] / number_of_months(user)
 	trans = trans.rename(columns={'tag_ref__name': 'tag', 'value__sum': 'monthly average'}, index={'ONE': 'one'})
 	trans = trans[['monthly average', 'tag']]
 	ts_pd = pd.DataFrame(list(trans))
@@ -139,6 +139,24 @@ def monthly_average_by_category(user):
 	fig.update_layout(xaxis_title='tag', yaxis_title='monthly average', margin=dict(l=0, r=0, t=0, b=0), )
 	return fig
 
+def monthly_average_by_name(transactions, user):
+	trans = transactions
+	trans = trans.values('name').annotate(Sum('value'))
+	if trans.count() == 0:
+		return None
+	trans = pd.DataFrame(list(trans))
+
+	# start_date = DateInput.objects.get(name='start_date', user=user).date
+	# end = datetime.datetime.now()
+	trans["value__sum"] = trans["value__sum"] / number_of_months(user)
+	trans = trans.rename(columns={'value__sum': 'monthly average'}, index={'ONE': 'one'})
+	trans = trans[['monthly average', 'name']]
+	ts_pd = pd.DataFrame(list(trans))
+	fig = px.bar(ts_pd, x=trans['name'], y=trans['monthly average'], color=trans['monthly average'])
+	fig = px.pie(ts_pd, values=trans['monthly average'], names=trans['name'],
+	             color_discrete_sequence=px.colors.sequential.Inferno)
+	fig.update_layout(xaxis_title='tag', yaxis_title='monthly average', margin=dict(l=0, r=0, t=0, b=0), )
+	return fig
 
 def average_expenses(user):
 	trans = expenses_transactions(user)
