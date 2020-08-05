@@ -1,0 +1,31 @@
+{% for name, plot_div in graphs.items %}
+    {#    start graph #}
+    <div class="row justify-content-sm-center">
+
+        <div class="card bg-gradient-default shadow">
+            <div class="">
+                <div class="row align-items-center">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8 mb-5">
+            <div class="card shadow">
+                <div class="card-header bg-transparent">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h6 class="text-uppercase text-muted ls-1 mb-1">{{ name }}</h6>
+                            <h2 class="mb-0">{{ name }}</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Chart -->
+                    {% autoescape off %}
+                        {{ plot_div }}
+                    {% endautoescape %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

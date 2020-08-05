@@ -56,7 +56,7 @@ def load_transaction_name_figuers(user, name):
 @login_required(login_url="/login/")
 def index(request):
     data = load_index_figures(request.user)
-    return render(request, "index.html", context={"data": data, "average_expenses": average_expenses(request.user),
+    return render(request, "index.html", context={"graphs": data, "average_expenses": average_expenses(request.user),
                                                   "average_income": average_income(request.user),
                                                   "number_of_months": number_of_months(request.user),
                                                   "average_bank_expenses": average_bank_expenses(request.user)})
@@ -226,3 +226,15 @@ def add_tag(request):
         'transaction_formset': sorted_transaction_formset
     }
     return render(request, 'pages/tables.html', context)
+
+
+
+from django.urls import reverse_lazy
+from .forms import TransactionModelForm
+from bootstrap_modal_forms.generic import BSModalCreateView
+
+class TransactionCreateView(BSModalCreateView):
+    template_name = 'forms/create_transaction.html'
+    form_class = TransactionModelForm
+    success_message = 'Success: Transaction was created.'
+    success_url = reverse_lazy('index')

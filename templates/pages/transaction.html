@@ -102,7 +102,7 @@
             </div>
         </div>
     </div>
-    <div class="container-fluid mt--7">
+    <div class="container-fluid mt--7 ">
         <div class="row">
             <div class="col">
                 <div class="card shadow border-0">
@@ -115,56 +115,28 @@
                 </div>
             </div>
         </div>
-        .
-        <br><br>
-        <br><br>
-        <div class="container-fluid mt--7">
-
-            {% for name, plot_div in graphs.items %}
-                {#    start graph #}
-                <div class="row justify-content-sm-center">
-                    <div class="card bg-gradient-default shadow">
-                        <div class="">
-                            <div class="row align-items-center">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-8 mb-5">
-                        <div class="card shadow">
-                            <div class="card-header bg-transparent">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <h6 class="text-uppercase text-muted ls-1 mb-1">{{ name }}</h6>
-                                        <h2 class="mb-0">{{ name }}</h2>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <!-- Chart -->
-                                {% autoescape off %}
-                                    {{ plot_div }}
-                                {% endautoescape %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-            {#    end graph#}
-
+       </div>
+{#        <br><br>#}
+{#        <br><br>#}
+{#        <br><br>#}
+        <div class="container-fluid pt-4">
+            {% include "includes/_graphs.html" %}
         </div>
-        <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
+        {% include "includes/footer.html" %}
+
+
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+            <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
         <script>
             $('.select2').select2();
         </script>
-        {% include "includes/footer.html" %}
-
-    </div>
-
-{% endblock content %}
-
-<!-- Specific JS goes HERE -->
-{% block javascripts %}{% endblock javascripts %}
+{% endblock javascripts %}
 
 
