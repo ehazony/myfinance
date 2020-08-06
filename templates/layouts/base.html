@@ -36,75 +36,15 @@
     <link href="/static/assets/js/plugins/nucleo/css/nucleo.css" rel="stylesheet"/>
     <link href="/static/assets/js/plugins/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet"/>
     <!-- CSS Files -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-
     <link href="/static/assets/css/argon-dashboard.css?v=1.1.0" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css"/>
 
-    <link rel="stylesheet" href="{% static 'assets/js/plugins/bootstrap/dist/css/bootstrap-grid.min.css' %}">
-    <style>
-        select {
-            width: 140px;
-            height: 35px;
-            padding: 4px;
-            border-radius: 4px;
-            box-shadow: 2px 2px 8px #999;
-            background: #eee;
-            border: none;
-            outline: none;
-            display: inline-block;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            cursor: pointer;
-        }
+    {#    <link rel="stylesheet" href="{% static 'assets/js/plugins/bootstrap/dist/css/bootstrap-grid.min.css' %}">#}
+    {#    <link rel="stylesheet" href="{% static 'assets/css/effi.css' %}">#}
 
-        label {
-            position: relative;
-        }
-
-        label:after {
-            content: '<>';
-            font: 11px "Consolas", monospace;
-            color: #666;
-            -webkit-transform: rotate(90deg);
-            -moz-transform: rotate(90deg);
-            -ms-transform: rotate(90deg);
-            transform: rotate(90deg);
-            right: 8px;
-            top: 2px;
-            padding: 0 0 2px;
-            border-bottom: 1px solid #ddd;
-            position: absolute;
-            pointer-events: none;
-        }
-
-        label:before {
-            content: '';
-            right: 6px;
-            top: 0px;
-            width: 20px;
-            height: 20px;
-            background: #eee;
-            position: absolute;
-            pointer-events: none;
-            display: block;
-        }
-
-        .inactiveLink {
-            pointer-events: none;
-            cursor: default;
-        }
-
-        test {
-            color: orange;
-        }
-    </style>
 
     <!-- Specific CSS goes HERE -->
     {% block stylesheets %}
-        <link href="/core/static/assets/css/effi.css" rel="stylesheet"/>
     {% endblock stylesheets %}
 
 </head>
@@ -126,11 +66,7 @@
 <!-- Specific JS goes HERE -->
 {% block javascripts %}{% endblock javascripts %}
 
-<script src="{% static 'assets/js/plugins/bootstrap/dist/js/bootstrap.min.js' %}"></script>
-<script src="{% static 'assets/js/plugins/jquery/dist/jquery.min.js' %}"></script>
-<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<!-- You can alternatively load the minified version -->
-<script src="{% static 'js/jquery.bootstrap.modal.forms.min.js' %}"></script>
+
 </body>
 
 </html>

@@ -1119,4 +1119,3 @@ var SalesChart = (function() {
   }
 
 })();
-
