@@ -24,10 +24,10 @@ urlpatterns = [
     re_path(r'tag.html.*$', views.by_tag, name="tag"),
     re_path(r'transaction.html.*$', views.by_name, name="transaction"),
     re_path(r'tables.html.*$', views.tabels, name="load_statements"),
+    re_path(r'profile.html.*$', views.pages, name="profile"),
     re_path(r'add_tag.*$', views.add_tag, name="add_tag"),
     path('', views.index, name='home'),
     path('create/', views.TransactionCreateView.as_view(), name='create_transaction'),
-    # path('index1', f_views.index1)
 ]
 
 urlpatterns += adminurlpatterns
