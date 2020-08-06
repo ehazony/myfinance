@@ -2,13 +2,13 @@
     <div class="container-fluid pt-3">
         <div class="header-body">
             <!-- Card stats -->
-            <div class="row justify-content-center p-3">
-                <div class="col-md-5">
+            <div class="row justify-content-center ">
+                <div class="col-md-5 p-4">
                     <div class="card card-stats mb-4 mb-xl-0">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
-                                    <h5 class="h2 card-title text-uppercase text-muted mb-0">Average expenses</h5>
+                                    <h3 class=" card-title text-uppercase text-muted mb-0">Monthly expenses</h3>
                                     <span class="h2 font-weight-bold mb-0">₪ {{ average_expenses }}</span>
                                 </div>
                                 <div class="col-auto">
@@ -17,20 +17,20 @@
                                     </div>
                                 </div>
                             </div>
-                            {#                                <p class="mt-3 mb-0 text-muted text-sm">#}
-                            {#                                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> </span>#}
-                            {#                                    <span class="text-nowrap"></span>#}
-                            {#                                </p>#}
+                            <p class="mt-3 mb-0 text-muted text-sm">
+                                <span class="text-danger mr-2"><i class="fa fa-arrow-down"></i> </span>
+                                <span class="text-nowrap">monthly average of all your expenses</span>
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-5 p-4">
                     <div class="card card-stats mb-4 mb-xl-0">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
-                                    <h5 class="h2 card-title text-uppercase text-muted mb-0">Average Income</h5>
-                                    <span class="h2 font-weight-bold mb-0">₪ {{ average_income }}</span>
+                                    <h3 class=" card-title text-uppercase text-muted mb-0">Bank account expenses</h3>
+                                    <span class="h2 font-weight-bold mb-0">₪ {{ average_bank_expenses }}</span>
                                 </div>
                                 <div class="col-auto">
                                     <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
@@ -38,44 +38,41 @@
                                     </div>
                                 </div>
                             </div>
-                            {#                                <p class="mt-3 mb-0 text-muted text-sm">#}
-                            {#                                    <span class="text-danger mr-2"><i class="fas fa-arrow-down"></i></span>#}
-                            {#                                    <span class="text-nowrap"></span>#}
-                            {#                                </p>#}
+                            <p class="mt-3 mb-0 text-muted text-sm">
+                                <span class="text-warning mr-2"><i class="fas fa-arrow-down"></i></span>
+                                <span class="text-nowrap"> Monthly average of expenses from your bank account</span>
+                            </p>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row justify-content-center p-3">
-                <div class="col-md-5">
+                <div class="col-md-5 p-4">
                     <div class="card card-stats mb-4 mb-xl-0">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
-                                    <h5 class="h2 card-title text-uppercase text-muted mb-0">Average expenses -bank
-                                        account</h5>
-                                    <span class="h2 font-weight-bold mb-0">₪ {{ average_bank_expenses }}</span>
+                                    <h3 class="card-title text-uppercase text-muted mb-0">Average Income</h3>
+                                    <span class="h2 font-weight-bold mb-0">₪ {{ average_income }}</span>
                                 </div>
                                 <div class="col-auto">
-                                    <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
+                                    <div class="icon icon-shape bg-yellow  text-white rounded-circle shadow">
                                         <i class="fas fa-users"></i>
                                     </div>
                                 </div>
                             </div>
-                            {#                                <p class="mt-3 mb-0 text-muted text-sm">#}
-                            {#                                    <span class="text-warning mr-2"><i class="fas fa-arrow-down"></i> 1.10%</span>#}
-                            {#                                    <span class="text-nowrap">Since yesterday</span>#}
-                            {#                                </p>#}
+                            <p class="mt-3 mb-0 text-muted text-sm">
+                                <span class="text-success mr-2"><i class="fa fa-arrow-up"></i></span>
+                                <span class="text-nowrap">Average income by month</span>
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-5 p-4">
                     <div class="card card-stats mb-4 mb-xl-0">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
-                                    <h5 class="h2 card-title text-uppercase text-muted mb-0">Number Of Months
-                                        Documented</h5>
+                                    <h3 class="card-title text-uppercase text-muted mb-0">Number Of Months
+                                        Documented</h3>
                                     <span class="h2 font-weight-bold mb-0">{{ number_of_months }}</span>
                                 </div>
                                 <div class="col-auto">
@@ -84,14 +81,60 @@
                                     </div>
                                 </div>
                             </div>
-                            {#                                <p class="mt-3 mb-0 text-muted text-sm">#}
-                            {#                                    <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> 12%</span>#}
-                            {#                                    <span class="text-nowrap">Since last month</span>#}
-                            {#                                </p>#}
+                            <p class="mt-3 mb-0 text-muted text-sm">
+                                <span class="text-info mr-2"><i class="fas fa-plus"></i></span>
+                                <span class="text-nowrap">Starting from 'start_date' until last expense documented</span>
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
+            {#            <div class="row justify-content-center p-3">#}
+            {#                <div class="col-md-5">#}
+            {#                    <div class="card card-stats mb-4 mb-xl-0">#}
+            {#                        <div class="card-body">#}
+            {#                            <div class="row">#}
+            {#                                <div class="col">#}
+            {#                                    <h5 class="h2 card-title text-uppercase text-muted mb-0">Average expenses -bank#}
+            {#                                        account</h5>#}
+            {#                                    <span class="h2 font-weight-bold mb-0">₪ {{ average_bank_expenses }}</span>#}
+            {#                                </div>#}
+            {#                                <div class="col-auto">#}
+            {#                                    <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">#}
+            {#                                        <i class="fas fa-users"></i>#}
+            {#                                    </div>#}
+            {#                                </div>#}
+            {#                            </div>#}
+            {#                                <p class="mt-3 mb-0 text-muted text-sm">#}
+            {#                                    <span class="text-warning mr-2"><i class="fas fa-arrow-down"></i> 1.10%</span>#}
+            {#                                    <span class="text-nowrap">Since yesterday</span>#}
+            {#                                </p>#}
+            {#                        </div>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#                <div class="col-md-5">#}
+            {#                    <div class="card card-stats mb-4 mb-xl-0">#}
+            {#                        <div class="card-body">#}
+            {#                            <div class="row">#}
+            {#                                <div class="col">#}
+            {#                                    <h5 class="h2 card-title text-uppercase text-muted mb-0">Number Of Months#}
+            {#                                        Documented</h5>#}
+            {#                                    <span class="h2 font-weight-bold mb-0">{{ number_of_months }}</span>#}
+            {#                                </div>#}
+            {#                                <div class="col-auto">#}
+            {#                                    <div class="icon icon-shape bg-info text-white rounded-circle shadow">#}
+            {#                                        <i class="fas fa-percent"></i>#}
+            {#                                    </div>#}
+            {#                                </div>#}
+            {#                            </div>#}
+            {#                                <p class="mt-3 mb-0 text-muted text-sm">#}
+            {#                                    <span class="text-success mr-2"><i class="fas fa-arrow-up"></i> 12%</span>#}
+            {#                                    <span class="text-nowrap">Since last month</span>#}
+            {#                                </p>#}
+            {#                        </div>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#            </div>#}
         </div>
     </div>
 </div>
