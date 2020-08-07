@@ -72,3 +72,9 @@ class TransactionNameTag(models.Model):
     def get_tag(cls, name, user):
         trnt = TransactionNameTag.objects.filter(transaction_name=name, user=user).first()
         return trnt.tag if trnt else None
+
+class  Plan(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    date = models.DateField()
+    value = models.FloatField()

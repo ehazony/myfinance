@@ -1,0 +1,59 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- Header -->
+    {% include "includes/_info_header.html" %}
+
+    <div class="container-fluid pt-4">
+        {#      {% include "_modal.html" %}#}
+        <div class="row">
+            <div class="col-2">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ formset.management_form }}
+                    <table>
+                        {% for form in formset %}
+                            <tr>
+                                <td>
+                                    <ul class="list-inline">{{ form.as_ul }}</ul>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <input type="submit" value="Submit order" class="btn btn-primary">
+                </form>
+            </div>
+            <div class="col-10">
+                {% include "includes/_graphs.html" %}
+            </div>
+        </div>
+    </div>
+
+    {% include "includes/footer.html" %}
+
+
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+
+{% block javascripts %}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $("#create-transaction").modalForm({
+                formURL: "{% url 'create_transaction' %}"
+            });
+
+        });
+    </script>
+
+{% endblock javascripts %}

@@ -26,6 +26,7 @@ urlpatterns = [
     re_path(r'tables.html.*$', views.tabels, name="load_statements"),
     re_path(r'profile.html.*$', views.pages, name="profile"),
     re_path(r'add_tag.*$', views.add_tag, name="add_tag"),
+    re_path(r'planing.*$', views.planing, name="planing"),
     path('', views.index, name='home'),
     path('create/', views.TransactionCreateView.as_view(), name='create_transaction'),
 ]

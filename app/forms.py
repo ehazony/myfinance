@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.forms.formsets import BaseFormSet
 from django.forms.models import BaseModelFormSet
 
-from myFinance.models import Tag, Transaction
+from myFinance.models import Tag, Transaction, Plan
 
 TAG_CHOICES = [(tag.name, tag.name) for tag in Tag.objects.all()]
 
@@ -39,6 +39,7 @@ class TransactionModelForm(BSModalModelForm):
 		model = Transaction
 		fields = ['name', 'value']
 
+
 # class NewTransactionFormset(BaseModelFormSet):
 #     def __init__(self, *args, **kwargs):
 #         self.user = kwargs.pop('user', None)
@@ -48,3 +49,9 @@ class TransactionModelForm(BSModalModelForm):
 #         self.forms = []
 #         for i in range(self.total_form_count()):
 #             self.forms.append(self._construct_form(i, user=self.user))
+
+
+class PlanForm(forms.ModelForm):
+	class Meta:
+		model = Plan
+		fields = ('tag', 'value',)
