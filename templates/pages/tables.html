@@ -23,172 +23,55 @@
                                             <input type="file"
                                                    title="Upload excel file"
                                                    name="excel_file"
-                                                   style="border: 1px solid black; padding: 5px;"
+                                                   style="border: 1px solid black; padding: 6px;"
                                                    required="required">
-                                            <p>
+                                            <br><br>
                                                 <input type="submit"
-                                                       value="Upload"
-                                                       style="border: 1px solid green; padding:5px; border-radius: 2px; cursor: pointer;">
+                                                       value="Upload">
                                         </form>
 
                                     </div>
-                                    <div class="col-auto">
-                                        <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-                                            <i class="fas fa-chart-bar"></i>
-                                        </div>
-                                    </div>
+                                    {#                                    <div class="col-auto">#}
+                                    {#                                        <div class="icon icon-shape bg-danger text-white rounded-circle shadow">#}
+                                    {#                                            <i class="fas fa-chart-bar"></i>#}
+                                    {#                                        </div>#}
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-3 col-lg-6">
-                        <div class="card card-stats mb-4 mb-xl-0 h-100 ">
-                            <div class="card-body " >
-                                <div class="row">
-                                    <div class="col" >
-                                        <h7 class="card-title text-uppercase text-muted mb-0">ADD TAG</h7>
-                                        {#                                        <span class="h2 font-weight-bold mb-0">₪ {{ average_expenses }}</span>#}
-                                        <form action={% url 'add_tag' %}  method="POST">
-                                            {% csrf_token %}
-{#                                            <label for="fname">Add Tag: </label>#}
-                                            <input type="text" id="fname" name="fname"><br><br>
-                                            <input type="submit" value="Submit">
-                                        </form>
-                                    </div>
-                                    <div class="col-auto">
-                                        <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
-                                            <i class="fas fa-chart-bar"></i>
-                                        </div>
+                <div class="col-xl-3 col-lg-6">
+                    <div class="card card-stats mb-4 mb-xl-0 h-100 ">
+                        <div class="card-body ">
+                            <div class="row">
+                                <div class="col-7">
+                                    <h6 class="card-title text-uppercase text-muted mb-0">ADD Category</h6>
+                                    {#                                        <span class="h2 font-weight-bold mb-0">₪ {{ average_expenses }}</span>#}
+                                    <form action={% url 'add_tag' %}  method="POST">
+                                        {% csrf_token %}
+                                        {#                                            <label for="fname">Add Tag: </label>#}
+                                        <input type="text" id="fname" name="fname"><br><br>
+                                        <input type="submit" value="Submit">
+                                    </form>
+                                </div>
+                                <div class="col-3 offset-2">
+                                    <div class="icon icon-shape bg-gradient-cyan text-white rounded-circle shadow ">
+                                        <i class="fas fa-plus"></i>
                                     </div>
                                 </div>
-                                {#                                <p class="mt-3 mb-0 text-muted text-sm">#}
-                                {#                                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> </span>#}
-                                {#                                    <span class="text-nowrap"></span>#}
-                                {#                                </p>#}
                             </div>
+                            {#                                <p class="mt-3 mb-0 text-muted text-sm">#}
+                            {#                                    <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> </span>#}
+                            {#                                    <span class="text-nowrap"></span>#}
+                            {#                                </p>#}
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    </div>
 
 
-    {#    <form method="post">#}
-    {#    {% csrf_token %}#}
-    {#    <div class="container-fluid mt--7">#}
-    {#        <!-- Table -->#}
-    {#        <div class="row">#}
-    {#            <div class="col">#}
-    {#                <div class="card shadow">#}
-    {#                    <div class="card-header border-0">#}
-    {#                        <h3 class="mb-0">Transactions</h3>#}
-    {#                    </div>#}
-    {##}
-    {##}
-    {#                    <div class="table-responsive">#}
-    {#                        <table class="table align-items-center table-flush">#}
-    {#                            <thead class="thead-light">#}
-    {#                            <tr>#}
-    {#                                <th scope="col">Company Name</th>#}
-    {#                                <th scope="col">Value</th>#}
-    {#                                <th scope="col">date</th>#}
-    {#                                <th scope="col">TAG</th>#}
-    {#                            </tr>#}
-    {#                            </thead>#}
-    {#                            <tbody>#}
-    {#                            {{ transaction_formset.management_form }}#}
-    {#                            {% for form in unsorted_transactions_formset %}#}
-    {#                                <tr>#}
-    {#                                    <th scope="row">#}
-    {#                                        <div class="media align-items-center">#}
-    {#                                            <a href="#" class="avatar rounded-circle mr-3">#}
-    {#                                                <img alt="Image placeholder" src="/static/assets/img/theme/angular.jpg">#}
-    {#                                            </a>#}
-    {#                                            <div class="media-body">#}
-    {#                                                <span class="mb-0 text-sm">{{ form.name.value }}</span>#}
-    {#                                            </div>#}
-    {#                                        </div>#}
-    {#                                    </th>#}
-    {#                                    <td>#}
-    {#                                        {{ form.value.value }}#}
-    {#                                    </td>#}
-    {#                                    <th data-type="date" type="date"#}
-    {#                                        data-format-string="Do MMMM YYYY">{{ form.date.value }}</th>#}
-    {#                                    <td ALIGN="center">#}
-    {#                                        <label>#}
-    {#                                            {{ form.tag }}#}
-    {#                                        </label>#}
-    {#                                    </td>#}
-    {#                                </tr>#}
-    {#                            {% endfor %}#}
-    {#                            </tbody>#}
-    {#                        </table>#}
-    {#                    </div>#}
-    {#                </div>#}
-    {#            </div>#}
-    {#        </div>#}
-    {##}
-    {##}
-    {#        <div class="ro mt-5">#}
-    {#            <!-- Table -->#}
-    {#            <div class="row">#}
-    {#                <div class="col">#}
-    {#                    <div class="card shadow">#}
-    {#                        <div class="card-header border-0">#}
-    {#                            <h3 class="mb-0">Sorted Transactions</h3>#}
-    {#                        </div>#}
-    {#                        <div class="table-responsive">#}
-    {#                            <table class="table align-items-center table-flush">#}
-    {#                                <thead class="thead-light">#}
-    {#                                <tr>#}
-    {#                                    <th scope="col">Company Name</th>#}
-    {#                                    <th scope="col">Value</th>#}
-    {#                                    <th scope="col">date</th>#}
-    {#                                    <th scope="col">TAG</th>#}
-    {#                                </tr>#}
-    {#                                </thead>#}
-    {#                                <tbody>#}
-    {#                                {{ transaction_formset.management_form }}#}
-    {#                                {% for form in sorted_transaction_formset %}#}
-    {#                                    <tr>#}
-    {#                                        <th scope="row">#}
-    {#                                            <div class="media align-items-center">#}
-    {#                                                <a href="#" class="avatar rounded-circle mr-3">#}
-    {#                                                    <img alt="Image placeholder"#}
-    {#                                                         src="/static/assets/img/theme/angular.jpg">#}
-    {#                                                </a>#}
-    {#                                                <div class="media-body">#}
-    {#                                                    <span class="mb-0 text-sm">{{ form.name.value }}</span>#}
-    {#                                                </div>#}
-    {#                                            </div>#}
-    {#                                        </th>#}
-    {#                                        <td>#}
-    {#                                            {{ form.value.value }}#}
-    {#                                        </td>#}
-    {#                                        <th data-type="date" type="date"#}
-    {#                                            data-format-string="Do MMMM YYYY">{{ form.date.value }}</th>#}
-    {#                                        <td ALIGN="center">#}
-    {#                                            <label>#}
-    {#                                                {{ form.tag }}#}
-    {#                                            </label>#}
-    {#                                        </td>#}
-    {#                                    </tr>#}
-    {#                                {% endfor %}#}
-    {#                                </tbody>#}
-    {#                            </table>#}
-    {#                        </div>#}
-    {##}
-    {##}
-    {#                    </div>#}
-    {#                </div>#}
-    {#            </div>#}
-    {#        </div>#}
-    {##}
-    {#        <input type="submit" name=un_sorted value="Submit Transactions" class="button"/>#}
-    {#        {% include "includes/footer.html" %}#}
-    {#    </div>#}
-    {#    </form>#}
 {% endblock content %}
 
 <!-- Specific JS goes HERE -->
