@@ -7,3 +7,4 @@ python-dateutil
 plotly
 pandas
 django-bootstrap-modal-forms
+django-bstrap-modals

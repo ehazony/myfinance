@@ -55,7 +55,7 @@ def register_user(request):
             grant_permissions(user)
             msg = 'User created.'
             success = True
-            DateInput.objects.create(user=user, name='start_date', date=datetime.date.today())
+            # DateInput.objects.create(user=user, name='start_date', date=datetime.date.today())
             Tag.objects.create(user= user, name='exclude')
             Tag.objects.create(user= user, name='credit cards')
             Tag.objects.create(user= user, name='salary')

@@ -46,6 +46,8 @@ INSTALLED_APPS = [
 	'app',
 	'core',
 	'bootstrap_modal_forms',
+	'bsmodals',
+
 	# 'session_security',
 ]
 INSTALLED_APPS += ['django_extensions']

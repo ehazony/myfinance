@@ -13,6 +13,7 @@ class Tag(models.Model):
     name = models.CharField(max_length=128)
     file_name = models.CharField(max_length=128, null=True, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    expense = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

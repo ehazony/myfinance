@@ -58,11 +58,16 @@ def load_transaction_name_figuers(user, name):
 
 @login_required(login_url="/login/")
 def index(request):
-	data = load_index_figures(request.user)
-	return render(request, "index.html", context={"graphs": data, "average_expenses": average_expenses(request.user),
-	                                              "average_income": average_income(request.user),
-	                                              "number_of_months": number_of_months(request.user),
-	                                              "average_bank_expenses": average_bank_expenses(request.user)})
+	data= {}
+	start_date = DateInput.objects.filter(user=request.user, name='start_date')
+	if start_date.exists():
+		data = load_index_figures(request.user)
+	return render(request, "index.html",
+	              context={"not_start_date": not start_date.exists(), "graphs": data,
+	                       "average_expenses": average_expenses(request.user),
+	                       "average_income": average_income(request.user),
+	                       "number_of_months": number_of_months(request.user),
+	                       "average_bank_expenses": average_bank_expenses(request.user)})
 
 
 def planing_iniail(user):
@@ -79,6 +84,19 @@ def planing(request):
 	tags = Tag.objects.filter(user=request.user)
 	extra_forms = tags.count()
 	inital = planing_iniail(request.user)
+	income = expenses = 0
+	for x in inital:
+		tag = x['tag']
+		if tag.expense:
+			expenses += x['value']
+		else:
+			income += x['value']
+	some = income + expenses
+	acumelateing = [some * i for i in range(1, 13)]
+	import plotly.express as px
+	fig = px.line(y=acumelateing, )
+	fig = reformat_figs({'fig': fig})
+
 	PlanFormSet = formset_factory(PlanForm, extra=0)
 	if request.method == 'POST':
 		if 'additems' in request.POST and request.POST['additems'] == 'true':
@@ -89,13 +107,13 @@ def planing(request):
 			formset = PlanFormSet(request.POST)
 			if formset.is_valid():
 				pass
-			# return HttpResponseRedirect('/about/contact/thankyou')
+	# return HttpResponseRedirect('/about/contact/thankyou')
 	else:
 		formset = PlanFormSet(initial=inital)
 
 	return render(request, "pages/planing.html",
 	              context={'formset': formset, "average_expenses": average_expenses(request.user),
-	                       'graphs': load_transaction_name_figuers(request.user, 'תן ביס'),
+	                       'graphs': fig,
 	                       "average_income": average_income(request.user),
 	                       "number_of_months": number_of_months(request.user),
 	                       "average_bank_expenses": average_bank_expenses(request.user)})
@@ -271,11 +289,22 @@ def add_tag(request):
 
 from django.urls import reverse_lazy
 from .forms import TransactionModelForm
-from bootstrap_modal_forms.generic import BSModalCreateView
+from bootstrap_modal_forms.generic import BSModalCreateView, BSModalFormView
 
 
-class TransactionCreateView(BSModalCreateView):
+class TransactionCreateView(BSModalFormView):
 	template_name = 'forms/create_transaction.html'
 	form_class = TransactionModelForm
-	success_message = 'Success: Transaction was created.'
-	success_url = reverse_lazy('index')
+
+	def form_valid(self, form):
+		if 'date' in self.request.POST:
+			print('got date {}'.format(self.request.POST.get('date')))
+
+		response = super().form_valid(form)
+		return response
+
+	def get_success_url(self):
+		day = self.request.POST.get('date')
+		date = datetime.date.today().replace(day=int(day))
+		DateInput.objects.get_or_create(user=self.request.user, name='start_date', defaults={'date': date})
+		return reverse_lazy('home')

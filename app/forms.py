@@ -6,7 +6,6 @@ from django.forms.models import BaseModelFormSet
 
 from myFinance.models import Tag, Transaction, Plan
 
-TAG_CHOICES = [(tag.name, tag.name) for tag in Tag.objects.all()]
 
 
 class TransactionForm(forms.Form):
@@ -31,13 +30,13 @@ class IsBankStatements(forms.Form):
 	is_bank_statement = forms.BooleanField()
 
 
-from bootstrap_modal_forms.forms import BSModalModelForm
+from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
 
 
-class TransactionModelForm(BSModalModelForm):
+class TransactionModelForm(BSModalForm):
+	date = forms.ChoiceField(choices=zip(range(1,30), range(1,30)))
 	class Meta:
-		model = Transaction
-		fields = ['name', 'value']
+		fields = ['date', ]
 
 
 # class NewTransactionFormset(BaseModelFormSet):

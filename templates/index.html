@@ -12,12 +12,27 @@
     {% include "includes/_info_header.html" %}
 
     <div class="container-fluid mt--7">
-        <!-- Create book button -->
-        {#        <button id="create-transaction" class="btn btn-primary" type="button" name="button">Create book</button>#}
+        {% include "bsmodals/alert.html" %}
+        {% include "_modal.html" %}
+        {#        <!-- Create book button -->#}
+        {% if not_start_date %}
+
+        <button id="create-transaction" class="btn btn-primary invisible" type="button"  name="button">Create book</button>
+        <script>
+            $("document").ready(function () {
+                setTimeout(function () {
+                    $("#create-transaction").trigger('click');
+                }, 0);
+            });
+        </script>
+
+
+        {% endif %}
+
         {% include "includes/_graphs.html" %}
 
     </div>
-    {#      {% include "_modal.html" %}#}
+
 
     {% include "includes/footer.html" %}
 
@@ -31,11 +46,15 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-
             $("#create-transaction").modalForm({
                 formURL: "{% url 'create_transaction' %}"
             });
 
+        });
+        $("document").ready(function () {
+            setTimeout(function () {
+                $("#create-transaction").trigger('click');
+            }, 0);
         });
     </script>
 
