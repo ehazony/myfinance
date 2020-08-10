@@ -184,6 +184,62 @@ class FibiCredetCaredExcelParser(_ExcelParser):
 		return [x.value for x in lines[5][1:]] == titels
 
 
+class YhavBankExcelParser(_ExcelParser):
+
+	def load_transactions(self, ws, user):
+		sorted_transactions = list()
+		unsorted_transactions = list()
+		# iterating over the rows and
+		# getting value from each cell in row
+		for row in list(ws.iter_rows())[6:]:
+			if not row[3].value or not row[4].value or (not row[1].value and not row[2].value):
+				return sorted_transactions + unsorted_transactions
+			row_data = {}
+			row_data["name"] = row[3].value
+			row_data["value"] = row[2].value if not row[2].value == '0' else -row[1].value
+			row_data["date"] = row[6].value
+			tag = TransactionNameTag.get_tag(row_data["name"], user)
+			if tag:
+				row_data["tag"] = tag.name
+				sorted_transactions.append(row_data)
+			else:
+				unsorted_transactions.append(row_data)
+		return sorted_transactions + unsorted_transactions
+
+	def is_right_format(self, ws):
+		titels = ['יתרה משוערכת(₪)', 'זכות(₪)', 'חובה(₪)', 'תיאור פעולה', 'אסמכתא', None, 'תאריך ערך']
+		lines = list(ws.iter_rows())
+		return [x.value for x in lines[5][:7]] == titels
+
+class YhavCreditCardExcelParser(_ExcelParser):
+
+	def load_transactions(self, ws, user):
+		sorted_transactions = list()
+		unsorted_transactions = list()
+		# iterating over the rows and
+		# getting value from each cell in row
+		for row in list(ws.iter_rows())[10:]:
+			if not row[1].value or not row[8].value or not row[14].value:
+				continue
+				# return sorted_transactions + unsorted_transactions
+			row_data = {}
+			row_data["name"] = row[8].value
+			row_data["value"] = row[1].value
+			row_data["date"] = row[14].value
+			tag = TransactionNameTag.get_tag(row_data["name"], user)
+			if tag:
+				row_data["tag"] = tag.name
+				sorted_transactions.append(row_data)
+			else:
+				unsorted_transactions.append(row_data)
+		return sorted_transactions + unsorted_transactions
+
+	def is_right_format(self, ws):
+		titels = ['מידע נוסף', 'סכום חיוב(₪)', None, 'הצגת כרטיס', None, None, 'מספר זיהוי עיסקה', None, 'תיאור פעולה', None, None, None, None, None, 'תאריך']
+		lines = list(ws.iter_rows())
+		return [x.value for x in lines[9][:15]] == titels
+
+
 def load_excel_file(ws, user):
 	sorted_transactions = list()
 	unsorted_transactions = list()
@@ -206,7 +262,8 @@ def load_excel_file(ws, user):
 
 
 class ExcelParser:
-	parsers = [FibiCredetCaredExcelParser(), FibiBankExcelParser(), CalExcelParser(), MaxExcelParser(),
+	parsers = [YhavCreditCardExcelParser(), YhavBankExcelParser(), FibiCredetCaredExcelParser(), FibiBankExcelParser(), CalExcelParser(),
+	           MaxExcelParser(),
 	           DiscountBankExcelParser()]
 
 	def parse_excel(self, excel_file, user):
@@ -218,4 +275,4 @@ class ExcelParser:
 					return parser.load_transactions(worksheet, user)
 			except:
 				pass
-		raise ValueError('excel not recegnised')
+		return None

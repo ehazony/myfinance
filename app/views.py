@@ -195,6 +195,10 @@ def tabels(request):
 			excel_file = request.FILES["excel_file"]
 			try:
 				sorted_transactions = ExcelParser().parse_excel(excel_file, request.user)
+				if sorted_transactions is None:
+					return render(request, 'pages/error-404.html', {
+						'text': "Excel format not recognized."
+						        " Send the excel to effi.efficient@gmail.com and we will do are best to add support for your file."})
 			except:
 				if excel_file.name.endswith('.xls'):
 					return render(request, 'pages/error-404.html', {
