@@ -139,7 +139,7 @@ class FibiBankExcelParser(_ExcelParser):
                 return sorted_transactions + unsorted_transactions
             row_data = {}
             row_data["name"] = row[3].value
-            row_data["value"] = row[6] if row[6] else row[5]
+            row_data["value"] = row[6].value if row[6].value else -row[5].value
             row_data["date"] = row[7].value
             tag = TransactionNameTag.get_tag(row_data["name"], user)
             if tag:
@@ -162,7 +162,7 @@ class FibiCredetCaredExcelParser(_ExcelParser):
         unsorted_transactions = list()
         # iterating over the rows and
         # getting value from each cell in row
-        for row in list(ws.iter_rows())[2:]:
+        for row in list(ws.iter_rows())[6:]:
             if not row[2].value or not row[4].value or not row[1].value:
                 return sorted_transactions + unsorted_transactions
             row_data = {}
@@ -213,6 +213,9 @@ class ExcelParser:
         wb = openpyxl.load_workbook(excel_file)
         worksheet = wb.worksheets[0]
         for parser in self.parsers:
-            if parser.is_right_format(worksheet):
-                return parser.load_transactions(worksheet, user)
+            try:
+                if parser.is_right_format(worksheet):
+                    return parser.load_transactions(worksheet, user)
+            except:
+                pass
         raise ValueError('excel not recegnised')

@@ -58,7 +58,7 @@ def load_transaction_name_figuers(user, name):
 
 @login_required(login_url="/login/")
 def index(request):
-	data= {}
+	data = {}
 	start_date = DateInput.objects.filter(user=request.user, name='start_date')
 	if start_date.exists():
 		data = load_index_figures(request.user)
@@ -193,8 +193,13 @@ def tabels(request):
 	else:
 		if len(request.FILES) > 0:
 			excel_file = request.FILES["excel_file"]
-
-			sorted_transactions = ExcelParser().parse_excel(excel_file, request.user)
+			try:
+				sorted_transactions = ExcelParser().parse_excel(excel_file, request.user)
+			except:
+				if excel_file.name.endswith('.xls'):
+					return render(request, 'pages/error-404.html', {
+						'text': ".xls files extention not supported. Please save your file as .xlsx and try again."})
+				return render(request, 'pages/error-404.html', {'text': "Couldn't load file."})
 			TransactionFormSet = formset_factory(TransactionForm, extra=0)
 			sorted_transaction_formset = TransactionFormSet(initial=sorted_transactions,
 			                                                form_kwargs={'user': request.user})
