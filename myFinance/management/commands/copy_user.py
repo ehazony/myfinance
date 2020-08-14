@@ -17,8 +17,8 @@ class Command(BaseCommand):
 		pass
 
 	def handle(self, *args, **options):
-		user = User.objects.get(usernaame='try_me')
-		efraim = User.objects.get(user='efraim')
+		user = User.objects.get(username='try_me')
+		efraim = User.objects.get(username='efraim')
 		# grant_permissions(user)
 		Tag.objects.filter(user=user).delete()
 
