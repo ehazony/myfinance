@@ -225,7 +225,7 @@ def tabels(request):
 					                               date=transaction.cleaned_data.get('date'),
 					                               tag=transaction.cleaned_data.get('tag'), bank=is_bank_statements)
 					print("created transaction: {}, with date {} and value {}".format(t.name, t.date, t.value))
-					tag = Tag.objects.get(name=transaction.cleaned_data.get('tag'))
+					tag = Tag.objects.get(user=request.user, name=transaction.cleaned_data.get('tag'))
 					tt, created = TransactionNameTag.objects.update_or_create(
 						transaction_name=transaction.cleaned_data.get('name'),
 						user=request.user, defaults={'tag': tag})
