@@ -139,7 +139,7 @@ def monthly_average_by_category(user):
 	fig.update_layout(xaxis_title='tag', yaxis_title='monthly average', margin=dict(l=0, r=0, t=0, b=0), )
 	return fig
 
-def monthly_average_by_name(transactions, user):
+def monthly_average_by_name(transactions, user, number_of_months):
 	trans = transactions
 	trans = trans.values('name').annotate(Sum('value'))
 	if trans.count() == 0:
@@ -148,7 +148,7 @@ def monthly_average_by_name(transactions, user):
 
 	# start_date = DateInput.objects.get(name='start_date', user=user).date
 	# end = datetime.datetime.now()
-	trans["value__sum"] = trans["value__sum"] / number_of_months(user)
+	trans["value__sum"] = trans["value__sum"] / number_of_months
 	trans = trans.rename(columns={'value__sum': 'monthly average'}, index={'ONE': 'one'})
 	trans = trans[['monthly average', 'name']]
 	ts_pd = pd.DataFrame(list(trans))

@@ -45,9 +45,9 @@ def load_tag_figures(user, tag):
 	data["Scatter expenses for {}".format(tag.name)] = scatter(transaction)
 	data["Graph expenses for {}".format(tag.name)] = line_fig_by_month(transaction)
 	# data["Group by Expenses {}".format(tag.name)] = line_fig_by_name_by_month(transaction)
-	data["Group by Expenses {}".format(tag.name)] = monthly_average_by_name(transaction, user)
+	data["Group by Expenses {}".format(tag.name)] = monthly_average_by_name(transaction, user, number_of_months(user))
 	last_moth = transaction.aggregate(Max('month_date'))['month_date__max']
-	data["Last month {}".format(tag.name)] = monthly_average_by_name(transaction.filter(month_date=last_moth), user)
+	data["Last month {}".format(tag.name)] = monthly_average_by_name(transaction.filter(month_date=last_moth), user,1 )
 	return reformat_figs(data)
 
 
