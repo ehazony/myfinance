@@ -4,7 +4,7 @@ License: MIT
 Copyright (c) 2019 - present AppSeed.us
 """
 import datetime
-
+from django.db.models import Max
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.forms import formset_factory
@@ -46,6 +46,8 @@ def load_tag_figures(user, tag):
 	data["Graph expenses for {}".format(tag.name)] = line_fig_by_month(transaction)
 	# data["Group by Expenses {}".format(tag.name)] = line_fig_by_name_by_month(transaction)
 	data["Group by Expenses {}".format(tag.name)] = monthly_average_by_name(transaction, user)
+	last_moth = transaction.aggregate(Max('month_date'))['month_date__max']
+	data["Last month {}".format(tag.name)] = monthly_average_by_name(transaction.filter(month_date=last_moth), user)
 	return reformat_figs(data)
 
 
