@@ -193,7 +193,8 @@ def number_of_months(user):
 	end = Transaction.objects.filter(user=user).order_by('month_date').last().month_date
 	if end > datetime.date.today():
 		end = datetime.date.today()
-	return relativedelta.relativedelta(end, start_date).months + 1
+	delta = relativedelta.relativedelta(end, start_date)
+	return delta.years *12 +  delta.months + 1
 
 
 def accumelatating_by_month(user):
