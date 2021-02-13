@@ -36,7 +36,7 @@ def income_transactions(user):
 		return Transaction.objects.filter(user=user)
 	start_date = DateInput.objects.get(name='start_date', user=user).date
 	end = Transaction.objects.order_by('month_date').last().month_date
-	return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user, tag__in=['salary'])
+	return Transaction.objects.filter(date__gte=start_date, user=user, tag__in=['salary'])
 
 
 # ----------------------------------------------------------
