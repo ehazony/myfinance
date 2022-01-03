@@ -116,16 +116,9 @@ class DiscountBankExcelParser(_ExcelParser):
 		return sorted_transactions + unsorted_transactions
 
 	def is_right_format(self, ws):
-		titels = ['תאריך',
-		          'יום ערך',
-		          'תיאור התנועה',
-		          '₪ זכות/חובה ',
-		          '₪ יתרה ',
-		          'אסמכתה',
-		          'עמלה',
-		          'ערוץ ביצוע']
+		titels = ['תאריך', 'יום ערך', 'תיאור התנועה', '₪ זכות/חובה ', '₪ יתרה ', 'אסמכתה', 'עמלה', 'ערוץ ביצוע']
 		lines = list(ws.iter_rows())
-		return [x.value for x in lines[12]] == titels
+		return [x.value for x in lines[7]] == titels
 
 
 class FibiBankExcelParser(_ExcelParser):
