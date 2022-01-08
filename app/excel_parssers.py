@@ -1,9 +1,11 @@
+import logging
 from abc import abstractmethod
 
 import openpyxl
 
 from myFinance.models import TransactionNameTag
 from datetime import datetime
+logger = logging.getLogger(__name__)
 
 
 class _ExcelParser:
@@ -399,6 +401,7 @@ class ExcelParser:
 			try:
 				if parser.is_right_format(worksheet):
 					return parser.load_transactions(worksheet, user)
-			except:
+			except Exception as e:
+				logger.exception(str(e))
 				pass
 		return None
