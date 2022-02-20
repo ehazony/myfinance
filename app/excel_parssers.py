@@ -88,6 +88,7 @@ class MaxExcelParser(_ExcelParser):
 		          'מטבע עסקה מקורי',
 		          'תאריך חיוב',
 		          'הערות',
+		          'תיוגים',
 		          'מועדון הנחות',
 		          'מפתח דיסקונט',
 		          'אופן ביצוע ההעסקה',
@@ -120,7 +121,7 @@ class DiscountBankExcelParser(_ExcelParser):
 	def is_right_format(self, ws):
 		titels = ['תאריך', 'יום ערך', 'תיאור התנועה', '₪ זכות/חובה ', '₪ יתרה ', 'אסמכתה', 'עמלה', 'ערוץ ביצוע']
 		lines = list(ws.iter_rows())
-		return [x.value for x in lines[7]] == titels
+		return [x.value for x in lines[8]] == titels
 
 
 class FibiBankExcelParser(_ExcelParser):

@@ -17,8 +17,7 @@ def expenses_transactions(user):
 		return Transaction.objects.filter(user=user)
 	start_date = DateInput.objects.get(name='start_date', user=user).date
 	end = datetime.datetime.now()
-	return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user).exclude(
-		tag__in=['exclude', 'credit cards', 'salary'])
+	return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user).exclude(tag__in=['exclude', 'credit cards', 'salary'])
 
 
 def all_transactions_in_dates(user):
