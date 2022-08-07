@@ -85,7 +85,7 @@ def bar_fig_by_month(transactions):
 def line_fig_by_month(transactions):
 	if transactions.count() == 0:
 		return None
-	trans = transactions.values('month_date').annotate(Sum('value'))
+	trans = transactions.values('month_date').annotate(Sum('value')).order_by('month_date')
 	return line(trans)
 
 
@@ -93,7 +93,7 @@ def line_fig_by_tag_by_month(transactions_set):
 	trans = transactions_set.values(
 		'month_date',
 		'tag_ref__name').annotate(
-		Sum('value'))
+		Sum('value')).order_by('month_date')
 	if trans.count() == 0:
 		return None
 	trans = pd.DataFrame(list(trans))
@@ -132,6 +132,7 @@ def monthly_average_by_category(user):
 	trans = trans.rename(columns={'tag_ref__name': 'tag', 'value__sum': 'monthly average'}, index={'ONE': 'one'})
 	trans = trans[['monthly average', 'tag']]
 	ts_pd = pd.DataFrame(list(trans))
+
 	fig = px.bar(ts_pd, x=trans['tag'], y=trans['monthly average'], color=trans['monthly average'])
 	fig = px.pie(ts_pd, values=trans['monthly average'], names=trans['tag'],
 	             color_discrete_sequence=px.colors.sequential.Inferno)

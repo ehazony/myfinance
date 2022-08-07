@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # from app.forms import UserAdminAuthenticationForm
-from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag
+from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag, TagGoal
 
 
 @admin.register(Transaction)
@@ -10,6 +10,13 @@ class TransactionAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Transaction
+
+@admin.register(TagGoal)
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ('user', 'tag', 'value',)
+
+    class Meta:
+        model = TagGoal
 
 
 @admin.register(Tag)

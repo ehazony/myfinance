@@ -24,6 +24,12 @@ class Tag(models.Model):
         super(Tag, self).save(*args, **kwargs)
 
 
+class TagGoal(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE, null=True)
+    value = models.FloatField()
+
+
 class Transaction(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     date = models.DateField()
@@ -52,9 +58,11 @@ class Transaction(models.Model):
     def save(self, *args, **kwargs):
         self.month = self.get_month()
         self.month_date = self.get_month_date()
-
         try:
-            self.tag_ref = Tag.objects.get(user=self.user, name=self.tag)
+            if self.tag:
+                self.tag_ref = Tag.objects.get(user=self.user, name=self.tag)
+            elif self.tag_ref:
+                self.tag = self.tag_ref.name
 
         except:
             raise Exception("tag matching tag name '{}' dose not exist".format(self.tag))

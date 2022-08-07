@@ -13,14 +13,15 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import django_heroku
+# import django_heroku
+from decouple import config
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
+TELEGRAM_BOT_TOKEN = "5329467010:AAHxFZ1czZGrHg7mR8c3I6yprVAQkZlKE3M"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
@@ -30,7 +31,7 @@ SECRET_KEY = 'u77=-x94+ytdsj&gryj&i8a7wpy!l80r8lbw4n_2@zf-#v1es7'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -45,16 +46,37 @@ INSTALLED_APPS = [
 	'graphos',
 	'app',
 	'core',
+	'telegram_bot',
 	'bootstrap_modal_forms',
 	'bsmodals',
-
+	'rest_framework',
+	'rest_framework.authtoken',
+	'corsheaders',
+	'django_filters',
 	# 'session_security',
 ]
 INSTALLED_APPS += ['django_extensions']
 
+REST_FRAMEWORK = {
+	'DEFAULT_PERMISSION_CLASSES': (
+		'rest_framework.permissions.IsAuthenticated',
+	),
+	'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+
+	'DEFAULT_AUTHENTICATION_CLASSES': (
+		# 'rest_framework.authentication.BasicAuthentication',  # default - may need to remove
+		# 'rest_framework.authentication.SessionAuthentication',  # default - may need to remove
+		'rest_framework.authentication.TokenAuthentication',  # token authentication to the api
+
+# 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+	),
+}
+
+
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
+	'corsheaders.middleware.CorsMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -86,10 +108,21 @@ WSGI_APPLICATION = 'finance.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+# DATABASES = {
+# 	'default': {
+# 		'ENGINE': 'django.db.backends.sqlite3',
+# 		'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+# 	}
+# }
+
 DATABASES = {
 	'default': {
-		'ENGINE': 'django.db.backends.sqlite3',
-		'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+		'ENGINE': 'django.db.backends.postgresql_psycopg2',
+		"NAME": config("DB_NAME"),
+		"USER": config("DB_USER"),
+		"PASSWORD": config("DB_PASSWORD"),
+		'HOST': config("HOST"),
+		'PORT': '5432',
 	}
 }
 
@@ -127,17 +160,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/core/static/'
+STATIC_URL = '/static/'
 #
 #
 STATICFILES_DIRS = [
+# BASE_DIR + "/static",
 	os.path.join(BASE_DIR, "core/static"),
 	os.path.join(BASE_DIR, "finance/static"),
 ]
 
 LOGIN_REDIRECT_URL = "home"  # Route defined in app/urls.py
 LOGOUT_REDIRECT_URL = "home"  # Route defined in app/urls.py
-django_heroku.settings(locals())
+# django_heroku.settings(locals())
 
 
 
@@ -164,3 +198,5 @@ LOGGING = {
 		},
 	},
 }
+
+CORS_ORIGIN_ALLOW_ALL = True

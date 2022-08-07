@@ -1,6 +1,6 @@
-django
-openpyxl
-django_heroku
+django==3.2.14
+# openpyxl
+# django_heroku
 django-graphos
 django-extensions
 python-dateutil
@@ -8,3 +8,15 @@ plotly
 pandas
 django-bootstrap-modal-forms
 django-bstrap-modals
+pyppeteer
+pyppeteer_stealth
+requests
+djangorestframework
+zappa
+python-decouple==3.6
+psycopg2
+django-cors-headers
+undetected-chromedriver
+django-filter==22.1
+# python-telegram-bot==20.0a2
+pytest

@@ -1,17 +1,20 @@
 import datetime
 import django
+from django.contrib.auth.models import User
+
+from myFinance.models import TransactionNameTag
 
 django.setup()
-from myFinance.TAG_DB.tag_db_api import TagDb, tags_file_names
+from myFinance.TAG_DB.tag_db_api import TagDb, tags_file_names, all_tags
 
 from sorting.xl_api import load_card_statement, dump_to_excel_file
 import os
 # from sorting.save_to_db import save_transaction
 from finance.settings import BASE_DIR
 
-DATE = 0
-COMPENY_NAME = 1
-PRICE = 2
+DATE = 'date'
+COMPENY_NAME = 'name'
+PRICE = 'amount'
 
 DB_DIR = BASE_DIR + "\\bank_statements\\DB\\"
 INPUT_FILE_DIR = BASE_DIR + "\\bank_statements\\temp"
@@ -22,8 +25,8 @@ DEFULT_DATE = datetime.date.today()
 
 def print_tag_indexes():
     i = 0
-    for tag in tags_file_names:
-        print(str(i) + " - " + tag)
+    for tag in all_tags:
+        print(str(i) + " - " + tag.name)
         i += 1
 
 
@@ -37,30 +40,12 @@ def get_tag_from_user(transaction):
         tag_number = int(input("inter number " + str(0) + "-" + str(len(tags_file_names) - 1) + ":"))
         print("****************")
         if int(tag_number) < len(tags_file_names):
-            return tags_file_names[tag_number]
+            return all_tags[tag_number]
         else:
             print("not a valid input, try again...")
 
 
-def sort_to_categories(transaction_statements,  tag_db):
-    """
-    :param tag_db:
-    :param transaction_statements: list of tuples  (date, name, value)
-    """
-    print("started sorting to categories:")
-    print("*" * 30)
-    tagged_transactions = dict()
-    for tag in tags_file_names:
-        tagged_transactions[tag] = []
-    print_tag_indexes()
-    for transaction in transaction_statements:
-        tag = tag_db.get_file_that_contains(transaction[COMPENY_NAME])
-        if not tag:
-            tag = get_tag_from_user(transaction)
-            tag_db.save_transaction_name(tag, transaction[COMPENY_NAME])
-        tagged_transactions[tag].append(transaction)
-    print("*" * 30)
-    return tagged_transactions
+
 
 
 def save_transactions(sorted_transactions):
@@ -90,6 +75,23 @@ def main(input_dir=INPUT_FILE_DIR, output_dir="", tag_db_dir=TAG_DB_DIR):
                 save_transactions(sorted_transactions)
             i += 1
 
+
+def sort_to_categories(transaction_statements): # remade to work with DB
+    """
+    """
+    user = User.objects.get(username='efraim')
+    print("started sorting to categories:")
+    print("*" * 30)
+    print_tag_indexes()
+    for transaction in transaction_statements:
+        tag = TransactionNameTag.get_tag(transaction['name'], user)
+        if not tag:
+            tag = get_tag_from_user(transaction)
+            TransactionNameTag.objects.create(user = user,transaction_name = transaction['name'], tag = tag )
+
+        transaction['tag'] = tag
+    print("*" * 30)
+    return transaction_statements
 
 if __name__ == "__main__":
     main()
