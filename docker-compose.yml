@@ -31,6 +31,17 @@ services:
     depends_on:
       - redis
       - app
+  celery-beat:
+    build:
+      context: .
+    command: celery -A finance.celery_app beat -l debug
+    volumes:
+      - ./:/app
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - redis
+      - app
   nginx:
     build: ./nginx
     ports:
