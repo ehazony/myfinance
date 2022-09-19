@@ -23,6 +23,7 @@ FRONT_ENDPOINT = config('FRONT_ENDPOINT')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
+USERNAME_FIELD = 'email'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
@@ -89,6 +90,13 @@ REST_FRAMEWORK = {
         # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
 }
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
