@@ -10,16 +10,23 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import logging.config
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import django_heroku
 from decouple import config
 
+GRID_ENDPOINT = config('GRID_ENDPOINT')
+FRONT_ENDPOINT = config('FRONT_ENDPOINT')
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
-
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 TELEGRAM_BOT_TOKEN = "5329467010:AAHxFZ1czZGrHg7mR8c3I6yprVAQkZlKE3M"
 # Quick-start development settings - unsuitable for production
@@ -36,71 +43,81 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-	'myFinance.apps.MyfinanceConfig',
-	'django.contrib.admin',
-	'django.contrib.auth',
-	'django.contrib.contenttypes',
-	'django.contrib.sessions',
-	'django.contrib.messages',
-	'django.contrib.staticfiles',
-	'graphos',
-	'app',
-	'core',
-	'telegram_bot',
-	'bootstrap_modal_forms',
-	'bsmodals',
-	'rest_framework',
-	'rest_framework.authtoken',
-	'corsheaders',
-	'django_filters',
-	# 'session_security',
+    'myFinance.apps.MyfinanceConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'graphos',
+    'app',
+    'core',
+    'telegram_bot',
+    'bootstrap_modal_forms',
+    'bsmodals',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'dj_rest_auth.registration',
+
+    'corsheaders',
+    'django_filters',
+
+    'django_celery_results',
+    'django_celery_beat',
+    # 'session_security',
 ]
 INSTALLED_APPS += ['django_extensions']
 
 REST_FRAMEWORK = {
-	'DEFAULT_PERMISSION_CLASSES': (
-		'rest_framework.permissions.IsAuthenticated',
-	),
-	'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 
-	'DEFAULT_AUTHENTICATION_CLASSES': (
-		# 'rest_framework.authentication.BasicAuthentication',  # default - may need to remove
-		# 'rest_framework.authentication.SessionAuthentication',  # default - may need to remove
-		'rest_framework.authentication.TokenAuthentication',  # token authentication to the api
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.BasicAuthentication',  # default - may need to remove
+        # 'rest_framework.authentication.SessionAuthentication',  # default - may need to remove
+        'rest_framework.authentication.TokenAuthentication',  # token authentication to the api
 
-# 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-	),
+        # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
 }
 
-
 MIDDLEWARE = [
-	'django.middleware.security.SecurityMiddleware',
-	'django.contrib.sessions.middleware.SessionMiddleware',
-	'corsheaders.middleware.CorsMiddleware',
-	'django.middleware.common.CommonMiddleware',
-	'django.middleware.csrf.CsrfViewMiddleware',
-	'django.contrib.auth.middleware.AuthenticationMiddleware',
-	# 'session_security.middleware.SessionSecurityMiddleware',
-	'django.contrib.messages.middleware.MessageMiddleware',
-	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    # 'session_security.middleware.SessionSecurityMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'finance.urls'
 
 TEMPLATES = [
-	{
-		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-		'DIRS': [TEMPLATE_PATH],
-		'APP_DIRS': True,
-		'OPTIONS': {
-			'context_processors': [
-				'django.template.context_processors.debug',
-				'django.template.context_processors.request',
-				'django.contrib.auth.context_processors.auth',
-				'django.contrib.messages.context_processors.messages',
-			],
-		},
-	},
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [TEMPLATE_PATH],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
 ]
 
 WSGI_APPLICATION = 'finance.wsgi.application'
@@ -116,32 +133,32 @@ WSGI_APPLICATION = 'finance.wsgi.application'
 # }
 
 DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.postgresql_psycopg2',
-		"NAME": config("DB_NAME"),
-		"USER": config("DB_USER"),
-		"PASSWORD": config("DB_PASSWORD"),
-		'HOST': config("HOST"),
-		'PORT': '5432',
-	}
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        "NAME": config("DB_NAME"),
+        "USER": config("DB_USER"),
+        "PASSWORD": config("DB_PASSWORD"),
+        'HOST': config("HOST"),
+        'PORT': '5432',
+    }
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-	{
-		'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-	},
-	{
-		'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-	},
-	{
-		'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-	},
-	{
-		'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-	},
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
 ]
 
 # Internationalization
@@ -164,39 +181,112 @@ STATIC_URL = '/static/'
 #
 #
 STATICFILES_DIRS = [
-# BASE_DIR + "/static",
-	os.path.join(BASE_DIR, "core/static"),
-	os.path.join(BASE_DIR, "finance/static"),
+    # BASE_DIR + "/static",
+    os.path.join(BASE_DIR, "core/static"),
+    os.path.join(BASE_DIR, "finance/static"),
 ]
 
-LOGIN_REDIRECT_URL = "home"  # Route defined in app/urls.py
-LOGOUT_REDIRECT_URL = "home"  # Route defined in app/urls.py
+# LOGIN_REDIRECT_URL = "home"  # Route defined in app/urls.py
+# LOGOUT_REDIRECT_URL = "home"  # Route defined in app/urls.py
 # django_heroku.settings(locals())
 
 
+# LOGGING = {
+# 	'version': 1,
+# 	# The version number of our log
+# 	'disable_existing_loggers': False,
+# 	# django uses some of its own loggers for internal operations. In case you want to disable them just replace the False above with true.
+# 	# A handler for WARNING. It is basically writing the WARNING messages into a file called WARNING.log
+# 	'handlers': {
+# 		'file': {
+# 			'level': 'WARNING',
+# 			'class': 'logging.FileHandler',
+# 			'filename': os.path.join(BASE_DIR,  'file.log'),
+# 		},
+# 	},
+# 	# A logger for WARNING which has a handler called 'file'. A logger can have multiple handler
+# 	'loggers': {
+# 		# notice the blank '', Usually you would put built in loggers like django or root here based on your needs
+# 		'': {
+# 			'handlers': ['file'], #notice how file variable is called in handler which has been defined above
+# 			'level': 'DEBUG',
+# 			'propagate': True,
+# 		},
+# 	},
+# }
 
+
+LOGGING_CONFIG = None  # This empties out Django's logging config
 LOGGING = {
-	'version': 1,
-	# The version number of our log
-	'disable_existing_loggers': False,
-	# django uses some of its own loggers for internal operations. In case you want to disable them just replace the False above with true.
-	# A handler for WARNING. It is basically writing the WARNING messages into a file called WARNING.log
-	'handlers': {
-		'file': {
-			'level': 'WARNING',
-			'class': 'logging.FileHandler',
-			'filename': os.path.join(BASE_DIR,  'file.log'),
-		},
-	},
-	# A logger for WARNING which has a handler called 'file'. A logger can have multiple handler
-	'loggers': {
-		# notice the blank '', Usually you would put built in loggers like django or root here based on your needs
-		'': {
-			'handlers': ['file'], #notice how file variable is called in handler which has been defined above
-			'level': 'DEBUG',
-			'propagate': True,
-		},
-	},
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "()": "colorlog.ColoredFormatter",
+            "format": "%(log_color)s %(levelname)-8s %(asctime)s %(request_id)s  %(process)s --- "
+                      "%(lineno)-8s [%(name)s] %(funcName)-24s : %(message)s",
+            "log_colors": {
+                "DEBUG": "blue",
+                "INFO": "white",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "bold_red",
+            },
+        },
+        "aws": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "filters": {
+        "request_id": {"()": "log_request_id.filters.RequestIDFilter"},
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+            "filters": ["request_id"],
+
+        },
+    },
+    "loggers": {
+        # Default logger for any logger name
+        "": {
+            "level": "INFO",
+            "handlers": ["console", ],
+            "propagate": False,
+        },
+        # Logger for django server logs with django.server logger name
+        "django.server": {
+            "level": "DEBUG",
+            "handlers": ["console", ],
+            "propagate": False,
+        },
+        # Logger for 3rd party library to restrict unnecessary log statments by the library
+        "azure": {"level": "ERROR", "handlers": ["console"], "propogate": False},
+    },
 }
+logging.config.dictConfig(LOGGING)  # Finally replace our config in python logging
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
+KMS_FIELD_REGION = 'us-east-2'
+KMS_FIELD_CACHE_SIZE = 500
+
+CELERY_BROKER_URL = "redis://redis:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"
+CELERY_TRACK_STARTED = True
+CELERYD_LOG_FILE = os.path.join(BASE_DIR, 'celery.log')
+CELERYD_LOG_LEVEL = "INFO"
+CELERY_TASK_TIME_LIMIT = 36000
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+
+    'REGISTER_SERIALIZER': 'app.serializers.CustomRegisterSerializer',
+}
+
+SITE_ID = 1
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+# LOGIN_REDIRECT_URL = config('FRONT_ENDPOINT')
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = False

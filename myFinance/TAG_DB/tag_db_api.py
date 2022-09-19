@@ -48,5 +48,3 @@ class TagDb:
 
 all_tags = Tag.objects.all()
 tags_names = [tag.name for tag in all_tags]
-tags_file_names = [tag.file_name for tag in all_tags]
-TAG_CHOICES = [(tag.replace(".txt", ""), tag.replace(".txt", "")) for tag in tags_file_names]

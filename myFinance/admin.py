@@ -6,7 +6,7 @@ from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag, Ta
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'value', 'tag', 'month', 'date', 'tag_ref', 'month_date', 'bank')
+    list_display = ('name', 'value', 'month', 'date', 'tag', 'month_date', 'bank', 'arn')
 
     class Meta:
         model = Transaction
@@ -21,7 +21,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'file_name')
+    list_display = ('user','name','expense')
 
     class Meta:
         model = Tag
@@ -76,7 +76,7 @@ class BaseAdminModel(admin.ModelAdmin):
 
 
 class TransactionMyAdmin(BaseAdminModel):
-    list_display = ('name', 'value', 'tag', 'month', 'date', 'tag_ref', 'month_date')
+    list_display = ('name', 'value','month', 'date', 'tag', 'month_date')
 
     readonly_fields = ('user',)
 

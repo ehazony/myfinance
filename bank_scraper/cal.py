@@ -1,9 +1,7 @@
-import undetected_chromedriver as uc
-import urllib
-from selenium.webdriver.common.by import By
 import datetime
-import json
 import time
+
+from selenium.webdriver.common.by import By
 
 from bank_scraper.selenium_api import get_selenium_driver
 
@@ -16,8 +14,8 @@ def get_transactions(start, end):
     driver = get_selenium_driver()
     start_year_month = start.strftime('%m%Y')
     end_year_month = start.strftime('%m%Y')
-    start_day=start.strftime('%-d')
-    end_day=end.strftime('%-d')
+    start_day = start.strftime('%-d')
+    end_day = end.strftime('%-d')
 
     # driver = uc.Chrome()
 
@@ -39,10 +37,10 @@ def get_transactions(start, end):
     driver.find_element(By.XPATH,
                         '//*[@id="ctl00_ContentTop_cboCardList_categoryList_updatePanelList"]/table/tbody/tr/td[1]/div/span[2]/div[5]/div').click()
     time.sleep(2)
-    cards = driver.find_element(By.ID, 'ctl00_ContentTop_cboCardList_categoryList_pnlMain').find_elements(By.CSS_SELECTOR, 'a')
+    cards = driver.find_element(By.ID, 'ctl00_ContentTop_cboCardList_categoryList_pnlMain').find_elements(
+        By.CSS_SELECTOR, 'a')
     driver.find_element(By.XPATH,
                         '//*[@id="ctl00_ContentTop_cboCardList_categoryList_updatePanelList"]/table/tbody/tr/td[1]/div/span[2]/div[5]/div').click()
-
 
     driver.find_element(By.ID, 'ctl00_FormAreaNoBorder_FormArea_rdoTransactionDate').click()
     time.sleep(2)
@@ -72,13 +70,14 @@ def get_transactions(start, end):
         By.XPATH, 'li[@value="{}"]'.format(end_day)).click()
 
     # הצג
-    transactions  = []
+    transactions = []
     for i, card in enumerate(cards):
         driver.find_element(By.XPATH,
                             '//*[@id="ctl00_ContentTop_cboCardList_categoryList_updatePanelList"]/table/tbody/tr/td[1]/div/span[2]/div[5]/div').click()
         time.sleep(2)
 
-        driver.find_element(By.ID, 'ctl00_ContentTop_cboCardList_categoryList_pnlMain').find_elements(By.CSS_SELECTOR, 'a')[i].click()
+        driver.find_element(By.ID, 'ctl00_ContentTop_cboCardList_categoryList_pnlMain').find_elements(By.CSS_SELECTOR,
+                                                                                                      'a')[i].click()
         time.sleep(1)
         driver.find_element(By.ID, 'ctl00_FormAreaNoBorder_FormArea_ctlSubmitRequest').click()
 
@@ -98,15 +97,16 @@ def get_transactions(start, end):
             for tr in trs:
                 tds = tr.find_elements(By.XPATH, 'td')
                 values = [td.text for td in tds]
-                values = dict(zip(['date', 'name','value_total', 'value', 'info'], values))
+                values = dict(zip(['date', 'name', 'value_total', 'value', 'info'], values))
                 transactions.append(values)
 
     for trans in transactions:
-        value = trans['value'].replace('₪ ','').replace(',', '')
-        value_total = trans['value_total'].replace('₪ ','').replace(',', '')
+        value = trans['value'].replace('₪ ', '').replace(',', '')
+        value_total = trans['value_total'].replace('₪ ', '').replace(',', '')
         trans['amount'] = float(value) if value else None
         trans['value_total'] = float(value_total) if value_total else None
         trans['date'] = datetime.datetime.strptime(trans['date'], '%d/%m/%y')
+    driver.quit()
     return transactions
 
 
@@ -115,4 +115,3 @@ if __name__ == "__main__":
     start = datetime.datetime.now().replace(day=1)
     transactions = get_transactions(start, end)
     print(transactions)
-

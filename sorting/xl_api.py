@@ -5,7 +5,6 @@ import dateutil
 # import xlrd
 from dateutil import relativedelta
 
-from myFinance.TAG_DB.tag_db_api import tags_file_names
 
 DATE = 0
 COMPENY_NAME = 1

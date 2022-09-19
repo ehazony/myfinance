@@ -5,7 +5,6 @@ django-graphos
 django-extensions
 python-dateutil
 plotly
-pandas
 django-bootstrap-modal-forms
 django-bstrap-modals
 pyppeteer
@@ -20,3 +19,14 @@ undetected-chromedriver
 django-filter==22.1
 # python-telegram-bot==20.0a2
 pytest
+celery
+django-kms-field
+django-celery-results
+colorlog
+django-log-request-id
+django-celery-beat
+gunicorn==20.1.0
+dj_rest_auth
+django-allauth
+selenium-stealth
+

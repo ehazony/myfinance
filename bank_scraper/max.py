@@ -128,6 +128,7 @@ def get_transactions(start, end):
         amount = t['actualPaymentAmount']
         arn = t['arn']
         trans.append({'name': name, 'date': date, 'amount': amount, 'arn': arn, })
+    driver.quit()
     return trans
 
 

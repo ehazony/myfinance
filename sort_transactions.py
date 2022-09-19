@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from myFinance.models import TransactionNameTag
 
 django.setup()
-from myFinance.TAG_DB.tag_db_api import TagDb, tags_file_names, all_tags
+from myFinance.TAG_DB.tag_db_api import TagDb, tags_names, all_tags
 
 from sorting.xl_api import load_card_statement, dump_to_excel_file
 import os
@@ -37,9 +37,9 @@ def get_tag_from_user(transaction):
         print("transaction not in DB")
         print("payment: " + str(transaction[PRICE]) + " in date: " + str(transaction[DATE]) + " to company: " +
               transaction[COMPENY_NAME])
-        tag_number = int(input("inter number " + str(0) + "-" + str(len(tags_file_names) - 1) + ":"))
+        tag_number = int(input("inter number " + str(0) + "-" + str(len(tags_names) - 1) + ":"))
         print("****************")
-        if int(tag_number) < len(tags_file_names):
+        if int(tag_number) < len(tags_names):
             return all_tags[tag_number]
         else:
             print("not a valid input, try again...")
