@@ -4,8 +4,7 @@ from myFinance.models import Transaction, Tag
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-    tag = serializers.CharField(source='tag.name')
-    tag_id = serializers.CharField(source='tag.id')
+    tag_name = serializers.CharField(source='tag.name')
     class Meta:
         model = Transaction
         fields = '__all__'
