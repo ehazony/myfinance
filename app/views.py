@@ -533,4 +533,4 @@ class TransactionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.GET.get('category'):
             return self.request.user.transaction_set.filter(tag__name= self.request.GET.get('category')).order_by('-date')
-        return self.request.user.transaction_set.all().order_by('-date')[:50]
+        return self.request.user.transaction_set.all().order_by('-date')
