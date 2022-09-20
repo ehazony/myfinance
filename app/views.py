@@ -3,36 +3,26 @@
 License: MIT
 Copyright (c) 2019 - present AppSeed.us
 """
-import asyncio
 import calendar
 import datetime
 
-from django.db.models import Min
-from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from django.forms import formset_factory
 from django.shortcuts import render
-from django.template import loader
-from django.http import HttpResponse
 from django.template.defaulttags import register
-from django.db.models import F
+from rest_framework import viewsets
+# from app.excel_parssers import ExcelParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from app.forms import TransactionForm, PlanForm
+from app.forms import TransactionForm
 # from app.graph.graph_api import monthly_average_by_category, line_fig_by_tag_by_month, line_fig_by_month, \
 #     Tag, \
 #     bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates, average_expenses, average_income, \
 #     number_of_months, average_bank_expenses, monthly_average_by_name
 from myFinance import models
 from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag
-
-# from app.excel_parssers import ExcelParser
-from rest_framework.response import Response
-
-from rest_framework.views import APIView
-from django.db.models import Max
-from rest_framework import viewsets
-
-from myFinance.serialisers import TransactionSerializer
+from myFinance.serialisers import TransactionSerializer, TagSerializer
 from telegram_bot import telegram_bot_api
 from .graph import graph_api
 from .graph.graph_api import average_income
@@ -366,7 +356,7 @@ class MonthTrackingView(APIView):
                                                     minute=0, second=0, microsecond=0)
         transactions = Transaction.objects.exclude(
             tag__expense=False).filter(date__gte=start_month, date__lte=end_month,
-                                                                        user=request.user)
+                                       user=request.user)
         tag_sums = transactions.values('tag_id').annotate(Sum('value'))
         total = 0
         # last_scanned = models.DateInput.objects.get(name='last_scanned', user=request.user).date
@@ -388,7 +378,8 @@ class MonthTrackingView(APIView):
         tag_goals = models.TagGoal.objects.exclude(
             tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations', 'other income',
                            'commission', 'exclude', 'vacation'])
-        tag_goals = tag_goals.exclude(tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(tag__expense=False)
+        tag_goals = tag_goals.exclude(tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
+            tag__expense=False)
         for tag_goal in tag_goals:
             if tag_goal.value == 0:
                 continue
@@ -468,7 +459,7 @@ class MonthCategoryView(APIView):
         else:
             start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
         end_month = start_month.replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
-                                                    minute=0, second=0, microsecond=0)
+                                        minute=0, second=0, microsecond=0)
         transactions = Transaction.objects.exclude(
             tag__name__in=['Credit Cards', 'Bills', 'Salary', 'Same', 'Debt Payment', 'Donations',
                            'Other Income',
@@ -532,5 +523,13 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.GET.get('category'):
-            return self.request.user.transaction_set.filter(tag__name= self.request.GET.get('category')).order_by('-date')
+            return self.request.user.transaction_set.filter(tag__name=self.request.GET.get('category')).order_by(
+                '-date')
         return self.request.user.transaction_set.all().order_by('-date')
+
+
+class UserTagViewSet(viewsets.ModelViewSet):
+    serializer_class = TagSerializer
+
+    def get_queryset(self):
+        return Tag.objects.filter(user=self.request.user)
