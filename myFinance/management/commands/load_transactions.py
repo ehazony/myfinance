@@ -3,6 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
+from finance import settings
 from finance.celery_app import load_transactions_by_credential
 # from sort_transactions import main
 from myFinance import models
@@ -20,8 +21,8 @@ class Command(BaseCommand):
 
         for credential in models.Credential.objects.all():
             load_transactions_by_credential.apply_async(
-                kwargs={'start': start, 'end': end, 'credential_id': credential.id},
-                serializer='pickle',
+                kwargs={'start': start.strftime(settings.DEFAULT_TIME_FORMAT),
+                        'end': end.strftime(settings.DEFAULT_TIME_FORMAT), 'credential_id': credential.id},
             )
             # scraper = scraper_factory(credential.company)
             # transactions = scraper.get_transactions(start, end, **credential.get_credential)

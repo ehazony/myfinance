@@ -7,6 +7,7 @@ from celery.signals import setup_logging  # noqa
 from django.core import management
 
 from bank_scraper import scraper_factory
+from finance import settings
 from myFinance import models
 from sort_transactions import sort_to_categories
 
@@ -44,6 +45,9 @@ def load_transactions_by_credential(self, **options):
         start = credential.last_scanned + datetime.timedelta(
             days=1) if credential.last_scanned else models.DateInput.objects.get(name='last_scanned',
                                                                                  user=credential.user, ).date
+    else:
+        start, end = datetime.datetime.strptime(start, settings.DEFAULT_TIME_FORMAT), datetime.datetime.strptime(end,
+                                                                                                                 settings.DEFAULT_TIME_FORMAT)
     if not end:
         end = datetime.date.today() - datetime.timedelta(days=1)
     if end < start:
