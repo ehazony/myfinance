@@ -24,6 +24,7 @@ from myFinance import models
 from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag
 from myFinance.serialisers import TransactionSerializer, TagSerializer
 from telegram_bot import telegram_bot_api
+from . import date_utils
 from .graph import graph_api
 from .graph.graph_api import average_income
 
@@ -509,9 +510,16 @@ class BankInfo(APIView):
                            'commission', 'exclude', 'vacation']).filter(date__gte=start_month,
                                                                         date__lte=end_month,
                                                                         user=request.user)
-        monthly_income = average_income(request.user)
-        data = [{'key': 'Bank Balance', 'value': 17239}, {'key': 'Monthly Income', 'value': 18000},
-                {'key': 'Credit Cards', 'value': 7900}]
+        now = datetime.datetime.now()
+        month_salary = \
+        Transaction.objects.filter(user=request.user, tag__name__in=['Salary'], date__gte=date_utils.start_month(now),
+                                   date__lte=date_utils.end_month(now)).aggregate(Sum('value'))['value__sum']
+        avg_monthly_income = graph_api.average_income(request.user)
+        avg_monthly_expenses = graph_api.average_expenses(request.user)
+        user_info = models.AdditionalInfo.objects.get(user=request.user, )
+        bank_balance = user_info.value.get('bank_balance')
+        data = [{'key': 'Bank Balance', 'value': bank_balance}, {'key': 'Average Monthly Income', 'value': avg_monthly_income},
+                {'key': 'Average Monthly Expenses', 'value': avg_monthly_expenses}]
         return Response(data)
 
 
