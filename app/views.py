@@ -516,7 +516,7 @@ class BankInfo(APIView):
                                    date__lte=date_utils.end_month(now)).aggregate(Sum('value'))['value__sum']
         avg_monthly_income = graph_api.average_income(request.user)
         avg_monthly_expenses = graph_api.average_expenses(request.user)
-        user_info = models.AdditionalInfo.objects.filter(user=request.user, ).order_by('created_at')[-1]
+        user_info = models.AdditionalInfo.objects.filter(user=request.user, ).order_by('-created_at')[0]
         bank_balance = user_info.value.get('bank_balance')
         data = [{'key': 'Bank Balance', 'value': bank_balance}, {'key': 'Average Monthly Income', 'value': avg_monthly_income},
                 {'key': 'Average Monthly Expenses', 'value': avg_monthly_expenses}]
