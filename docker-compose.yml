@@ -39,7 +39,7 @@ services:
     command: celery -A finance.celery_app beat -l debug
     volumes:
       - ./:/app
-      - $HOME/.aws/credentials:/home/app/.aws/credentials:ro
+      - $HOME/.aws/credentials:/app/.aws/credentials:ro
     env_file:
       - ./.env.prod
     depends_on:
