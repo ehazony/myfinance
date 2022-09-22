@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # from app.forms import UserAdminAuthenticationForm
-from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag, TagGoal, Credential
+from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag, TagGoal, Credential, AdditionalInfo
 
 
 @admin.register(Transaction)
@@ -48,10 +48,19 @@ class TransactionAdmin(admin.ModelAdmin):
 class CredentialAdmin(admin.ModelAdmin):
     list_display = ('user', 'company', 'last_scanned')
     readonly_fields = ('user',)
-    exclude = ( 'credential',)
+    exclude = ('credential',)
 
     class Meta:
         model = Credential
+
+
+@admin.register(AdditionalInfo)
+class AdditionalInfoAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at', 'updated_at', 'value')
+    readonly_fields = ('user',)
+
+    class Meta:
+        model = AdditionalInfo
 
 
 # -------------------------------------------------------------------------
