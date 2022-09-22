@@ -7,7 +7,7 @@ ENV PYTHONUNBUFFERED 1
 COPY ./requirements.txt /requirements.txt
 RUN apk add --update --no-cache postgresql-client jpeg-dev libffi-dev chromium chromium-chromedriver
 RUN apk add --update --no-cache --virtual .tmp-build-deps \
-    gcc libc-dev linux-headers postgresql-dev musl-dev zlib zlib-dev
+    gcc libc-dev linux-headers postgresql-dev musl-dev zlib zlib-dev aws-cli
 RUN export PATH=$PATH:/usr/bin/chromedriver
 RUN pip install --upgrade pip
 
