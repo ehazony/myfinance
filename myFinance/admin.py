@@ -46,8 +46,9 @@ class TransactionAdmin(admin.ModelAdmin):
 
 @admin.register(Credential)
 class CredentialAdmin(admin.ModelAdmin):
-    list_display = ('user', 'company', 'credential', 'last_scanned')
+    list_display = ('user', 'company', 'last_scanned')
     readonly_fields = ('user',)
+    exclude = ( 'credential',)
 
     class Meta:
         model = Credential
