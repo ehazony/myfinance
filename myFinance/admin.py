@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # from app.forms import UserAdminAuthenticationForm
-from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag, TagGoal
+from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag, TagGoal, Credential
 
 
 @admin.register(Transaction)
@@ -10,6 +10,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
     class Meta:
         model = Transaction
+
 
 @admin.register(TagGoal)
 class TransactionAdmin(admin.ModelAdmin):
@@ -21,7 +22,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('user','name','expense')
+    list_display = ('user', 'name', 'expense')
 
     class Meta:
         model = Tag
@@ -43,6 +44,15 @@ class TransactionAdmin(admin.ModelAdmin):
         model = TransactionNameTag
 
 
+@admin.register(Credential)
+class CredentialAdmin(admin.ModelAdmin):
+    list_display = ('user', 'company', 'credential', 'last_scanned')
+    readonly_fields = ('user',)
+
+    class Meta:
+        model = Credential
+
+
 # -------------------------------------------------------------------------
 from .models import Transaction
 from django.contrib.admin import AdminSite
@@ -50,6 +60,7 @@ from django.contrib.admin import AdminSite
 
 class UserAdminSite(AdminSite):
     site_header = 'Monty Python administration'
+
     # login_form = UserAdminAuthenticationForm
     def has_permission(self, request):
         """
@@ -76,7 +87,7 @@ class BaseAdminModel(admin.ModelAdmin):
 
 
 class TransactionMyAdmin(BaseAdminModel):
-    list_display = ('name', 'value','month', 'date', 'tag', 'month_date')
+    list_display = ('name', 'value', 'month', 'date', 'tag', 'month_date')
 
     readonly_fields = ('user',)
 
