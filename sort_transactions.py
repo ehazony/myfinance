@@ -1,8 +1,8 @@
 import datetime
-import django
-from django.contrib.auth.models import User
 
-from myFinance.models import TransactionNameTag
+import django
+
+from myFinance.models import TransactionNameTag, Tag
 
 django.setup()
 from myFinance.TAG_DB.tag_db_api import TagDb, tags_names, all_tags
@@ -45,9 +45,6 @@ def get_tag_from_user(transaction):
             print("not a valid input, try again...")
 
 
-
-
-
 def save_transactions(sorted_transactions):
     for tag_file_name, transactions_list in sorted_transactions.items():
         tag_name = tag_file_name.replace(".txt", "")
@@ -69,29 +66,32 @@ def main(input_dir=INPUT_FILE_DIR, output_dir="", tag_db_dir=TAG_DB_DIR):
             print("file: {}".format(file))
             taged_lists = tag_db.get_tagged_lists()
             transaction_statements = load_card_statement(input_dir + "\\" + file)
-            sorted_transactions = sort_to_categories(transaction_statements,  tag_db)
+            sorted_transactions = sort_to_categories(transaction_statements, tag_db)  # TODO Deprecated
             dump_to_excel_file(sorted_transactions, output_dir + "{}_out_{}.xlsx".format(file, i))
             if SAVE_TO_DB:
                 save_transactions(sorted_transactions)
             i += 1
 
 
-def sort_to_categories(transaction_statements): # remade to work with DB
+def sort_to_categories(transaction_statements, user, default_other=True):  # remade to work with DB
     """
     """
-    user = User.objects.get(username='efraim')
     print("started sorting to categories:")
     print("*" * 30)
     print_tag_indexes()
     for transaction in transaction_statements:
         tag = TransactionNameTag.get_tag(transaction['name'], user)
         if not tag:
-            tag = get_tag_from_user(transaction)
-            TransactionNameTag.objects.create(user = user,transaction_name = transaction['name'], tag = tag )
+            if default_other:
+                tag = Tag.objects.get(user=user, name='Other')
+            else:
+                tag = get_tag_from_user(transaction)  # TODO add user
+                TransactionNameTag.objects.create(user=user, transaction_name=transaction['name'], tag=tag)
 
         transaction['tag'] = tag
     print("*" * 30)
     return transaction_statements
+
 
 if __name__ == "__main__":
     main()

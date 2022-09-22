@@ -270,6 +270,12 @@ LOGGING = {
             "handlers": ["console", ],
             "propagate": False,
         },
+        'celery': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            "propagate": False,
+
+        },
         # Logger for 3rd party library to restrict unnecessary log statments by the library
         "azure": {"level": "ERROR", "handlers": ["console"], "propogate": False},
     },
@@ -291,6 +297,7 @@ CELERY_TASK_TIME_LIMIT = 36000
 CELERY_TIMEZONE = 'UTC'
 CELERY_ENABLE_UTC = True
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json']
 
 REST_AUTH_REGISTER_SERIALIZERS = {
 

@@ -1,7 +1,9 @@
-from django.conf import settings
-from django.db import models
 import datetime
+import json
+
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
+from django.db import models
 from django_kms.fields import KMSEncryptedCharField
 
 
@@ -93,3 +95,28 @@ class DiscountCredential(models.Model):
     password = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
     user_identification = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
     user_name = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
+
+
+class Credential(models.Model):
+    DISCOUNT = 'DISCOUNT'
+    CAL = 'CAL'
+    MAX = 'MAX'
+    COMPANY_CHOICES = (
+        ("DISCOUNT", "Discount"),
+        ("CAL", "Cal"),
+        ("MAX", "Max"),
+    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    company = models.CharField(max_length=30, choices=COMPANY_CHOICES, default="1")
+    credential = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
+    last_scanned = models.DateField(null=True)
+
+    def save(self, *args, **kwargs):
+        if type(self.credential) == dict:
+            self.credential = json.dumps(self.credential)
+        super(Credential, self).save(*args, **kwargs)
+
+    @property
+    def get_credential(self):
+        return json.loads(self.credential)
+

@@ -10,6 +10,8 @@ import requests
 
 # from pyppeteer import launch
 # from pyppeteer_stealth import stealth
+from bank_scraper.base_scraper import Scraper
+
 logger = logging.getLogger(__name__)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
@@ -57,40 +59,42 @@ def _get_data(cookies, start_date, end_date):
     return json.loads(response.text)
 
 
-def get_discount_transactions(start_date, end_date):
-    driver = get_selenium_driver(headless=True, grid=True)
-    driver.get('https://start.telebank.co.il/login/#/LOGIN_PAGE')
-    time.sleep(2)
-    inputs = driver.find_elements(By.XPATH, '//input')
-    inputs[0].send_keys("308078088")
-    inputs[1].send_keys("upandup92")
-    inputs[2].send_keys("Ef2020hz")
-    driver.find_element(By.XPATH, "//button[contains(., 'כניסה')]").click()
-    time.sleep(5)
-    transactions = []
-    cookies = driver.get_cookies()
-    driver.quit()
+class DiscountScraper(Scraper):
 
-    data = _get_data(cookies, start_date, end_date)
-    if type(data) == dict:
-        data = [data]
-    if data[0].get('Error') and data[0].get('Error').get('ReturnedCode') == 'RET010297':
+    def get_transactions(self, start, end, username=None, password=None, user_id=None, *args, **kwargs):
+        driver = get_selenium_driver(headless=True, grid=True)
+        driver.get('https://start.telebank.co.il/login/#/LOGIN_PAGE')
+        time.sleep(2)
+        inputs = driver.find_elements(By.XPATH, '//input')
+        inputs[0].send_keys(user_id)
+        inputs[1].send_keys(password)
+        inputs[2].send_keys(username)
+        driver.find_element(By.XPATH, "//button[contains(., 'כניסה')]").click()
+        time.sleep(5)
+        transactions = []
+        cookies = driver.get_cookies()
+        driver.quit()
+
+        data = _get_data(cookies, start, end)
+        if type(data) == dict:
+            data = [data]
+        if data[0].get('Error') and data[0].get('Error').get('ReturnedCode') == 'RET010297':
+            return transactions
+        account_balance = data[0]['CurrentAccountLastTransactions']['CurrentAccountInfo']['AccountBalance']
+        user = User.objects.get(username='efraim')
+        models.AdditionalInfo.objects.update_or_create(user=user, value={'bank_balance': account_balance})
+
+        for transaction in data[0]['CurrentAccountLastTransactions']['OperationEntry']:
+            transactions.append({
+                'date': datetime.datetime.strptime(transaction['OperationDate'], '%Y%m%d'),
+                'name': transaction['OperationDescription'],
+                'urn': transaction['Urn'],
+                'amount': transaction['OperationAmount'] * -1,
+                'bank': True
+
+            })
+
         return transactions
-    account_balance = data[0]['CurrentAccountLastTransactions']['CurrentAccountInfo']['AccountBalance']
-    user = User.objects.get(username='efraim')
-    models.AdditionalInfo.objects.update_or_create(user=user, value={'bank_balance': account_balance})
-
-    for transaction in data[0]['CurrentAccountLastTransactions']['OperationEntry']:
-        transactions.append({
-            'date': datetime.datetime.strptime(transaction['OperationDate'], '%Y%m%d'),
-            'name': transaction['OperationDescription'],
-            'urn': transaction['Urn'],
-            'amount': transaction['OperationAmount'] * -1,
-            'bank': True
-
-        })
-
-    return transactions
 
 
 # async def _get_transactions_data(start_date, end_date):

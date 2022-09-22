@@ -1,7 +1,16 @@
+import datetime
+import logging
 import os
+
 from celery import Celery
-from django.core import management
 from celery.signals import setup_logging  # noqa
+from django.core import management
+
+from bank_scraper import scraper_factory
+from myFinance import models
+from sort_transactions import sort_to_categories
+
+logger = logging.getLogger(__name__)
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'finance.settings')
 app = Celery('app')
@@ -26,3 +35,33 @@ def debug_task(self):
 def load_transactions(self, **options):
     management.call_command('load_transactions', **options)
 
+
+@app.task(bind=True)
+def load_transactions_by_credential(self, **options):
+    credential = models.Credential.objects.get(id=options['credential_id'])
+    start, end = options.get('start'), options.get('end')
+    if not start:
+        start = credential.last_scanned + datetime.timedelta(
+            days=1) if credential.last_scanned else models.DateInput.objects.get(name='last_scanned',
+                                                                                 user=credential.user, ).date
+    if not end:
+        end = datetime.date.today() - datetime.timedelta(days=1)
+    if end < start:
+        logger.info('Nothing to do (End < Start)')
+        return
+    logger.info('starting work for user {} company {}'.format(credential.user, credential.company))
+    logger.info('start date: {} , end date: {}'.format(start, end))
+    scraper = scraper_factory(credential.company)
+    transactions = scraper.get_transactions(start, end, **credential.get_credential)
+    sorted_transactions = sort_to_categories(transactions, user=credential.user)
+    for transaction in sorted_transactions:
+        bank = transaction.get('bank') if transaction.get('bank') else False
+        models.Transaction.objects.create(user=credential.user, arn=transaction.get('arn'),
+                                          date=transaction['date'], name=transaction['name'],
+                                          value=transaction['amount'], tag=transaction['tag'],
+                                          bank=bank)
+    if end > credential.last_scanned:
+        credential.last_scanned = end
+        credential.save()
+    logger.info('starting work for user {} company {}'.format(credential.user, credential.company))
+    logger.info('done work for user {} company {}'.format(credential.user, credential.company))

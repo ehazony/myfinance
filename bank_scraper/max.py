@@ -90,46 +90,51 @@ import undetected_chromedriver as uc
 import urllib
 from selenium.webdriver.common.by import By
 
+from bank_scraper.base_scraper import Scraper
+
 from bank_scraper.selenium_api import get_selenium_driver
 
 
-def get_transactions(start, end):
-    # options = uc.ChromeOptions()
-    # options.headless = True
-    # options.add_argument('--headless')
-    driver = get_selenium_driver() # driver = uc.Chrome(enable_cdp_events=True)
+class MaxScraper(Scraper):
 
-    driver.get('https://www.max.co.il/homepage/welcome')
-    time.sleep(2)
-    driver.find_element(By.CLASS_NAME, 'go-to-personal-area').click()
-    driver.find_element(By.ID, 'login-password-link').click()
-    driver.find_element(By.XPATH, '//*[@formcontrolname="username"]').send_keys('EFRAIMHAZONY@gmail.com')
-    driver.find_element(By.XPATH, '//*[@formcontrolname="password"]').send_keys('Cinnamongirl1')
-    driver.find_elements(By.XPATH, "//button[@id='send-code']")[1].click()
-    time.sleep(5)
-    # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
-    driver.get('https://www.max.co.il/transaction-details/personal')
-    time.sleep(3)
-    print('trying')
-    response = driver.get(
-        'https://www.max.co.il/api/registered/transactionDetails/getTransactionsAndGraphs?filterData={}&firstCallCardIndex=-1null&v=V3.85-HF.21'.format(
-            urllib.parse.unquote(json.dumps({"userIndex": -1, "cardIndex": -1, "monthView": False, "date": "2022-05-30",
-                                             "dates": {"startDate": start.strftime('%Y-%m-%d'), "endDate":end.strftime('%Y-%m-%d') },
-                                             "bankAccount": {"bankAccountIndex": -1, "cards": None}}))))
-    # ))
-    #     response = driver.get('https://www.max.co.il/api/registered/transactionDetails/getTransactionsAndGraphs?filterData={%22userIndex%22:-1,%22cardIndex%22:-1,%22monthView%22:true,%22date%22:%222022-05-30%22,%22dates%22:{%22startDate%22:%220%22,%22endDate%22:%220%22},%22bankAccount%22:{%22bankAccountIndex%22:-1,%22cards%22:null}}&firstCallCardIndex=-1null&v=V3.85-HF.21')
-    json_text = driver.find_element(By.CSS_SELECTOR, 'pre').get_attribute('innerText')
-    json_response = json.loads(json_text)
-    time.sleep(5)
-    trans = []
-    for t in json_response['result']['transactions']:
-        name = t['merchantName']
-        date = datetime.datetime.strptime(t['purchaseDate'], '%Y-%m-%dT%X')
-        amount = t['actualPaymentAmount']
-        arn = t['arn']
-        trans.append({'name': name, 'date': date, 'amount': amount, 'arn': arn, })
-    driver.quit()
-    return trans
+    def get_transactions(self, start, end, username=None, password=None, *args, **kwargs):
+        # options = uc.ChromeOptions()
+        # options.headless = True
+        # options.add_argument('--headless')
+        driver = get_selenium_driver()  # driver = uc.Chrome(enable_cdp_events=True)
+
+        driver.get('https://www.max.co.il/homepage/welcome')
+        time.sleep(2)
+        driver.find_element(By.CLASS_NAME, 'go-to-personal-area').click()
+        driver.find_element(By.ID, 'login-password-link').click()
+        driver.find_element(By.XPATH, '//*[@formcontrolname="username"]').send_keys(username)
+        driver.find_element(By.XPATH, '//*[@formcontrolname="password"]').send_keys(password)
+        driver.find_elements(By.XPATH, "//button[@id='send-code']")[1].click()
+        time.sleep(5)
+        # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
+        driver.get('https://www.max.co.il/transaction-details/personal')
+        time.sleep(3)
+        print('trying')
+        response = driver.get(
+            'https://www.max.co.il/api/registered/transactionDetails/getTransactionsAndGraphs?filterData={}&firstCallCardIndex=-1null&v=V3.85-HF.21'.format(
+                urllib.parse.unquote(
+                    json.dumps({"userIndex": -1, "cardIndex": -1, "monthView": False, "date": "2022-05-30",
+                                "dates": {"startDate": start.strftime('%Y-%m-%d'), "endDate": end.strftime('%Y-%m-%d')},
+                                "bankAccount": {"bankAccountIndex": -1, "cards": None}}))))
+        # ))
+        #     response = driver.get('https://www.max.co.il/api/registered/transactionDetails/getTransactionsAndGraphs?filterData={%22userIndex%22:-1,%22cardIndex%22:-1,%22monthView%22:true,%22date%22:%222022-05-30%22,%22dates%22:{%22startDate%22:%220%22,%22endDate%22:%220%22},%22bankAccount%22:{%22bankAccountIndex%22:-1,%22cards%22:null}}&firstCallCardIndex=-1null&v=V3.85-HF.21')
+        json_text = driver.find_element(By.CSS_SELECTOR, 'pre').get_attribute('innerText')
+        json_response = json.loads(json_text)
+        time.sleep(5)
+        trans = []
+        for t in json_response['result']['transactions']:
+            name = t['merchantName']
+            date = datetime.datetime.strptime(t['purchaseDate'], '%Y-%m-%dT%X')
+            amount = t['actualPaymentAmount']
+            arn = t['arn']
+            trans.append({'name': name, 'date': date, 'amount': amount, 'arn': arn, })
+        driver.quit()
+        return trans
 
 
 if __name__ == "__main__":
