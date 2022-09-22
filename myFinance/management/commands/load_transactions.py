@@ -21,8 +21,8 @@ class Command(BaseCommand):
 
         for credential in models.Credential.objects.all():
             load_transactions_by_credential.apply_async(
-                kwargs={'start': start.strftime(settings.DEFAULT_TIME_FORMAT),
-                        'end': end.strftime(settings.DEFAULT_TIME_FORMAT), 'credential_id': credential.id},
+                kwargs={'start': start.strftime(settings.DEFAULT_TIME_FORMAT if start else None),
+                        'end': end.strftime(settings.DEFAULT_TIME_FORMAT) if end else None, 'credential_id': credential.id},
             )
             # scraper = scraper_factory(credential.company)
             # transactions = scraper.get_transactions(start, end, **credential.get_credential)
