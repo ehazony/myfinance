@@ -1,20 +1,28 @@
 import datetime
+import os
 import time
-
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
+django.setup()
+from django.contrib.auth.models import User
 from selenium.webdriver.common.by import By
 
 from bank_scraper.selenium_api import get_selenium_driver
 from bank_scraper.base_scraper import Scraper
+from myFinance import models
 
 
 class CalScraper(Scraper):
 
-    def get_transactions(self, start, end, username=None, password=None, *args, **kwargs):
+    def __init__(self):
+        self.COMPANY = 'CAL'
+
+    def get_transactions(self, start, end, username=None, password=None, grid=True,*args, **kwargs):
         # options = uc.ChromeOptions()
         # options.headless = True
         # options.add_argument('--headless')
         # driver = uc.Chrome(options=options)
-        driver = get_selenium_driver()
+        driver = get_selenium_driver(grid=grid, headless=False)
         start_year_month = start.strftime('%m%Y')
         end_year_month = start.strftime('%m%Y')
         start_day = start.strftime('%-d')
@@ -30,12 +38,17 @@ class CalScraper(Scraper):
         driver.switch_to.frame(fr)
         time.sleep(2)
         driver.find_element(By.ID, 'regular-login').click()
-        time.sleep(5)
+        time.sleep(3)
         driver.find_element(By.ID, 'mat-input-2').send_keys(username)
         driver.find_element(By.ID, 'mat-input-3').send_keys(password)
         driver.find_elements(By.XPATH, "//button[contains(., ' כניסה ')]")[0].click()
         time.sleep(10)
         # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
+        next_debit_sum = driver.find_element(By.ID, 'lblNextDebitSum').text
+        user = User.objects.get(username='efraim')
+        info, created = models.AdditionalInfo.objects.get_or_create(user=user)
+        info.value[self.COMPANY] = float(next_debit_sum)*-1
+        info.save()
         driver.get('https://services.cal-online.co.il/Card-Holders/SCREENS/Transactions/Transactions.aspx')
         driver.find_element(By.XPATH,
                             '//*[@id="ctl00_ContentTop_cboCardList_categoryList_updatePanelList"]/table/tbody/tr/td[1]/div/span[2]/div[5]/div').click()

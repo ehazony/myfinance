@@ -60,6 +60,7 @@ def _get_data(cookies, start_date, end_date):
 
 
 class DiscountScraper(Scraper):
+    COMPANY= 'DISCOUNT'
 
     def get_transactions(self, start, end, username=None, password=None, user_id=None, *args, **kwargs):
         driver = get_selenium_driver(headless=True, grid=True)
@@ -82,7 +83,10 @@ class DiscountScraper(Scraper):
             return transactions
         account_balance = data[0]['CurrentAccountLastTransactions']['CurrentAccountInfo']['AccountBalance']
         user = User.objects.get(username='efraim')
-        models.AdditionalInfo.objects.update_or_create(user=user, value={'bank_balance': account_balance})
+        info = models.AdditionalInfo.objects.get_or_create(user = user)
+        info.value[self.COMPANY] = account_balance
+        info.save()
+        # models.AdditionalInfo.objects.update_or_create(user=user, value={'bank_balance': account_balance})
 
         for transaction in data[0]['CurrentAccountLastTransactions']['OperationEntry']:
             transactions.append({
