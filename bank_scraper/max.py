@@ -6,16 +6,21 @@
 # from pyppeteer_stealth import stealth
 import datetime
 import json
+import os
 import time
 import urllib
+
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
+django.setup()
+from myFinance import models
 
 from django.contrib.auth.models import User
 from selenium.webdriver.common.by import By
 
 from bank_scraper.base_scraper import Scraper
 from bank_scraper.selenium_api import get_selenium_driver
-# os.environ.setdefault("DJANGO_SETTINGS_MODULE", "carScraping.settings")
-# django.setup()
+
 # async def intercept_network_request(request):
 #     # print(request.url)
 #     # await request.continue_()
@@ -79,7 +84,6 @@ from bank_scraper.selenium_api import get_selenium_driver
 # def mylousyprintfunction(eventdata):
 # if eventdata.get('p/arams') and eventdata.get('params')['']
 # print(pformat(eventdata))
-from myFinance import models
 
 URL = "https://www.max.co.il/api/registered/getHomePageData?v=V3.90-HF.29.53"
 
@@ -189,6 +193,7 @@ class MaxScraper(Scraper):
 
 if __name__ == "__main__":
     # TODO cant import model becuse of cerculer imports
+    c= models.Credential.objects.get(user__username= 'efraim', company='MAX')
     end = datetime.datetime.now().replace(day=23)
     start = datetime.datetime.now().replace(day=21)
     transactions = MaxScraper().get_transactions(start, end, **c.get_credential)

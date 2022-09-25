@@ -22,7 +22,7 @@ class CalScraper(Scraper):
         # options.headless = True
         # options.add_argument('--headless')
         # driver = uc.Chrome(options=options)
-        driver = get_selenium_driver(grid=grid, headless=False)
+        driver = get_selenium_driver(grid=grid)
         start_year_month = start.strftime('%m%Y')
         end_year_month = start.strftime('%m%Y')
         start_day = start.strftime('%-d')
