@@ -113,15 +113,24 @@ class Credential(models.Model):
     DISCOUNT = 'DISCOUNT'
     CAL = 'CAL'
     MAX = 'MAX'
+
+    BANK = 'BANK'
+    CARD = 'DEBIT_CARD'
+
+    ADDITIONAL_INFO_BALANCE = 'balance'
     COMPANY_CHOICES = (
-        ("DISCOUNT", "Discount"),
-        ("CAL", "Cal"),
-        ("MAX", "Max"),
+        (DISCOUNT, "Discount"),
+        (CAL, "Cal"),
+        (MAX, "Max"),
     )
+    TYPE_CHOICES = ((BANK, 'Bank'), (CARD, 'Debit Card'),)
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     company = models.CharField(max_length=30, choices=COMPANY_CHOICES, default="1")
     credential = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
     last_scanned = models.DateField(null=True)
+    type = models.CharField(max_length=32, choices=TYPE_CHOICES, default="1")
+    additional_info = JSONField(default={})
 
     def save(self, *args, **kwargs):
         if type(self.credential) == dict:

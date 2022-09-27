@@ -6,7 +6,7 @@ import requests
 
 class Scraper:
     @abc.abstractmethod
-    def get_transactions(self, start, end,  *args, **kwargs):
+    def get_transactions(self, start, end,credential,  *args, **kwargs):
         pass
 
     def get_with_requests(self, driver, url, headers, params):

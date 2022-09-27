@@ -88,7 +88,7 @@ PARAMS = {"FromDate": None, "ToDate": None,
 class DiscountScraper(Scraper):
     COMPANY = 'DISCOUNT'
 
-    def get_transactions(self, start, end, username=None, password=None, user_id=None, *args, **kwargs):
+    def get_transactions(self, start, end, credential, username=None, password=None, user_id=None, *args, **kwargs):
         driver = get_selenium_driver(headless=True, grid=True)
         try:
             driver.get('https://start.telebank.co.il/login/#/LOGIN_PAGE')
@@ -109,10 +109,8 @@ class DiscountScraper(Scraper):
             if data[0].get('Error') and data[0].get('Error').get('ReturnedCode') == 'RET010297':
                 return transactions
             account_balance = data[0]['CurrentAccountLastTransactions']['CurrentAccountInfo']['AccountBalance']
-            user = User.objects.get(username='efraim')
-            info, created = models.AdditionalInfo.objects.get_or_create(user=user)
-            info.value[self.COMPANY] = account_balance
-            info.save()
+            credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = account_balance
+            credential.save()
         except Exception as e:
             driver.quit()
             raise e

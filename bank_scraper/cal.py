@@ -17,7 +17,7 @@ class CalScraper(Scraper):
     def __init__(self):
         self.COMPANY = 'CAL'
 
-    def get_transactions(self, start, end, username=None, password=None, grid=True,*args, **kwargs):
+    def get_transactions(self, start, end, credential, username=None, password=None, grid=True,*args, **kwargs):
         # options = uc.ChromeOptions()
         # options.headless = True
         # options.add_argument('--headless')
@@ -46,10 +46,8 @@ class CalScraper(Scraper):
             time.sleep(10)
             # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
             next_debit_sum = driver.find_element(By.ID, 'lblNextDebitSum').text
-            user = User.objects.get(username='efraim')
-            info, created = models.AdditionalInfo.objects.get_or_create(user=user)
-            info.value[self.COMPANY] = float(next_debit_sum)*-1
-            info.save()
+            credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = float(next_debit_sum)*-1
+            credential.save()
             driver.get('https://services.cal-online.co.il/Card-Holders/SCREENS/Transactions/Transactions.aspx')
             driver.find_element(By.XPATH,
                                 '//*[@id="ctl00_ContentTop_cboCardList_categoryList_updatePanelList"]/table/tbody/tr/td[1]/div/span[2]/div[5]/div').click()

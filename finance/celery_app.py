@@ -56,7 +56,7 @@ def load_transactions_by_credential(self, **options):
     logger.info('starting work for user {} company {}'.format(credential.user, credential.company))
     logger.info('start date: {} , end date: {}'.format(start, end))
     scraper = scraper_factory(credential.company)
-    transactions = scraper.get_transactions(start, end, **credential.get_credential)
+    transactions = scraper.get_transactions(start, end, credential, **credential.get_credential)
     sorted_transactions = sort_to_categories(transactions, user=credential.user)
     for transaction in sorted_transactions:
         bank = transaction.get('bank') if transaction.get('bank') else False

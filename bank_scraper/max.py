@@ -138,7 +138,7 @@ HEADERS = {
 class MaxScraper(Scraper):
     COMPANY = 'MAX'
 
-    def get_transactions(self, start, end, username=None, password=None, grid=True, *args, **kwargs):
+    def get_transactions(self, start, end, credential, username=None, password=None, grid=True, *args, **kwargs):
         # options = uc.ChromeOptions()
         # options.headless = True
         # options.add_argument('--headless')
@@ -158,10 +158,8 @@ class MaxScraper(Scraper):
             print('trying')
             home_page_data = self.get_with_requests(driver, URL, HEADERS, PAYLOAD)
             current_month_total_some = home_page_data['Result']['UserCards']['Summary'][0]['ActualDebitSum']
-            user = User.objects.get(username='efraim')
-            info, created = models.AdditionalInfo.objects.get_or_create(user=user)
-            info.value[self.COMPANY] = float(current_month_total_some)*-1
-            info.save()
+            credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = float(current_month_total_some)*-1
+            credential.save()
 
             url = 'https://www.max.co.il/api/registered/transactionDetails/getTransactionsAndGraphs?filterData={}&firstCallCardIndex=-1null&v=V3.85-HF.21'.format(
                 urllib.parse.unquote(
