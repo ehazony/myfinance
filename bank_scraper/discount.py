@@ -184,9 +184,8 @@ class DiscountScraper(Scraper):
 
 
 if __name__ == "__main__":
-    e = datetime.datetime.now().replace(day=18)
-    s = datetime.datetime.now().replace(day=1)
-    t = time.time()
-    data = get_discount_transactions(s, e)
-    print(data)
-    print('time:', str(time.time() - t))
+    c= models.Credential.objects.get(user__username= 'efraim', company='DISCOUNT')
+    end = datetime.datetime.now().replace(day=23)
+    start = datetime.datetime.now().replace(day=21)
+    transactions = DiscountScraper().get_transactions(start, end, **c.get_credential)
+    print(transactions)

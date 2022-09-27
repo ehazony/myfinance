@@ -14,6 +14,9 @@ class DateInput(models.Model):
 
 
 class Tag(models.Model):
+    OTHER = 'other'
+    SALARY = 'salary'
+    key = models.CharField(max_length=128, null=True)
     name = models.CharField(max_length=128)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     expense = models.BooleanField(default=False)
@@ -41,6 +44,11 @@ class Transaction(models.Model):
     month_date = models.DateField(null=True)
     bank = models.BooleanField(default=False)
     arn = models.CharField(max_length=64, null=True)
+    __original_tag = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__original_tag = self.tag
 
     def get_month(self):
         start_date = DateInput.objects.get(name="start_date", user=self.user).date
@@ -59,7 +67,11 @@ class Transaction(models.Model):
     def save(self, *args, **kwargs):
         self.month = self.get_month()
         self.month_date = self.get_month_date()
+        if self._state.adding or self.tag != self.__original_tag:  # only when new instance or tag changed
+            TransactionNameTag.objects.update_or_create(user=self.user, transaction_name=self.name,
+                                                        defaults={'tag': self.tag})
         super(Transaction, self).save(*args, **kwargs)
+        self.__original_tag = self.tag
 
 
 class TransactionNameTag(models.Model):
@@ -119,4 +131,3 @@ class Credential(models.Model):
     @property
     def get_credential(self):
         return json.loads(self.credential)
-
