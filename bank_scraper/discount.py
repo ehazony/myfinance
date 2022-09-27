@@ -1,12 +1,10 @@
 # import asyncio
 import datetime
-import json
 import logging
 import os
 import time
 
 import django
-import requests
 
 # from pyppeteer import launch
 # from pyppeteer_stealth import stealth
@@ -23,71 +21,102 @@ from bank_scraper.selenium_api import get_selenium_driver
 from myFinance import models
 from django.contrib.auth.models import User
 
+URL = "https://start.telebank.co.il/Titan/gatewayAPI/lastTransactions/transactions/0142181635/ByDate"
 
-def _get_data(cookies, start_date, end_date):
-    url = "https://start.telebank.co.il/Titan/gatewayAPI/lastTransactions/transactions/0142181635/ByDate"
+HEADERS = {
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7',
+    'BusinessProcessID': 'OSH_LENTRIES_ALTAMIRA',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    # 'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
+    'Pragma': 'no-cache',
+    'Referer': 'https://start.telebank.co.il/apollo/retail/',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-origin',
+    # 'UUID': '0b719193-d869-4cf5-a352-8517d360714b',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+    'accountNumber': '0142181635',
+    'language': 'HEBREW',
+    'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'site': 'retail'
+}
+# must fill FromDate, ToDate
+PARAMS = {"FromDate": None, "ToDate": None,
+          "IsTransactionDetails": True, "IsFutureTransactionFlag": True,
+          "IsEventNames": True, "IsCategoryDescCode": True}
 
-    params = {"FromDate": start_date.strftime('%Y%m%d'), "ToDate": end_date.strftime('%Y%m%d'),
-              "IsTransactionDetails": True, "IsFutureTransactionFlag": True,
-              "IsEventNames": True, "IsCategoryDescCode": True}
-    headers = {
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7',
-        'BusinessProcessID': 'OSH_LENTRIES_ALTAMIRA',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        # 'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
-        'Pragma': 'no-cache',
-        'Referer': 'https://start.telebank.co.il/apollo/retail/',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        # 'UUID': '0b719193-d869-4cf5-a352-8517d360714b',
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-        'accountNumber': '0142181635',
-        'language': 'HEBREW',
-        'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"macOS"',
-        'site': 'retail'
-    }
 
-    s = requests.Session()
-    for cookie in cookies:
-        s.cookies.set(cookie['name'], cookie['value'])
-    response = s.get(url, headers=headers, params=params)
-    return json.loads(response.text)
+# def _get_data(cookies, start_date, end_date):
+#     url = "https://start.telebank.co.il/Titan/gatewayAPI/lastTransactions/transactions/0142181635/ByDate"
+#
+#     params = {"FromDate": start_date.strftime('%Y%m%d'), "ToDate": end_date.strftime('%Y%m%d'),
+#               "IsTransactionDetails": True, "IsFutureTransactionFlag": True,
+#               "IsEventNames": True, "IsCategoryDescCode": True}
+#     headers = {
+#         'Accept': 'application/json, text/plain, */*',
+#         'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7',
+#         'BusinessProcessID': 'OSH_LENTRIES_ALTAMIRA',
+#         'Cache-Control': 'no-cache',
+#         'Connection': 'keep-alive',
+#         # 'If-Modified-Since': 'Mon, 26 Jul 1997 05:00:00 GMT',
+#         'Pragma': 'no-cache',
+#         'Referer': 'https://start.telebank.co.il/apollo/retail/',
+#         'Sec-Fetch-Dest': 'empty',
+#         'Sec-Fetch-Mode': 'cors',
+#         'Sec-Fetch-Site': 'same-origin',
+#         # 'UUID': '0b719193-d869-4cf5-a352-8517d360714b',
+#         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
+#         'accountNumber': '0142181635',
+#         'language': 'HEBREW',
+#         'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="102", "Google Chrome";v="102"',
+#         'sec-ch-ua-mobile': '?0',
+#         'sec-ch-ua-platform': '"macOS"',
+#         'site': 'retail'
+#     }
+#
+#     s = requests.Session()
+#     for cookie in cookies:
+#         s.cookies.set(cookie['name'], cookie['value'])
+#     response = s.get(url, headers=headers, params=params)
+#     return json.loads(response.text)
 
 
 class DiscountScraper(Scraper):
-    COMPANY= 'DISCOUNT'
+    COMPANY = 'DISCOUNT'
 
     def get_transactions(self, start, end, username=None, password=None, user_id=None, *args, **kwargs):
         driver = get_selenium_driver(headless=True, grid=True)
-        driver.get('https://start.telebank.co.il/login/#/LOGIN_PAGE')
-        time.sleep(2)
-        inputs = driver.find_elements(By.XPATH, '//input')
-        inputs[0].send_keys(user_id)
-        inputs[1].send_keys(password)
-        inputs[2].send_keys(username)
-        driver.find_element(By.XPATH, "//button[contains(., 'כניסה')]").click()
-        time.sleep(5)
-        transactions = []
-        cookies = driver.get_cookies()
+        try:
+            driver.get('https://start.telebank.co.il/login/#/LOGIN_PAGE')
+            time.sleep(2)
+            inputs = driver.find_elements(By.XPATH, '//input')
+            inputs[0].send_keys(user_id)
+            inputs[1].send_keys(password)
+            inputs[2].send_keys(username)
+            driver.find_element(By.XPATH, "//button[contains(., 'כניסה')]").click()
+            time.sleep(5)
+            transactions = []
+            PARAMS['FromDate'] = start.strftime('%Y%m%d')
+            PARAMS['ToDate'] = end.strftime('%Y%m%d')
+            data = self.get_with_requests(driver, URL, HEADERS, PARAMS)
+            # data = _get_data(cookies, start, end)
+            if type(data) == dict:
+                data = [data]
+            if data[0].get('Error') and data[0].get('Error').get('ReturnedCode') == 'RET010297':
+                return transactions
+            account_balance = data[0]['CurrentAccountLastTransactions']['CurrentAccountInfo']['AccountBalance']
+            user = User.objects.get(username='efraim')
+            info = models.AdditionalInfo.objects.get_or_create(user=user)
+            info.value[self.COMPANY] = account_balance
+            info.save()
+        except Exception as e:
+            driver.quit()
+            raise e
         driver.quit()
-
-        data = _get_data(cookies, start, end)
-        if type(data) == dict:
-            data = [data]
-        if data[0].get('Error') and data[0].get('Error').get('ReturnedCode') == 'RET010297':
-            return transactions
-        account_balance = data[0]['CurrentAccountLastTransactions']['CurrentAccountInfo']['AccountBalance']
-        user = User.objects.get(username='efraim')
-        info = models.AdditionalInfo.objects.get_or_create(user = user)
-        info.value[self.COMPANY] = account_balance
-        info.save()
-        # models.AdditionalInfo.objects.update_or_create(user=user, value={'bank_balance': account_balance})
-
         for transaction in data[0]['CurrentAccountLastTransactions']['OperationEntry']:
             transactions.append({
                 'date': datetime.datetime.strptime(transaction['OperationDate'], '%Y%m%d'),
