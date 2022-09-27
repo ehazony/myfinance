@@ -14,5 +14,6 @@ class Scraper:
         s = requests.Session()
         for cookie in cookies:
             s.cookies.set(cookie['name'], cookie['value'])
+        # headers['user-agent'] = driver.execute_script("return navigator.userAgent;")
         response = s.get(url, headers=headers, params=params)
         return json.loads(response.text)

@@ -110,7 +110,7 @@ class DiscountScraper(Scraper):
                 return transactions
             account_balance = data[0]['CurrentAccountLastTransactions']['CurrentAccountInfo']['AccountBalance']
             user = User.objects.get(username='efraim')
-            info = models.AdditionalInfo.objects.get_or_create(user=user)
+            info, created = models.AdditionalInfo.objects.get_or_create(user=user)
             info.value[self.COMPANY] = account_balance
             info.save()
         except Exception as e:
