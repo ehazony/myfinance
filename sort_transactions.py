@@ -83,7 +83,7 @@ def sort_to_categories(transaction_statements, user, default_other=True):  # rem
         tag = TransactionNameTag.get_tag(transaction['name'], user)
         if not tag:
             if default_other:
-                tag = Tag.objects.get(user=user, name='Other')
+                tag = Tag.objects.get(user=user, name='אחר')
             else:
                 tag = get_tag_from_user(transaction)  # TODO add user
                 TransactionNameTag.objects.create(user=user, transaction_name=transaction['name'], tag=tag)
