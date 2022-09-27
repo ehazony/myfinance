@@ -24,7 +24,7 @@ services:
     restart: always
     build:
       context: .
-    command: celery -A finance.celery_app worker -l info
+    command: celery -A finance.celery_app worker -l info --concurrency=4
     volumes:
       - ./:/app
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
