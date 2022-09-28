@@ -18,9 +18,6 @@ from selenium.webdriver.common.by import By
 
 from bank_scraper.selenium_api import get_selenium_driver
 
-from myFinance import models
-from django.contrib.auth.models import User
-
 URL = "https://start.telebank.co.il/Titan/gatewayAPI/lastTransactions/transactions/0142181635/ByDate"
 
 HEADERS = {
@@ -181,9 +178,9 @@ class DiscountScraper(Scraper):
 #     return transactions
 
 
-if __name__ == "__main__":
-    c= models.Credential.objects.get(user__username= 'efraim', company='DISCOUNT')
-    end = datetime.datetime.now().replace(day=23)
-    start = datetime.datetime.now().replace(day=21)
-    transactions = DiscountScraper().get_transactions(start, end, **c.get_credential)
-    print(transactions)
+# if __name__ == "__main__":
+#     c= models.Credential.objects.get(user__username= 'efraim', company='DISCOUNT')
+#     end = datetime.datetime.now().replace(day=23)
+#     start = datetime.datetime.now().replace(day=21)
+#     transactions = DiscountScraper().get_transactions(start, end, c,**c.get_credential)
+#     print(transactions)

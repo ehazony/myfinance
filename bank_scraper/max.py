@@ -13,9 +13,7 @@ import urllib
 import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
 django.setup()
-from myFinance import models
 
-from django.contrib.auth.models import User
 from selenium.webdriver.common.by import By
 
 from bank_scraper.base_scraper import Scraper
@@ -181,10 +179,10 @@ class MaxScraper(Scraper):
         return trans
 
 
-if __name__ == "__main__":
-    # TODO cant import model becuse of cerculer imports
-    c= models.Credential.objects.get(user__username= 'efraim', company='MAX')
-    end = datetime.datetime.now().replace(day=23)
-    start = datetime.datetime.now().replace(day=21)
-    transactions = MaxScraper().get_transactions(start, end, **c.get_credential)
-    print(transactions)
+# if __name__ == "__main__":
+#     # TODO cant import model becuse of cerculer imports
+#     c= models.Credential.objects.get(user__username= 'efraim', company='MAX')
+#     end = datetime.datetime.now().replace(day=23)
+#     start = datetime.datetime.now().replace(day=21)
+#     transactions = MaxScraper().get_transactions(start, end,c, **c.get_credential)
+#     print(transactions)

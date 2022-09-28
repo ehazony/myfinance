@@ -9,7 +9,7 @@ from django.urls import path, re_path, include
 from rest_framework.routers import DefaultRouter
 
 from app import views
-from app.views import TransactionViewSet, UserTagViewSet
+from app.views import TransactionViewSet, UserTagViewSet, CredentialViewSet
 from myFinance.admin import admin_site
 
 adminurlpatterns = [
@@ -41,6 +41,7 @@ urlpatterns += adminurlpatterns
 
 router = DefaultRouter()
 router.register(r'user_transactions', TransactionViewSet, basename='user_transactions')
+router.register(r'user_accounts', CredentialViewSet, basename='user_accounts')
 router.register(r'user_tags', UserTagViewSet, basename='user_tags')
 urlpatterns += router.urls
 

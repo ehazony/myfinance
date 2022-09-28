@@ -21,8 +21,8 @@ from app.forms import TransactionForm
 #     bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates, average_expenses, average_income, \
 #     number_of_months, average_bank_expenses, monthly_average_by_name
 from myFinance import models
-from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag
-from myFinance.serialisers import TransactionSerializer, TagSerializer
+from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential
+from myFinance.serialisers import TransactionSerializer, TagSerializer, CredentialSerializer
 from telegram_bot import telegram_bot_api
 from . import date_utils
 from .graph import graph_api
@@ -512,13 +512,15 @@ class BankInfo(APIView):
                                                                         user=request.user)
         now = datetime.datetime.now()
         month_salary = \
-        Transaction.objects.filter(user=request.user, tag__name__in=['Salary'], date__gte=date_utils.start_month(now),
-                                   date__lte=date_utils.end_month(now)).aggregate(Sum('value'))['value__sum']
+            Transaction.objects.filter(user=request.user, tag__name__in=['Salary'],
+                                       date__gte=date_utils.start_month(now),
+                                       date__lte=date_utils.end_month(now)).aggregate(Sum('value'))['value__sum']
         avg_monthly_income = graph_api.average_income(request.user)
         avg_monthly_expenses = graph_api.average_expenses(request.user)
         user_info = models.AdditionalInfo.objects.filter(user=request.user, ).order_by('-created_at')[0]
         bank_balance = user_info.value.get('bank_balance')
-        data = [{'key': 'Bank Balance', 'value': bank_balance}, {'key': 'Average Monthly Income', 'value': avg_monthly_income},
+        data = [{'key': 'Bank Balance', 'value': bank_balance},
+                {'key': 'Average Monthly Income', 'value': avg_monthly_income},
                 {'key': 'Average Monthly Expenses', 'value': avg_monthly_expenses}]
         return Response(data)
 
@@ -534,6 +536,13 @@ class TransactionViewSet(viewsets.ModelViewSet):
             return self.request.user.transaction_set.filter(tag__name=self.request.GET.get('category')).order_by(
                 '-date')
         return self.request.user.transaction_set.all().order_by('-date')
+
+
+class CredentialViewSet(viewsets.ModelViewSet):
+    serializer_class = CredentialSerializer
+
+    def get_queryset(self):
+        return Credential.objects.filter(user=self.request.user)
 
 
 class UserTagViewSet(viewsets.ModelViewSet):

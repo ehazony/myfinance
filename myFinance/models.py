@@ -140,3 +140,9 @@ class Credential(models.Model):
     @property
     def get_credential(self):
         return json.loads(self.credential)
+
+    @property
+    def balance(self):
+        return self.additional_info.get('balance')
+
+

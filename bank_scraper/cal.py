@@ -4,12 +4,10 @@ import time
 import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
 django.setup()
-from django.contrib.auth.models import User
 from selenium.webdriver.common.by import By
 
 from bank_scraper.selenium_api import get_selenium_driver
 from bank_scraper.base_scraper import Scraper
-from myFinance import models
 
 
 class CalScraper(Scraper):
