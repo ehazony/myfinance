@@ -4,8 +4,10 @@ import os
 
 from celery import Celery
 from celery.signals import setup_logging  # noqa
+from django.contrib.auth.models import User
 from django.core import management
 
+from app.views import create_continuous_category_summery
 from bank_scraper import scraper_factory
 from finance import settings
 from myFinance import models
@@ -76,7 +78,9 @@ def load_transactions_by_credential(self, **options):
 def send_telegram_message(self, **options):
     telegram_bot_api.send_message(options['message'])
 
+
 @app.task(bind=True)
 def send_category_info(self, **options):
-
-    telegram_bot_api.send_message(options['message'])
+    user = User.objects.get(username='efraim')
+    s = create_continuous_category_summery(user)
+    telegram_bot_api.send_message(s)
