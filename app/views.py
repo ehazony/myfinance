@@ -349,51 +349,55 @@ class TransactionCreateView(BSModalFormView):
         return reverse_lazy('home')
 
 
+def create_continuous_category_summery(user):
+    start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
+    end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
+                                                minute=0, second=0, microsecond=0)
+    transactions = Transaction.objects.filter(tag__type=Tag.CONTINUOUS, date__gte=start_month, date__lte=end_month,
+                                                user=user)
+    tag_sums = transactions.values('tag_id').annotate(Sum('value'))
+    total = 0
+    # last_scanned = models.DateInput.objects.get(name='last_scanned', user=request.user).date
+    s = '*Date {}*\n'.format(datetime.date.today().strftime('%d/%m'))
+    for tag_sum in tag_sums:
+        tag = Tag.objects.get(id=tag_sum['tag_id'])
+        goal = tag.taggoal_set.first()
+        if goal:
+            diff = int(goal.value) - tag_sum['value__sum']
+        else:
+            diff = 0
+        value_sum = round(tag_sum['value__sum']) if diff >= 0 else '*{}*'.format(round(tag_sum['value__sum']))
+        total += diff
+        t = '\n' + '{}: {}/ {}'.format(tag.name.replace('_', ' ').capitalize(),
+                                       value_sum, str(int(goal.value)) if goal else '')
+
+        s += t
+        # add TagGaols with 0 spent
+    tag_goals = models.TagGoal.objects.exclude(
+        tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations', 'other income',
+                       'commission', 'exclude', 'vacation'])
+    tag_goals = tag_goals.exclude(tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
+        tag__expense=False)
+    for tag_goal in tag_goals:
+        if tag_goal.value == 0:
+            continue
+        t = '\n' + '{}: {}/ {}'.format(tag_goal.tag.name.replace('_', ' ').capitalize(),
+                                       str(0), str(int(tag_goal.value)))
+        s += t
+        total += tag_goal.value
+
+    # add total left
+    s += '\n\n*Left*: {}'.format(round(total))
+
+    return s
+
+
 class MonthTrackingView(APIView):
 
     def get(self, request, format=None):
-        start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
-        end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
-                                                    minute=0, second=0, microsecond=0)
-        transactions = Transaction.objects.exclude(
-            tag__expense=False).filter(date__gte=start_month, date__lte=end_month,
-                                       user=request.user)
-        tag_sums = transactions.values('tag_id').annotate(Sum('value'))
-        total = 0
-        # last_scanned = models.DateInput.objects.get(name='last_scanned', user=request.user).date
-        s = '*Date {}*\n'.format(datetime.date.today().strftime('%d/%m'))
-        for tag_sum in tag_sums:
-            tag = Tag.objects.get(id=tag_sum['tag_id'])
-            goal = tag.taggoal_set.first()
-            if goal:
-                diff = int(goal.value) - tag_sum['value__sum']
-            else:
-                diff = 0
-            value_sum = round(tag_sum['value__sum']) if diff >= 0 else '*{}*'.format(round(tag_sum['value__sum']))
-            total += diff
-            t = '\n' + '{}: {}/ {}'.format(tag.name.replace('_', ' ').capitalize(),
-                                           value_sum, str(int(goal.value)) if goal else '')
-
-            s += t
-        # add TagGaols with 0 spent
-        tag_goals = models.TagGoal.objects.exclude(
-            tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations', 'other income',
-                           'commission', 'exclude', 'vacation'])
-        tag_goals = tag_goals.exclude(tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
-            tag__expense=False)
-        for tag_goal in tag_goals:
-            if tag_goal.value == 0:
-                continue
-            t = '\n' + '{}: {}/ {}'.format(tag_goal.tag.name.replace('_', ' ').capitalize(),
-                                           str(0), str(int(tag_goal.value)))
-            s += t
-            total += tag_goal.value
-
-        # add total left
-        s += '\n\n*Left*: {}'.format(round(total))
-
+        s = create_continuous_category_summery(request.user)
         telegram_bot_api.send_message(s)
-        return Response(data=tag_sums)
+        return Response(data={'text': s})
 
 
 #######################################################################

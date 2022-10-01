@@ -10,6 +10,7 @@ from bank_scraper import scraper_factory
 from finance import settings
 from myFinance import models
 from sort_transactions import sort_to_categories
+from telegram_bot import telegram_bot_api
 
 logger = logging.getLogger(__name__)
 
@@ -69,3 +70,13 @@ def load_transactions_by_credential(self, **options):
         credential.save()
     logger.info('starting work for user {} company {}'.format(credential.user, credential.company))
     logger.info('done work for user {} company {}'.format(credential.user, credential.company))
+
+
+@app.task(bind=True)
+def send_telegram_message(self, **options):
+    telegram_bot_api.send_message(options['message'])
+
+@app.task(bind=True)
+def send_category_info(self, **options):
+
+    telegram_bot_api.send_message(options['message'])

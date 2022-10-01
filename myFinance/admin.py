@@ -13,7 +13,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 @admin.register(TagGoal)
-class TransactionAdmin(admin.ModelAdmin):
+class TagGoalAdmin(admin.ModelAdmin):
     list_display = ('user', 'tag', 'value',)
 
     class Meta:
@@ -21,7 +21,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Tag)
-class TransactionAdmin(admin.ModelAdmin):
+class TagAdmin(admin.ModelAdmin):
     list_display = ('user', 'name', 'expense')
 
     class Meta:
@@ -29,7 +29,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 @admin.register(DateInput)
-class TransactionAdmin(admin.ModelAdmin):
+class DateInputAdmin(admin.ModelAdmin):
     list_display = ('name', 'date')
 
     class Meta:
@@ -37,7 +37,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 @admin.register(TransactionNameTag)
-class TransactionAdmin(admin.ModelAdmin):
+class TransactionNameTagAdmin(admin.ModelAdmin):
     list_display = ('user', 'transaction_name', 'tag')
 
     class Meta:

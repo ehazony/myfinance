@@ -14,12 +14,21 @@ class DateInput(models.Model):
 
 
 class Tag(models.Model):
-    OTHER = 'other'
-    SALARY = 'salary'
+    MONTHLY_FIXED = 'MONTHLY_FIXED'
+    PERIODIC = 'PERIODIC'
+    CONTINUOUS = 'CONTINUOUS'
+    TYPE_CHOICES = (
+        (MONTHLY_FIXED, "MONTHLY FIXED"), # חודשיות קבועות
+        (PERIODIC, "PERIODIC"), # תקופתיות
+        (CONTINUOUS, "CONTINUOUS"),# uשטפות
+    )
     key = models.CharField(max_length=128, null=True)
     name = models.CharField(max_length=128)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     expense = models.BooleanField(default=False)
+    type = models.CharField(max_length=32, choices=TYPE_CHOICES, default="1")
+
+
 
     def __str__(self):
         return self.name
