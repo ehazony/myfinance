@@ -376,7 +376,7 @@ def create_continuous_category_summery(user):
     tag_goals = models.TagGoal.objects.exclude(
         tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations', 'other income',
                        'commission', 'exclude', 'vacation'])
-    tag_goals = tag_goals.exclude(tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
+    tag_goals = tag_goals.filter(tag__type=Tag.CONTINUOUS).exclude(tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
         tag__expense=False)
     for tag_goal in tag_goals:
         if tag_goal.value == 0:
