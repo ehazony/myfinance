@@ -2,6 +2,10 @@ import datetime
 import logging
 import os
 
+import django
+
+django.setup()
+
 from celery import Celery
 from celery.signals import setup_logging  # noqa
 from django.contrib.auth.models import User
