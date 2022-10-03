@@ -2,6 +2,8 @@ import datetime
 import os
 import time
 import django
+from selenium.webdriver.support.wait import WebDriverWait
+import selenium.webdriver.support.expected_conditions as EC
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
 django.setup()
 from selenium.webdriver.common.by import By
@@ -20,7 +22,7 @@ class CalScraper(Scraper):
         # options.headless = True
         # options.add_argument('--headless')
         # driver = uc.Chrome(options=options)
-        driver = get_selenium_driver(grid=grid)
+        driver = get_selenium_driver(grid=False, headless=False)
         try:
             start_year_month = start.strftime('%m%Y')
             end_year_month = start.strftime('%m%Y')
@@ -30,20 +32,22 @@ class CalScraper(Scraper):
         # driver = uc.Chrome()
 
             driver.get('https://www.cal-online.co.il/')
-            time.sleep(2)
-            driver.find_element(By.CLASS_NAME, 'imglogin').click()
+            time.sleep(0.7)
+            WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "imglogin"))).click()
+            # driver.find_element(By.CLASS_NAME, 'imglogin').click()
 
             fr = driver.find_element(By.XPATH, '//*[@allow="otp-credentials"]')
             driver.switch_to.frame(fr)
             time.sleep(2)
             driver.find_element(By.ID, 'regular-login').click()
-            time.sleep(3)
+            time.sleep(1)
             driver.find_element(By.ID, 'mat-input-2').send_keys(username)
             driver.find_element(By.ID, 'mat-input-3').send_keys(password)
             driver.find_elements(By.XPATH, "//button[contains(., ' כניסה ')]")[0].click()
             time.sleep(10)
             # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
-            next_debit_sum = driver.find_element(By.ID, 'lblNextDebitSum').text
+            next_debit_sum = WebDriverWait(driver, 40).until(EC.visibility_of_element_located((By.ID, "lblNextDebitSum"))).text
+            # next_debit_sum = driver.find_element(By.ID, 'lblNextDebitSum').text
             credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = float(next_debit_sum)*-1
             credential.save()
             driver.get('https://services.cal-online.co.il/Card-Holders/SCREENS/Transactions/Transactions.aspx')
