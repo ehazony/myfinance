@@ -9,7 +9,7 @@ def sort_to_categories(transaction_statements, user):
     for transaction in transaction_statements:
         tag = TransactionNameTag.get_tag(transaction['name'], user)
         if not tag:
-            tag = Tag.objects.get(user=user, key=Tag.OTHER)
+            tag = Tag.objects.get(user=user, key='other')
 
         transaction['tag'] = tag
     print("*" * 30)
