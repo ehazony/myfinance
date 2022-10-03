@@ -44,9 +44,9 @@ class CalScraper(Scraper):
             driver.find_element(By.ID, 'mat-input-2').send_keys(username)
             driver.find_element(By.ID, 'mat-input-3').send_keys(password)
             driver.find_elements(By.XPATH, "//button[contains(., ' כניסה ')]")[0].click()
-            time.sleep(10)
+            # time.sleep(10)
             # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
-            next_debit_sum = WebDriverWait(driver, 40).until(EC.visibility_of_element_located((By.ID, "lblNextDebitSum"))).text
+            next_debit_sum = WebDriverWait(driver, 60).until(EC.visibility_of_element_located((By.ID, "lblNextDebitSum"))).text
             # next_debit_sum = driver.find_element(By.ID, 'lblNextDebitSum').text
             credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = float(next_debit_sum)*-1
             credential.save()
