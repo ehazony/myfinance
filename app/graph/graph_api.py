@@ -13,7 +13,7 @@ from myFinance.serialisers import TransactionSerializer
 
 def expenses_transactions(user):
 	""":returns anything that should not be excluded from the monthly expenses calculation"""
-	if not Transaction.objects.filter(user=user):
+	if not Transaction.objects.filter(user=user).exists():
 		return Transaction.objects.filter(user=user)
 	start_date = DateInput.objects.get(name='start_date', user=user).date
 	end = datetime.datetime.now()

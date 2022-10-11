@@ -85,7 +85,7 @@ class SummeryWidgetsView(APIView):
         start_date = DateInput.objects.filter(user=request.user, name='start_date')
         if start_date.exists():
             transactions_exp = graph_api.expenses_transactions(request.user)
-            transactions_all = graph_api.all_transactions_in_dates(request.user)
+            # transactions_all = graph_api.all_transactions_in_dates(request.user)
             if transactions_exp.count() == 0:
                 return None
             aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value'))
