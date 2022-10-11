@@ -376,7 +376,8 @@ def create_continuous_category_summery(user):
     tag_goals = models.TagGoal.objects.exclude(
         tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations', 'other income',
                        'commission', 'exclude', 'vacation'])
-    tag_goals = tag_goals.filter(tag__type=Tag.CONTINUOUS).exclude(tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
+    tag_goals = tag_goals.filter(tag__type=Tag.CONTINUOUS).exclude(
+        tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
         tag__expense=False)
     for tag_goal in tag_goals:
         if tag_goal.value == 0:
@@ -548,6 +549,16 @@ class CredentialViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Credential.objects.filter(user=self.request.user)
 
+
+class CredentialTypes(APIView):
+    def get(self, request):
+        return Response(models.Credential.COMPANY_CHOICES_WITH_FIELDS)
+
+    def post(self, request):
+        data = request.data
+        data['user'] = request.user
+        m = models.Credential.objects.create(**data)
+        return Response(status=201)
 
 class UserTagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer

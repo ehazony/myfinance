@@ -35,6 +35,8 @@ urlpatterns = [
     # path('', views.index, name='home'),
     path('create/', views.TransactionCreateView.as_view(), name='create_transaction'),
     path('api/month-tracking', views.MonthTrackingView.as_view(), name='create_transaction'),
+    path('api/user_credentials/', views.CredentialTypes.as_view()),
+
 ]
 
 urlpatterns += adminurlpatterns

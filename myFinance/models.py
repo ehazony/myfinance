@@ -18,17 +18,15 @@ class Tag(models.Model):
     PERIODIC = 'PERIODIC'
     CONTINUOUS = 'CONTINUOUS'
     TYPE_CHOICES = (
-        (MONTHLY_FIXED, "MONTHLY FIXED"), # חודשיות קבועות
-        (PERIODIC, "PERIODIC"), # תקופתיות
-        (CONTINUOUS, "CONTINUOUS"),# uשטפות
+        (MONTHLY_FIXED, "MONTHLY FIXED"),  # חודשיות קבועות
+        (PERIODIC, "PERIODIC"),  # תקופתיות
+        (CONTINUOUS, "CONTINUOUS"),  # uשטפות
     )
     key = models.CharField(max_length=128, null=True)
     name = models.CharField(max_length=128)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     expense = models.BooleanField(default=False)
     type = models.CharField(max_length=32, choices=TYPE_CHOICES, default="1")
-
-
 
     def __str__(self):
         return self.name
@@ -79,8 +77,8 @@ class Transaction(models.Model):
         if self._state.adding or self.tag != self.__original_tag:  # only when new instance or tag changed
             TransactionNameTag.objects.update_or_create(user=self.user, transaction_name=self.name,
                                                         defaults={'tag': self.tag})
-        super(Transaction, self).save(*args, **kwargs)
         self.__original_tag = self.tag
+        return super(Transaction, self).save(*args, **kwargs)
 
 
 class TransactionNameTag(models.Model):
@@ -134,6 +132,25 @@ class Credential(models.Model):
     )
     TYPE_CHOICES = ((BANK, 'Bank'), (CARD, 'Debit Card'),)
 
+    COMPANY_TYPE = {
+        CAL: CARD,
+        MAX: CARD,
+        DISCOUNT: BANK
+    }
+    COMPANY_CHOICES_WITH_FIELDS = [
+        {
+            'key': DISCOUNT, 'name': 'Discount',
+            'fields': [{'key': 'username', 'name': 'User Name', 'type': 'text'},
+                       {'key': 'password', 'name': 'Password', 'type': 'password'}],
+        },
+        {
+            'key': CAL, 'name': 'Cal',
+            'fields': [
+                {'key': 'username', 'name': 'User Name', 'type': 'text'},
+                {'key': 'email', 'name': 'Email', 'type': 'email'},
+                {'key': 'password', 'name': 'Password', 'type': 'password'}],
+        }, ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     company = models.CharField(max_length=30, choices=COMPANY_CHOICES, default="1")
     credential = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
@@ -144,6 +161,7 @@ class Credential(models.Model):
     def save(self, *args, **kwargs):
         if type(self.credential) == dict:
             self.credential = json.dumps(self.credential)
+        self.type = self.COMPANY_TYPE[self.company]
         super(Credential, self).save(*args, **kwargs)
 
     @property
@@ -153,5 +171,4 @@ class Credential(models.Model):
     @property
     def balance(self):
         return self.additional_info.get('balance')
-
 
