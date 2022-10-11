@@ -25,7 +25,7 @@ class CalScraper(Scraper):
         # options.headless = True
         # options.add_argument('--headless')
         # driver = uc.Chrome(options=options)
-        driver = get_selenium_driver(grid=grid)
+        driver = get_selenium_driver(grid=False)
         try:
 
             # driver = uc.Chrome()
