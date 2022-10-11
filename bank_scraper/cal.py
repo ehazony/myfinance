@@ -32,7 +32,7 @@ class CalScraper(Scraper):
 
             driver.get('https://www.cal-online.co.il/')
             time.sleep(0.7)
-            WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CLASS_NAME, "imglogin"))).click()
+            WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.CLASS_NAME, "imglogin"))).click()
             # driver.find_element(By.CLASS_NAME, 'imglogin').click()
 
             fr = driver.find_element(By.XPATH, '//*[@allow="otp-credentials"]')
