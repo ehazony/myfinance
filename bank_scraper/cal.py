@@ -26,9 +26,9 @@ class CalScraper(Scraper):
         # options.add_argument('--headless')
         # driver = uc.Chrome(options=options)
         if type(start) == datetime.date:
-            start = datetime.datetime(start.year, start.month, start.day)
+            start = datetime.datetime(start.year, start.month, start.day, 0,0,0)
         if type(end) == datetime.date:
-            start = datetime.datetime(end.year, end.month, end.day)
+            end = datetime.datetime(end.year, end.month, end.day,0,0,0)
         driver = get_selenium_driver(grid=False)
         try:
 
