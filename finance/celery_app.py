@@ -3,6 +3,7 @@ import logging
 import os
 
 import django
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
 
 django.setup()
@@ -71,7 +72,7 @@ def load_transactions_by_credential(self, **options):
         models.Transaction.objects.create(user=credential.user, arn=transaction.get('arn'),
                                           date=transaction['date'], name=transaction['name'],
                                           value=transaction['amount'], tag=transaction['tag'],
-                                          bank=bank)
+                                          bank=bank, credential=credential)
     if end > credential.last_scanned:
         credential.last_scanned = end
         credential.save()

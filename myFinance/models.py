@@ -13,6 +13,63 @@ class DateInput(models.Model):
     date = models.DateField()
 
 
+class Credential(models.Model):
+    DISCOUNT = 'DISCOUNT'
+    CAL = 'CAL'
+    MAX = 'MAX'
+
+    BANK = 'BANK'
+    CARD = 'DEBIT_CARD'
+
+    ADDITIONAL_INFO_BALANCE = 'balance'
+    COMPANY_CHOICES = (
+        (DISCOUNT, "Discount"),
+        (CAL, "Cal"),
+        (MAX, "Max"),
+    )
+    TYPE_CHOICES = ((BANK, 'Bank'), (CARD, 'Debit Card'),)
+
+    COMPANY_TYPE = {
+        CAL: CARD,
+        MAX: CARD,
+        DISCOUNT: BANK
+    }
+    COMPANY_CHOICES_WITH_FIELDS = [
+        {
+            'key': DISCOUNT, 'name': 'Discount',
+            'fields': [{'key': 'username', 'name': 'User Name', 'type': 'text'},
+                       {'key': 'password', 'name': 'Password', 'type': 'password'}],
+        },
+        {
+            'key': CAL, 'name': 'Cal',
+            'fields': [
+                {'key': 'username', 'name': 'User Name', 'type': 'text'},
+                {'key': 'email', 'name': 'Email', 'type': 'email'},
+                {'key': 'password', 'name': 'Password', 'type': 'password'}],
+        }, ]
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    company = models.CharField(max_length=30, choices=COMPANY_CHOICES, default="1")
+    credential = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
+    last_scanned = models.DateField(null=True)
+    type = models.CharField(max_length=32, choices=TYPE_CHOICES, default="1")
+    additional_info = JSONField(default={})
+
+    def save(self, *args, **kwargs):
+        if type(self.credential) == dict:
+            self.credential = json.dumps(self.credential)
+        self.type = self.COMPANY_TYPE[self.company]
+        super(Credential, self).save(*args, **kwargs)
+
+    @property
+    def get_credential(self):
+        return json.loads(self.credential)
+
+    @property
+    def balance(self):
+        return self.additional_info.get('balance')
+
+
 class Tag(models.Model):
     MONTHLY_FIXED = 'MONTHLY_FIXED'
     PERIODIC = 'PERIODIC'
@@ -43,6 +100,7 @@ class TagGoal(models.Model):
 
 class Transaction(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    credential = models.ForeignKey(Credential, on_delete=models.CASCADE, null=True)
     date = models.DateField()
     name = models.CharField(max_length=200)
     value = models.FloatField()
@@ -115,60 +173,4 @@ class DiscountCredential(models.Model):
     user_identification = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
     user_name = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
 
-
-class Credential(models.Model):
-    DISCOUNT = 'DISCOUNT'
-    CAL = 'CAL'
-    MAX = 'MAX'
-
-    BANK = 'BANK'
-    CARD = 'DEBIT_CARD'
-
-    ADDITIONAL_INFO_BALANCE = 'balance'
-    COMPANY_CHOICES = (
-        (DISCOUNT, "Discount"),
-        (CAL, "Cal"),
-        (MAX, "Max"),
-    )
-    TYPE_CHOICES = ((BANK, 'Bank'), (CARD, 'Debit Card'),)
-
-    COMPANY_TYPE = {
-        CAL: CARD,
-        MAX: CARD,
-        DISCOUNT: BANK
-    }
-    COMPANY_CHOICES_WITH_FIELDS = [
-        {
-            'key': DISCOUNT, 'name': 'Discount',
-            'fields': [{'key': 'username', 'name': 'User Name', 'type': 'text'},
-                       {'key': 'password', 'name': 'Password', 'type': 'password'}],
-        },
-        {
-            'key': CAL, 'name': 'Cal',
-            'fields': [
-                {'key': 'username', 'name': 'User Name', 'type': 'text'},
-                {'key': 'email', 'name': 'Email', 'type': 'email'},
-                {'key': 'password', 'name': 'Password', 'type': 'password'}],
-        }, ]
-
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    company = models.CharField(max_length=30, choices=COMPANY_CHOICES, default="1")
-    credential = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
-    last_scanned = models.DateField(null=True)
-    type = models.CharField(max_length=32, choices=TYPE_CHOICES, default="1")
-    additional_info = JSONField(default={})
-
-    def save(self, *args, **kwargs):
-        if type(self.credential) == dict:
-            self.credential = json.dumps(self.credential)
-        self.type = self.COMPANY_TYPE[self.company]
-        super(Credential, self).save(*args, **kwargs)
-
-    @property
-    def get_credential(self):
-        return json.loads(self.credential)
-
-    @property
-    def balance(self):
-        return self.additional_info.get('balance')
 
