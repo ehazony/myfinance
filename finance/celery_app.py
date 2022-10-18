@@ -45,6 +45,10 @@ def debug_task(self):
 def load_transactions(self, **options):
     management.call_command('load_transactions', **options)
 
+@app.task(bind=True)
+def update_user_code(self, **options):
+    management.call_command('update_user_code', **options)
+
 
 @app.task(bind=True)
 def load_transactions_by_credential(self, **options):
