@@ -1,10 +1,20 @@
 import datetime
 import json
+import random
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models.signals import post_save
 from django_kms.fields import KMSEncryptedCharField
+
+
+def get_code(self):
+    return str(self.additionalinfo_set.first().value['user_code'])
+
+
+User.add_to_class("__str__", get_code)
 
 
 class DateInput(models.Model):
@@ -68,6 +78,9 @@ class Credential(models.Model):
     @property
     def balance(self):
         return self.additional_info.get('balance')
+
+    def __str__(self):
+        return self.company
 
 
 class Tag(models.Model):
@@ -164,7 +177,22 @@ class AdditionalInfo(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    value = JSONField()
+    value = JSONField(default={})
+
+    @classmethod
+    def create_user_code(cls):
+        code = random.randint(10000, 90000)
+        while AdditionalInfo.objects.filter(value__user_code=code).exists():
+            code = random.randint(10000, 90000)
+        return code
+
+
+def create_user_info(sender, instance, created, **kwargs):
+    if created:
+        AdditionalInfo.objects.create(user=instance, value={'user_code': AdditionalInfo.create_user_code()})
+
+
+post_save.connect(create_user_info, sender=User)
 
 
 class DiscountCredential(models.Model):
@@ -172,5 +200,3 @@ class DiscountCredential(models.Model):
     password = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
     user_identification = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
     user_name = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
-
-
