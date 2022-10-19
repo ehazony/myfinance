@@ -10,6 +10,7 @@ from django.db.models import Sum
 from django.forms import formset_factory
 from django.shortcuts import render
 from django.template.defaulttags import register
+from rest_framework import status
 from rest_framework import viewsets
 # from app.excel_parssers import ExcelParser
 from rest_framework.response import Response
@@ -22,7 +23,7 @@ from app.forms import TransactionForm
 #     number_of_months, average_bank_expenses, monthly_average_by_name
 from myFinance import models
 from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential
-from myFinance.serialisers import TransactionSerializer, TagSerializer, CredentialSerializer
+from myFinance.serialisers import TransactionSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer
 from telegram_bot import telegram_bot_api
 from . import date_utils
 from .graph import graph_api
@@ -354,7 +355,7 @@ def create_continuous_category_summery(user):
     end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
                                                 minute=0, second=0, microsecond=0)
     transactions = Transaction.objects.filter(tag__type=Tag.CONTINUOUS, date__gte=start_month, date__lte=end_month,
-                                                user=user)
+                                              user=user)
     tag_sums = transactions.values('tag_id').annotate(Sum('value'))
     total = 0
     # last_scanned = models.DateInput.objects.get(name='last_scanned', user=request.user).date
@@ -484,7 +485,8 @@ class MonthCategoryView(APIView):
             goal = int(tag.taggoal_set.first().value)
 
             data.append(
-                {'category': tag.name, 'key': tag.name, 'value': value, 'goal': goal, 'percent': value / goal * 100,
+                {'category_id': tag.id, 'category': tag.name, 'key': tag.name, 'value': value, 'goal': goal,
+                 'percent': value / goal * 100,
                  'color': Pas[i % len(Pas)]})
         return Response(data)
 
@@ -560,8 +562,28 @@ class CredentialTypes(APIView):
         m = models.Credential.objects.create(**data)
         return Response(status=201)
 
+
 class UserTagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
 
     def get_queryset(self):
         return Tag.objects.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):  # create Goal when creating tag
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tag = serializer.save()
+        goal = request.data['goal']
+        models.TagGoal.objects.create(user=request.user, tag=tag, value=goal)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class UserTagGoalView(APIView):
+    serializer_class = TagGoalSerializer
+
+    def post(self, request):
+        data = request.data
+        data['user'] = request.user
+        m = models.TagGoal.objects.update_or_create(tag_id=data['tag'], defaults={'value': data['value']})
+        return Response(status=201)

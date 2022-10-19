@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from myFinance.models import Transaction, Tag, Credential
+from myFinance.models import Transaction, Tag, Credential, TagGoal
 
 
 class RestModelSerializer(serializers.ModelSerializer):
@@ -25,6 +25,12 @@ class TransactionSerializer(RestModelSerializer):
 class TagSerializer(RestModelSerializer):
     class Meta:
         model = Tag
+        fields = '__all__'
+
+
+class TagGoalSerializer(RestModelSerializer):
+    class Meta:
+        model = TagGoal
         fields = '__all__'
 
 
