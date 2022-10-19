@@ -1,10 +1,11 @@
+from dateutil import relativedelta
 from django.db.models import Sum
 
-from dateutil import relativedelta
 from myFinance.models import *
+
+
 # import plotly.express as px
 # import pandas as pd
-from myFinance.serialisers import TransactionSerializer
 
 # ----------------------------------------------------------
 # Transaction sets types
@@ -12,30 +13,31 @@ from myFinance.serialisers import TransactionSerializer
 
 
 def expenses_transactions(user):
-	""":returns anything that should not be excluded from the monthly expenses calculation"""
-	if not Transaction.objects.filter(user=user).exists():
-		return Transaction.objects.filter(user=user)
-	start_date = DateInput.objects.get(name='start_date', user=user).date
-	end = datetime.datetime.now()
-	return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user).exclude(tag__name__in=['Exclude', 'Credit Cards', 'Salary'])
+    """:returns anything that should not be excluded from the monthly expenses calculation"""
+    if not Transaction.objects.filter(user=user).exists():
+        return Transaction.objects.filter(user=user)
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = datetime.datetime.now()
+    return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user).exclude(
+        tag__key__in=['exclude', 'credit_cards', 'salary'])
 
 
 def all_transactions_in_dates(user):
-	""":returns anything that should not be excluded from the monthly expenses calculation"""
-	if not Transaction.objects.filter(user=user):
-		return Transaction.objects.filter(user=user)
-	start_date = DateInput.objects.get(name='start_date', user=user).date
-	end = datetime.datetime.now()
-	return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user)
+    """:returns anything that should not be excluded from the monthly expenses calculation"""
+    if not Transaction.objects.filter(user=user):
+        return Transaction.objects.filter(user=user)
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = datetime.datetime.now()
+    return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user)
 
 
 def income_transactions(user):
-	""":returns anything that should not be excluded from the monthly expenses calculation"""
-	if not Transaction.objects.filter(user=user).exists():
-		return Transaction.objects.filter(user=user)
-	start_date = DateInput.objects.get(name='start_date', user=user).date
-	end = Transaction.objects.order_by('month_date').last().month_date
-	return Transaction.objects.filter(date__gte=start_date, user=user, tag__name__in=['Salary'])
+    """:returns anything that should not be excluded from the monthly expenses calculation"""
+    if not Transaction.objects.filter(user=user).exists():
+        return Transaction.objects.filter(user=user)
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = Transaction.objects.order_by('month_date').last().month_date
+    return Transaction.objects.filter(date__gte=start_date, user=user, tag__name__in=['Salary'])
 
 
 # ----------------------------------------------------------
@@ -103,16 +105,16 @@ def income_transactions(user):
 # 	return fig
 
 # def line_fig_by_name_by_month(transactions_set):
-	# trans = transactions_set.values(
-	# 	'month_date',
-	# 	'name').annotate(
-	# 	Sum('value'))
-	# if trans.count() == 0:
-	# 	return None
-	# trans = pd.DataFrame(list(trans))
-	# fig = px.line(trans, x="month_date", y="value__sum", color="name", line_group="name",
-	#               hover_name="name")
-	# return fig
+# trans = transactions_set.values(
+# 	'month_date',
+# 	'name').annotate(
+# 	Sum('value'))
+# if trans.count() == 0:
+# 	return None
+# trans = pd.DataFrame(list(trans))
+# fig = px.line(trans, x="month_date", y="value__sum", color="name", line_group="name",
+#               hover_name="name")
+# return fig
 
 
 # ----------------------------------------------------------
@@ -160,43 +162,42 @@ def income_transactions(user):
 # 	return fig
 
 def average_expenses(user):
-	trans = expenses_transactions(user)
-	if not trans.exists():
-		return 0
-	some = trans.aggregate(Sum('value'))['value__sum']
-	return round(some / number_of_months(user))
+    trans = expenses_transactions(user)
+    if not trans.exists():
+        return 0
+    some = trans.aggregate(Sum('value'))['value__sum']
+    return round(some / number_of_months(user))
 
 
 def average_bank_expenses(user):
-	trans = expenses_transactions(user)
-	trans = trans.filter(bank=True)
-	if not trans.exists():
-		return 0
-	some = trans.aggregate(Sum('value'))['value__sum']
-	return round(some / number_of_months(user))
+    trans = expenses_transactions(user)
+    trans = trans.filter(bank=True)
+    if not trans.exists():
+        return 0
+    some = trans.aggregate(Sum('value'))['value__sum']
+    return round(some / number_of_months(user))
 
 
 def average_income(user):
-	trans = income_transactions(user)
-	if not trans.exists():
-		return 0
-	some = trans.aggregate(Sum('value'))['value__sum']
-	end = Transaction.objects.filter(user=user).order_by('month_date').last().month_date
-	if end > datetime.date.today():
-		end = datetime.date.today()
-	return -round(some / number_of_months(user))
+    trans = income_transactions(user)
+    if not trans.exists():
+        return 0
+    some = trans.aggregate(Sum('value'))['value__sum']
+    end = Transaction.objects.filter(user=user).order_by('month_date').last().month_date
+    if end > datetime.date.today():
+        end = datetime.date.today()
+    return -round(some / number_of_months(user))
 
 
 def number_of_months(user):
-	if not Transaction.objects.filter(user=user).exists():
-		return 0
-	start_date = DateInput.objects.get(name='start_date', user=user).date
-	end = Transaction.objects.filter(user=user).order_by('month_date').last().month_date
-	if end > datetime.date.today():
-		end = datetime.date.today()
-	delta = relativedelta.relativedelta(end, start_date)
-	return delta.years *12 +  delta.months + 1
-
+    if not Transaction.objects.filter(user=user).exists():
+        return 0
+    start_date = DateInput.objects.get(name='start_date', user=user).date
+    end = Transaction.objects.filter(user=user).order_by('month_date').last().month_date
+    if end > datetime.date.today():
+        end = datetime.date.today()
+    delta = relativedelta.relativedelta(end, start_date)
+    return delta.years * 12 + delta.months + 1
 
 # def accumelatating_by_month(user):
 # 	# only works for one month.

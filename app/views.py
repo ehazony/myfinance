@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 import calendar
 import datetime
 
-from django.db.models import Sum
+from django.db.models import Sum, Max, Min
 from django.forms import formset_factory
 from django.shortcuts import render
 from django.template.defaulttags import register
@@ -25,9 +25,8 @@ from myFinance import models
 from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential
 from myFinance.serialisers import TransactionSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer
 from telegram_bot import telegram_bot_api
-from . import date_utils
 from .graph import graph_api
-from .graph.graph_api import average_income
+from .graph.graph_api import average_income, expenses_transactions
 
 NO_DATA_HTML = "<div id=chartContainer style=height: 360px; width: 100%;> No data found</div>"
 
@@ -415,33 +414,33 @@ def get_color(value, min_value, max_value):
     return colors[int(percent // 25)]
 
 
-# class TotalMonthExpensesView(APIView):
-#
-#     def get(self, request, format=None):
-#         data = []
-#         start_date = DateInput.objects.filter(user=request.user, name='start_date')
-#         if start_date.exists():
-#             transactions_exp = expenses_transactions(request.user)
-#             transactions_all = all_transactions_in_dates(request.user)
-#             if transactions_exp.count() == 0:
-#                 return None
-#             aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value'))
-#             max_value = aggregated_trans.aggregate(Max('value__sum'))
-#             min_value = aggregated_trans.aggregate(Min('value__sum'))
-#             for d in aggregated_trans.order_by('month_date'):
-#                 data.append(
-#                     {
-#                         'value': round(d['value__sum']),
-#                         # AnswerRef: 'one',
-#                         'text': d['month_date'].strftime("'%y/%m"),
-#                         # Score: 0,
-#                         # RespondentPercentage: 12,
-#                         # Rank: 1,
-#                         'color': get_color(round(d['value__sum']), min_value['value__sum__min'],
-#                                            max_value['value__sum__max'])
-#                     }
-#                 )
-#         return Response(data)
+class TotalMonthExpensesView(APIView):
+
+    def get(self, request, format=None):
+        data = []
+        start_date = DateInput.objects.filter(user=request.user, name='start_date')
+        if start_date.exists():
+            transactions_exp = expenses_transactions(request.user)
+            # transactions_all = all_transactions_in_dates(request.user)
+            if transactions_exp.count() == 0:
+                return None
+            aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value'))
+            max_value = aggregated_trans.aggregate(Max('value__sum'))
+            min_value = aggregated_trans.aggregate(Min('value__sum'))
+            for d in aggregated_trans.order_by('month_date'):
+                data.append(
+                    {
+                        'value': round(d['value__sum']),
+                        # AnswerRef: 'one',
+                        'text': d['month_date'].strftime("'%y/%m"),
+                        # Score: 0,
+                        # RespondentPercentage: 12,
+                        # Rank: 1,
+                        'color': get_color(round(d['value__sum']), min_value['value__sum__min'],
+                                           max_value['value__sum__max'])
+                    }
+                )
+        return Response(data)
 
 
 class MonthCategoryView(APIView):
@@ -493,39 +492,16 @@ class MonthCategoryView(APIView):
 
 class BankInfo(APIView):
     def get(self, request, format=None):
-        Pas = [
-            "rgb(102, 197, 204)",
-            "rgb(246, 207, 113)",
-            "rgb(248, 156, 116)",
-            # "rgb(220, 176, 242)",
-            "rgb(135, 197, 95)",
-            "rgb(158, 185, 243)",
-            # "rgb(254, 136, 177)",
-            # "rgb(201, 219, 116)",
-            "rgb(139, 224, 164)",
-            # "rgb(180, 151, 231)",
-            "rgb(179, 179, 179)",
-        ]
-        data = []
-
         start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
         end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
                                                     minute=0, second=0, microsecond=0)
-        transactions = Transaction.objects.exclude(
-            tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations',
-                           'other income',
-                           'commission', 'exclude', 'vacation']).filter(date__gte=start_month,
-                                                                        date__lte=end_month,
-                                                                        user=request.user)
         now = datetime.datetime.now()
-        month_salary = \
-            Transaction.objects.filter(user=request.user, tag__name__in=['Salary'],
-                                       date__gte=date_utils.start_month(now),
-                                       date__lte=date_utils.end_month(now)).aggregate(Sum('value'))['value__sum']
         avg_monthly_income = graph_api.average_income(request.user)
         avg_monthly_expenses = graph_api.average_expenses(request.user)
-        user_info = models.AdditionalInfo.objects.filter(user=request.user, ).order_by('-created_at')[0]
-        bank_balance = user_info.value.get('bank_balance')
+        bank_credentials = models.Credential.objects.filter(user=request.user, type=models.Credential.BANK)
+        bank_balance = 0
+        for cred in bank_credentials:
+            bank_balance += cred.balance if cred.balance else 0
         data = [{'key': 'Bank Balance', 'value': bank_balance},
                 {'key': 'Average Monthly Income', 'value': avg_monthly_income},
                 {'key': 'Average Monthly Expenses', 'value': avg_monthly_expenses}]
@@ -585,5 +561,6 @@ class UserTagGoalView(APIView):
     def post(self, request):
         data = request.data
         data['user'] = request.user
-        m = models.TagGoal.objects.update_or_create(tag_id=data['tag'], defaults={'value': data['value']})
-        return Response(status=201)
+        m, created = models.TagGoal.objects.update_or_create(tag_id=data['tag'], defaults={'value': data['value']})
+        return Response(data=self.serializer_class(m).data, status=201, ) if created else Response(
+            data=self.serializer_class(m).data, status=200)
