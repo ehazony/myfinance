@@ -37,6 +37,7 @@ urlpatterns = [
     path('api/month-tracking', views.MonthTrackingView.as_view(), name='create_transaction'),
     path('api/user_credentials/', views.CredentialTypes.as_view()),
     path('api/user_goals/', views.UserTagGoalView.as_view()),
+    path('api/users/', views.UserView.as_view()),
 ]
 
 urlpatterns += adminurlpatterns

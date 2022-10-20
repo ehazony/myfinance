@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from myFinance.models import Transaction, Tag, Credential, TagGoal
@@ -21,6 +22,11 @@ class TransactionSerializer(RestModelSerializer):
         model = Transaction
         fields = '__all__'
 
+class UserSerializer(RestModelSerializer):
+
+    class Meta:
+        model = User
+        fields = '__all__'
 
 class TagSerializer(RestModelSerializer):
     class Meta:

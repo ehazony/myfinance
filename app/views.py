@@ -23,7 +23,8 @@ from app.forms import TransactionForm
 #     number_of_months, average_bank_expenses, monthly_average_by_name
 from myFinance import models
 from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential
-from myFinance.serialisers import TransactionSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer
+from myFinance.serialisers import TransactionSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer, \
+    UserSerializer
 from telegram_bot import telegram_bot_api
 from .graph import graph_api
 from .graph.graph_api import average_income, expenses_transactions
@@ -537,6 +538,11 @@ class CredentialTypes(APIView):
         data['user'] = request.user
         m = models.Credential.objects.create(**data)
         return Response(status=201)
+
+
+class UserView(APIView):
+    def get(self, request):
+        return Response(UserSerializer(request.user).data)
 
 
 class UserTagViewSet(viewsets.ModelViewSet):
