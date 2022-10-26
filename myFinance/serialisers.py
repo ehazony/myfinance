@@ -4,6 +4,12 @@ from rest_framework import serializers
 from myFinance.models import Transaction, Tag, Credential, TagGoal
 
 
+class TransactionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Transaction
+        fields = '__all__'
+
 class RestModelSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
@@ -15,7 +21,7 @@ class RestModelSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class TransactionSerializer(RestModelSerializer):
+class TransactionRestSerializer(RestModelSerializer):
     tag_name = serializers.CharField(source='tag.name', read_only=True)
 
     class Meta:

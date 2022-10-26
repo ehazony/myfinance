@@ -56,7 +56,7 @@ def income_transactions(user):
 # 	if transactions_set.count() == 0:
 # 		return None
 #
-# 	transactions_df = pd.DataFrame(TransactionSerializer(transactions_set, many=True).data)
+# 	transactions_df = pd.DataFrame(TransactionRestSerializer(transactions_set, many=True).data)
 # 	fig = px.scatter(transactions_df, x="date", y="value",
 # 	                 hover_name="tag", hover_data=["name"], color="bank")
 # 	return fig

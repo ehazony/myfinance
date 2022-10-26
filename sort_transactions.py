@@ -14,3 +14,10 @@ def sort_to_categories(transaction_statements, user):
         transaction['tag'] = tag
     print("*" * 30)
     return transaction_statements
+
+
+def get_category(transaction_statement):
+    tag = TransactionNameTag.get_tag(transaction_statement['name'], transaction_statement['user'])
+    if not tag:
+        tag = Tag.objects.get(user=transaction_statement['user'], key='other')
+    return tag

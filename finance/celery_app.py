@@ -15,7 +15,7 @@ from django.core import management
 
 from app.views import create_continuous_category_summery
 from bank_scraper import scraper_factory
-from finance import settings
+from finance import settings, utils
 from myFinance import models
 from sort_transactions import sort_to_categories
 from telegram_bot import telegram_bot_api
@@ -61,6 +61,8 @@ def load_transactions_by_credential(self, **options):
     else:
         start, end = datetime.datetime.strptime(start, settings.DEFAULT_TIME_FORMAT), datetime.datetime.strptime(end,
                                                                                                                  settings.DEFAULT_TIME_FORMAT)
+    end = datetime.date.today()
+    start = end.replace(day=1)
     if not end:
         end = datetime.date.today() - datetime.timedelta(days=1)
     if end < start:
@@ -70,13 +72,14 @@ def load_transactions_by_credential(self, **options):
     logger.info('start date: {} , end date: {}'.format(start, end))
     scraper = scraper_factory(credential.company)
     transactions = scraper.get_transactions(start, end, credential, **credential.get_credential)
-    sorted_transactions = sort_to_categories(transactions, user=credential.user)
-    for transaction in sorted_transactions:
-        bank = transaction.get('bank') if transaction.get('bank') else False
-        models.Transaction.objects.create(user=credential.user, arn=transaction.get('arn'),
-                                          date=transaction['date'], name=transaction['name'],
-                                          value=transaction['amount'], tag=transaction['tag'],
-                                          bank=bank, credential=credential)
+    utils.update_transactions(credential, transactions, )
+    # sorted_transactions = sort_to_categories(transactions, user=credential.user)
+    # for transaction in sorted_transactions:
+    #     bank = transaction.get('bank') if transaction.get('bank') else False
+    #     models.Transaction.objects.create(user=credential.user, arn=transaction.get('arn'),
+    #                                       date=transaction['date'], name=transaction['name'],
+    #                                       value=transaction['amount'], tag=transaction['tag'],
+    #                                       bank=bank, credential=credential)
     if end > credential.last_scanned:
         credential.last_scanned = end
         credential.save()

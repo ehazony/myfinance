@@ -111,7 +111,7 @@ class CalScraper(Scraper):
                     for trans in current_transactions:
                         value = trans['value'].replace('₪ ', '').replace(',', '')
                         value_total = trans['value_total'].replace('₪ ', '').replace(',', '')
-                        trans['amount'] = float(value) if value else None
+                        trans['value'] = float(value) if value else None
                         trans['deal_total'] = float(value_total) if value_total and '$' not in value_total else None
                         trans['date'] = datetime.datetime.strptime(trans['date'], '%d/%m/%y')
                         # set date to be in this month billing period

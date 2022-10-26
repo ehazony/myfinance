@@ -117,7 +117,7 @@ class DiscountScraper(Scraper):
                 'date': datetime.datetime.strptime(transaction['OperationDate'], '%Y%m%d'),
                 'name': transaction['OperationDescription'],
                 'urn': transaction['Urn'],
-                'amount': transaction['OperationAmount'] * -1,
+                'value': transaction['OperationAmount'] * -1,
                 'bank': True
 
             })

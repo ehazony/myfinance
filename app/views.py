@@ -23,7 +23,7 @@ from app.forms import TransactionForm
 #     number_of_months, average_bank_expenses, monthly_average_by_name
 from myFinance import models
 from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential
-from myFinance.serialisers import TransactionSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer, \
+from myFinance.serialisers import TransactionRestSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer, \
     UserSerializer
 from telegram_bot import telegram_bot_api
 from .graph import graph_api
@@ -510,7 +510,7 @@ class BankInfo(APIView):
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
-    serializer_class = TransactionSerializer
+    serializer_class = TransactionRestSerializer
     filterset_fields = {
         'date': ['gte', 'lte', 'exact', 'gt', 'lt'],
     }

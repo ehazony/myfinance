@@ -129,14 +129,20 @@ class Transaction(models.Model):
         self.__original_tag = self.tag
 
     def get_month(self):
-        start_date = DateInput.objects.get(name="start_date", user=self.user).date
+        start_date_input = DateInput.objects.filter(name="start_date", user=self.user)
+        if not start_date_input.exists():
+            return self.date.month
+        start_date = start_date_input.first().date
         if self.date.day >= start_date.day:
             return self.date.month
         else:
             return 12 if self.date.month == 1 else self.date.month - 1
 
     def get_month_date(self):
-        start_date = DateInput.objects.get(name="start_date", user=self.user).date
+        start_date_input = DateInput.objects.filter(name="start_date", user=self.user)
+        if not start_date_input.exists():
+            return self.date.month
+        start_date = start_date_input.first().date
         if self.date.day < start_date.day:
             return (self.date - datetime.timedelta(days=start_date.day)).replace(day=start_date.day)
         else:

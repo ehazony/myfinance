@@ -175,7 +175,7 @@ class MaxScraper(Scraper):
             date = datetime.datetime.strptime(t['purchaseDate'], '%Y-%m-%dT%X')
             amount = t['actualPaymentAmount']
             arn = t['arn']
-            trans.append({'name': name, 'date': date, 'amount': amount, 'arn': arn, })
+            trans.append({'name': name, 'date': date, 'value': amount, 'arn': arn, })
         return trans
 
 
