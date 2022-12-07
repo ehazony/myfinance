@@ -6,30 +6,353 @@ Copyright (c) 2019 - present AppSeed.us
 import calendar
 import datetime
 
+from bootstrap_modal_forms.generic import BSModalFormView
 from django.db.models import Sum, Max, Min
 from django.forms import formset_factory
 from django.shortcuts import render
-from django.template.defaulttags import register
+from django.urls import reverse_lazy
 from rest_framework import status
 from rest_framework import viewsets
-# from app.excel_parssers import ExcelParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+import app.utils
 from app.forms import TransactionForm
-# from app.graph.graph_api import monthly_average_by_category, line_fig_by_tag_by_month, line_fig_by_month, \
-#     Tag, \
-#     bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates, average_expenses, average_income, \
-#     number_of_months, average_bank_expenses, monthly_average_by_name
 from myFinance import models
 from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential
 from myFinance.serialisers import TransactionRestSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer, \
     UserSerializer
 from telegram_bot import telegram_bot_api
-from .graph import graph_api
-from .graph.graph_api import average_income, expenses_transactions
+from .forms import TransactionModelForm
+from .utils import expenses_transactions, average_income
+
+# from app.graph.graph_api import monthly_average_by_category, line_fig_by_tag_by_month, line_fig_by_month, \
+#     Tag, \
+#     bar_fig_by_month, expenses_transactions, scatter, all_transactions_in_dates, average_expenses, average_income, \
+#     number_of_months, average_bank_expenses, monthly_average_by_name
 
 NO_DATA_HTML = "<div id=chartContainer style=height: 360px; width: 100%;> No data found</div>"
+
+
+#######################################################################
+#  Views
+#######################################################################
+
+
+class SummeryWidgetsView(APIView):
+
+    def get(self, request, format=None):
+        data = {}
+        start_date = DateInput.objects.filter(user=request.user, name='start_date')
+        if start_date.exists():
+            transactions_exp = app.utils.expenses_transactions(request.user)
+            # transactions_all = graph_api.all_transactions_in_dates(request.user)
+            if transactions_exp.count() == 0:
+                return None
+            aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value'))
+            data = aggregated_trans
+            # data = load_index_figures(request.user)
+
+        return Response({"graphs": {"total_expenses_by_month_bar": {'dates': [d['month_date'] for d in data],
+                                                                    'series': [d['value__sum'] for d in data]}},
+                         "average_expenses": app.utils.average_expenses(request.user),
+                         "average_income": average_income(request.user),
+                         "number_of_months": app.utils.number_of_months(request.user),
+                         "average_bank_expenses": app.utils.average_bank_expenses(request.user)})
+
+
+class TransactionCreateView(BSModalFormView):
+    template_name = 'forms/create_transaction.html'
+    form_class = TransactionModelForm
+
+    def form_valid(self, form):
+        if 'date' in self.request.POST:
+            print('got date {}'.format(self.request.POST.get('date')))
+
+        response = super().form_valid(form)
+        return response
+
+    def get_success_url(self):
+        day = self.request.POST.get('date')
+        date = datetime.date.today().replace(day=int(day))
+        DateInput.objects.get_or_create(user=self.request.user, name='start_date', defaults={'date': date})
+        return reverse_lazy('home')
+
+
+class MonthTrackingView(APIView):
+
+    def get(self, request, format=None):
+        s = create_continuous_category_summery(request.user)
+        telegram_bot_api.send_message(s)
+        return Response(data={'text': s})
+
+
+class MonthCategoryView(APIView):
+
+    def get(self, request, format=None):
+        Pas = [
+            "rgb(102, 197, 204)",
+            "rgb(246, 207, 113)",
+            "rgb(248, 156, 116)",
+            # "rgb(220, 176, 242)",
+            "rgb(135, 197, 95)",
+            "rgb(158, 185, 243)",
+            # "rgb(254, 136, 177)",
+            # "rgb(201, 219, 116)",
+            "rgb(139, 224, 164)",
+            # "rgb(180, 151, 231)",
+            "rgb(179, 179, 179)",
+        ]
+        data = []
+        if 'month' in request.GET:
+            start_month = datetime.datetime.strptime(request.GET['month'], '%Y%m')
+        else:
+            start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
+        end_month = start_month.replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
+                                        minute=0, second=0, microsecond=0)
+        transactions = Transaction.objects.exclude(
+            tag__name__in=['Credit Cards', 'Bills', 'Salary', 'Same', 'Debt Payment', 'Donations',
+                           'Other Income',
+                           'Commission', 'Exclude', 'Vacation']).filter(date__gte=start_month,
+                                                                        date__lte=end_month,
+                                                                        user=request.user)
+        if 'category' in request.GET:
+            transactions = transactions.filter(tag__name__in=request.GET['category'])
+
+        tag_sums = transactions.values('tag_id').annotate(Sum('value'))
+        for i, tag_sum in enumerate(tag_sums):
+            tag = Tag.objects.get(id=tag_sum['tag_id'])
+            diff = int(tag.taggoal_set.first().value) - tag_sum['value__sum']
+            value_sum = round(tag_sum['value__sum']) if diff >= 0 else '*{}*'.format(round(tag_sum['value__sum']))
+            value = round(tag_sum['value__sum'])
+            goal = int(tag.taggoal_set.first().value)
+
+            data.append(
+                {'category_id': tag.id, 'category': tag.name, 'key': tag.name, 'value': value, 'goal': goal,
+                 'percent': value / goal * 100,
+                 'color': Pas[i % len(Pas)]})
+        return Response(data)
+
+
+class BankInfo(APIView):
+    def get(self, request, format=None):
+        start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
+        end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
+                                                    minute=0, second=0, microsecond=0)
+        now = datetime.datetime.now()
+        avg_monthly_income = app.utils.average_income(request.user)
+        avg_monthly_expenses = app.utils.average_expenses(request.user)
+        bank_credentials = models.Credential.objects.filter(user=request.user, type=models.Credential.BANK)
+        bank_balance = 0
+        for cred in bank_credentials:
+            bank_balance += cred.balance if cred.balance else 0
+        data = [{'key': 'Bank Balance', 'value': bank_balance},
+                {'key': 'Average Monthly Income', 'value': avg_monthly_income},
+                {'key': 'Average Monthly Expenses', 'value': avg_monthly_expenses}]
+        return Response(data)
+
+
+class TransactionViewSet(viewsets.ModelViewSet):
+    serializer_class = TransactionRestSerializer
+    filterset_fields = {
+        'date': ['gte', 'lte', 'exact', 'gt', 'lt'],
+    }
+
+    def get_queryset(self):
+        if self.request.GET.get('category'):
+            return self.request.user.transaction_set.filter(tag__name=self.request.GET.get('category')).order_by(
+                '-date')
+        return self.request.user.transaction_set.all().order_by('-date')
+
+
+class CredentialViewSet(viewsets.ModelViewSet):
+    serializer_class = CredentialSerializer
+
+    def get_queryset(self):
+        return Credential.objects.filter(user=self.request.user)
+
+
+class CredentialTypes(APIView):
+    def get(self, request):
+        return Response(models.Credential.COMPANY_CHOICES_WITH_FIELDS)
+
+    def post(self, request):
+        data = request.data
+        data['user'] = request.user
+        m = models.Credential.objects.create(**data)
+        return Response(status=201)
+
+
+class UserView(APIView):
+    def get(self, request):
+        return Response(UserSerializer(request.user).data)
+
+
+class UserTagViewSet(viewsets.ModelViewSet):
+    serializer_class = TagSerializer
+
+    def get_queryset(self):
+        return Tag.objects.filter(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):  # create Goal when creating tag
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tag = serializer.save()
+        goal = request.data['goal']
+        models.TagGoal.objects.create(user=request.user, tag=tag, value=goal)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class TotalMonthExpensesView(APIView):
+
+    def get(self, request, format=None):
+        data = []
+        start_date = DateInput.objects.filter(user=request.user, name='start_date')
+        if start_date.exists():
+            transactions_exp = expenses_transactions(request.user)
+            # transactions_all = all_transactions_in_dates(request.user)
+            if transactions_exp.count() == 0:
+                return None
+            aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value'))
+            max_value = aggregated_trans.aggregate(Max('value__sum'))
+            min_value = aggregated_trans.aggregate(Min('value__sum'))
+            for d in aggregated_trans.order_by('month_date'):
+                data.append(
+                    {
+                        'value': round(d['value__sum']),
+                        # AnswerRef: 'one',
+                        'text': d['month_date'].strftime("'%y/%m"),
+                        # Score: 0,
+                        # RespondentPercentage: 12,
+                        # Rank: 1,
+                        'color': get_color(round(d['value__sum']), min_value['value__sum__min'],
+                                           max_value['value__sum__max'])
+                    }
+                )
+        return Response(data)
+
+
+class UserTagGoalView(APIView):
+    serializer_class = TagGoalSerializer
+
+    def post(self, request):
+        data = request.data
+        data['user'] = request.user
+        m, created = models.TagGoal.objects.update_or_create(tag_id=data['tag'], defaults={'value': data['value']})
+        return Response(data=self.serializer_class(m).data, status=201, ) if created else Response(
+            data=self.serializer_class(m).data, status=200)
+
+
+def add_tag(request):  # TODO: TEST (may not work because tag field was changed to FK)
+    TransactionFormSet = formset_factory(TransactionForm, extra=5)
+    name = request.POST['fname']
+    if name:
+        Tag.objects.create(name=name, user=request.user)
+    # Get our existing link data for this user.  This is used as initial data.
+    # user_links = UserLink.objects.filter(user=user).order_by('anchor')
+    link_data = []
+    sorted_transaction_formset = TransactionFormSet(form_kwargs={'user': request.user})
+
+    context = {
+        'transaction_formset': sorted_transaction_formset
+    }
+    return render(request, 'pages/tables.html', context)
+
+
+#######################################################################
+# Helper functions
+#######################################################################
+
+def get_color(value, min_value, max_value):
+    colors = ['#96d3e3', '#6bafc2', '#017fb1', '#01678e', '#015677']
+
+    assert max_value >= min_value
+    d = max_value - min_value
+    normalized_value = value - min_value
+    percent = 100 * normalized_value / d
+    return colors[int(percent // 25)]
+
+
+def create_continuous_category_summery(user):
+    start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
+    end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
+                                                minute=0, second=0, microsecond=0)
+    transactions = Transaction.objects.filter(tag__type=Tag.CONTINUOUS, date__gte=start_month, date__lte=end_month,
+                                              user=user)
+    tag_sums = transactions.values('tag_id').annotate(Sum('value'))
+    total = 0
+    # last_scanned = models.DateInput.objects.get(name='last_scanned', user=request.user).date
+    s = '*Date {}*\n'.format(datetime.date.today().strftime('%d/%m'))
+    for tag_sum in tag_sums:
+        tag = Tag.objects.get(id=tag_sum['tag_id'])
+        goal = tag.taggoal_set.first()
+        if goal:
+            diff = int(goal.value) - tag_sum['value__sum']
+        else:
+            diff = 0
+        value_sum = round(tag_sum['value__sum']) if diff >= 0 else '*{}*'.format(round(tag_sum['value__sum']))
+        total += diff
+        t = '\n' + '{}: {}/ {}'.format(tag.name.replace('_', ' ').capitalize(),
+                                       value_sum, str(int(goal.value)) if goal else '')
+
+        s += t
+        # add TagGaols with 0 spent
+    tag_goals = models.TagGoal.objects.exclude(
+        tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations', 'other income',
+                       'commission', 'exclude', 'vacation'])
+    tag_goals = tag_goals.filter(tag__type=Tag.CONTINUOUS).exclude(
+        tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
+        tag__expense=False)
+    for tag_goal in tag_goals:
+        if tag_goal.value == 0:
+            continue
+        t = '\n' + '{}: {}/ {}'.format(tag_goal.tag.name.replace('_', ' ').capitalize(),
+                                       str(0), str(int(tag_goal.value)))
+        s += t
+        total += tag_goal.value
+
+    # add total left
+    s += '\n\n*Left*: {}'.format(round(total))
+
+    return s
+
+
+def load_excel_file(ws, user):
+    sorted_transactions = list()
+    unsorted_transactions = list()
+    # iterating over the rows and
+    # getting value from each cell in row
+    for row in list(ws.iter_rows()):
+        if not row[1].value or not row[3].value or not row[0].value:
+            continue
+        row_data = {}
+        row_data["name"] = row[1].value
+        row_data["value"] = row[3].value.replace("₪", "").replace(",", "").strip()
+        row_data["date"] = row[0].value
+        tag = TransactionNameTag.get_tag(row_data["name"], user)
+        if tag:
+            row_data["tag"] = tag.name
+            sorted_transactions.append(row_data)
+        else:
+            unsorted_transactions.append(row_data)
+    return sorted_transactions + unsorted_transactions
+
+
+def reformat_figs(data):
+    for name, fig in data.items():
+        if not fig:
+            data[name] = NO_DATA_HTML
+        else:
+            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
+    return data
+
+# @register.simple_tag
+# def query_transform(request, **kwargs):
+#     updated = request.GET.copy()
+#     updated.update(kwargs)
+#     return updated.urlencode()
 
 
 # def load_index_figures(user):
@@ -77,28 +400,6 @@ NO_DATA_HTML = "<div id=chartContainer style=height: 360px; width: 100%;> No dat
 #                            "average_income": average_income(request.user),
 #                            "number_of_months": number_of_months(request.user),
 #                            "average_bank_expenses": average_bank_expenses(request.user)})
-
-
-class SummeryWidgetsView(APIView):
-
-    def get(self, request, format=None):
-        data = {}
-        start_date = DateInput.objects.filter(user=request.user, name='start_date')
-        if start_date.exists():
-            transactions_exp = graph_api.expenses_transactions(request.user)
-            # transactions_all = graph_api.all_transactions_in_dates(request.user)
-            if transactions_exp.count() == 0:
-                return None
-            aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value'))
-            data = aggregated_trans
-            # data = load_index_figures(request.user)
-
-        return Response({"graphs": {"total_expenses_by_month_bar": {'dates': [d['month_date'] for d in data],
-                                                                    'series': [d['value__sum'] for d in data]}},
-                         "average_expenses": graph_api.average_expenses(request.user),
-                         "average_income": average_income(request.user),
-                         "number_of_months": graph_api.number_of_months(request.user),
-                         "average_bank_expenses": graph_api.average_bank_expenses(request.user)})
 
 
 # def planing_iniail(user):
@@ -170,10 +471,6 @@ class SummeryWidgetsView(APIView):
 #
 #         template = loader.get_template('pages/error-404.html')
 #         return HttpResponse(template.render(context, request))
-
-
-def popup(reuest):
-    print("hrere")
 
 
 # def by_tag(request):
@@ -271,302 +568,3 @@ def popup(reuest):
 # context = {"taglist": taglist, 'sorted_transaction_formset': s,
 #            'unsorted_transactions_formset': []}
 # return render(request, 'pages/tables_transactions.html', context)
-
-
-def load_excel_file(ws, user):
-    sorted_transactions = list()
-    unsorted_transactions = list()
-    # iterating over the rows and
-    # getting value from each cell in row
-    for row in list(ws.iter_rows()):
-        if not row[1].value or not row[3].value or not row[0].value:
-            continue
-        row_data = {}
-        row_data["name"] = row[1].value
-        row_data["value"] = row[3].value.replace("₪", "").replace(",", "").strip()
-        row_data["date"] = row[0].value
-        tag = TransactionNameTag.get_tag(row_data["name"], user)
-        if tag:
-            row_data["tag"] = tag.name
-            sorted_transactions.append(row_data)
-        else:
-            unsorted_transactions.append(row_data)
-    return sorted_transactions + unsorted_transactions
-
-
-@register.simple_tag
-def query_transform(request, **kwargs):
-    updated = request.GET.copy()
-    updated.update(kwargs)
-    return updated.urlencode()
-
-
-def reformat_figs(data):
-    for name, fig in data.items():
-        if not fig:
-            data[name] = NO_DATA_HTML
-        else:
-            fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-            data[name] = fig.to_html(full_html=False, config={'displayModeBar': False})
-    return data
-
-
-def add_tag(request):  # TODO may not work because tag field was changed to FK
-    TransactionFormSet = formset_factory(TransactionForm, extra=5)
-    name = request.POST['fname']
-    if name:
-        Tag.objects.create(name=name, user=request.user)
-    # Get our existing link data for this user.  This is used as initial data.
-    # user_links = UserLink.objects.filter(user=user).order_by('anchor')
-    link_data = []
-    sorted_transaction_formset = TransactionFormSet(form_kwargs={'user': request.user})
-
-    context = {
-        'transaction_formset': sorted_transaction_formset
-    }
-    return render(request, 'pages/tables.html', context)
-
-
-from django.urls import reverse_lazy
-from .forms import TransactionModelForm
-from bootstrap_modal_forms.generic import BSModalFormView
-
-
-class TransactionCreateView(BSModalFormView):
-    template_name = 'forms/create_transaction.html'
-    form_class = TransactionModelForm
-
-    def form_valid(self, form):
-        if 'date' in self.request.POST:
-            print('got date {}'.format(self.request.POST.get('date')))
-
-        response = super().form_valid(form)
-        return response
-
-    def get_success_url(self):
-        day = self.request.POST.get('date')
-        date = datetime.date.today().replace(day=int(day))
-        DateInput.objects.get_or_create(user=self.request.user, name='start_date', defaults={'date': date})
-        return reverse_lazy('home')
-
-
-def create_continuous_category_summery(user):
-    start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
-    end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
-                                                minute=0, second=0, microsecond=0)
-    transactions = Transaction.objects.filter(tag__type=Tag.CONTINUOUS, date__gte=start_month, date__lte=end_month,
-                                              user=user)
-    tag_sums = transactions.values('tag_id').annotate(Sum('value'))
-    total = 0
-    # last_scanned = models.DateInput.objects.get(name='last_scanned', user=request.user).date
-    s = '*Date {}*\n'.format(datetime.date.today().strftime('%d/%m'))
-    for tag_sum in tag_sums:
-        tag = Tag.objects.get(id=tag_sum['tag_id'])
-        goal = tag.taggoal_set.first()
-        if goal:
-            diff = int(goal.value) - tag_sum['value__sum']
-        else:
-            diff = 0
-        value_sum = round(tag_sum['value__sum']) if diff >= 0 else '*{}*'.format(round(tag_sum['value__sum']))
-        total += diff
-        t = '\n' + '{}: {}/ {}'.format(tag.name.replace('_', ' ').capitalize(),
-                                       value_sum, str(int(goal.value)) if goal else '')
-
-        s += t
-        # add TagGaols with 0 spent
-    tag_goals = models.TagGoal.objects.exclude(
-        tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations', 'other income',
-                       'commission', 'exclude', 'vacation'])
-    tag_goals = tag_goals.filter(tag__type=Tag.CONTINUOUS).exclude(
-        tag__id__in=[tag_sum['tag_id'] for tag_sum in tag_sums]).exclude(
-        tag__expense=False)
-    for tag_goal in tag_goals:
-        if tag_goal.value == 0:
-            continue
-        t = '\n' + '{}: {}/ {}'.format(tag_goal.tag.name.replace('_', ' ').capitalize(),
-                                       str(0), str(int(tag_goal.value)))
-        s += t
-        total += tag_goal.value
-
-    # add total left
-    s += '\n\n*Left*: {}'.format(round(total))
-
-    return s
-
-
-class MonthTrackingView(APIView):
-
-    def get(self, request, format=None):
-        s = create_continuous_category_summery(request.user)
-        telegram_bot_api.send_message(s)
-        return Response(data={'text': s})
-
-
-#######################################################################
-# Widget views
-#######################################################################
-def get_color(value, min_value, max_value):
-    colors = ['#96d3e3', '#6bafc2', '#017fb1', '#01678e', '#015677']
-
-    assert max_value >= min_value
-    d = max_value - min_value
-    normalized_value = value - min_value
-    percent = 100 * normalized_value / d
-    return colors[int(percent // 25)]
-
-
-class TotalMonthExpensesView(APIView):
-
-    def get(self, request, format=None):
-        data = []
-        start_date = DateInput.objects.filter(user=request.user, name='start_date')
-        if start_date.exists():
-            transactions_exp = expenses_transactions(request.user)
-            # transactions_all = all_transactions_in_dates(request.user)
-            if transactions_exp.count() == 0:
-                return None
-            aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value'))
-            max_value = aggregated_trans.aggregate(Max('value__sum'))
-            min_value = aggregated_trans.aggregate(Min('value__sum'))
-            for d in aggregated_trans.order_by('month_date'):
-                data.append(
-                    {
-                        'value': round(d['value__sum']),
-                        # AnswerRef: 'one',
-                        'text': d['month_date'].strftime("'%y/%m"),
-                        # Score: 0,
-                        # RespondentPercentage: 12,
-                        # Rank: 1,
-                        'color': get_color(round(d['value__sum']), min_value['value__sum__min'],
-                                           max_value['value__sum__max'])
-                    }
-                )
-        return Response(data)
-
-
-class MonthCategoryView(APIView):
-
-    def get(self, request, format=None):
-        Pas = [
-            "rgb(102, 197, 204)",
-            "rgb(246, 207, 113)",
-            "rgb(248, 156, 116)",
-            # "rgb(220, 176, 242)",
-            "rgb(135, 197, 95)",
-            "rgb(158, 185, 243)",
-            # "rgb(254, 136, 177)",
-            # "rgb(201, 219, 116)",
-            "rgb(139, 224, 164)",
-            # "rgb(180, 151, 231)",
-            "rgb(179, 179, 179)",
-        ]
-        data = []
-        if 'month' in request.GET:
-            start_month = datetime.datetime.strptime(request.GET['month'], '%Y%m')
-        else:
-            start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
-        end_month = start_month.replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
-                                        minute=0, second=0, microsecond=0)
-        transactions = Transaction.objects.exclude(
-            tag__name__in=['Credit Cards', 'Bills', 'Salary', 'Same', 'Debt Payment', 'Donations',
-                           'Other Income',
-                           'Commission', 'Exclude', 'Vacation']).filter(date__gte=start_month,
-                                                                        date__lte=end_month,
-                                                                        user=request.user)
-        if 'category' in request.GET:
-            transactions = transactions.filter(tag__name__in=request.GET['category'])
-
-        tag_sums = transactions.values('tag_id').annotate(Sum('value'))
-        for i, tag_sum in enumerate(tag_sums):
-            tag = Tag.objects.get(id=tag_sum['tag_id'])
-            diff = int(tag.taggoal_set.first().value) - tag_sum['value__sum']
-            value_sum = round(tag_sum['value__sum']) if diff >= 0 else '*{}*'.format(round(tag_sum['value__sum']))
-            value = round(tag_sum['value__sum'])
-            goal = int(tag.taggoal_set.first().value)
-
-            data.append(
-                {'category_id': tag.id, 'category': tag.name, 'key': tag.name, 'value': value, 'goal': goal,
-                 'percent': value / goal * 100,
-                 'color': Pas[i % len(Pas)]})
-        return Response(data)
-
-
-class BankInfo(APIView):
-    def get(self, request, format=None):
-        start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
-        end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
-                                                    minute=0, second=0, microsecond=0)
-        now = datetime.datetime.now()
-        avg_monthly_income = graph_api.average_income(request.user)
-        avg_monthly_expenses = graph_api.average_expenses(request.user)
-        bank_credentials = models.Credential.objects.filter(user=request.user, type=models.Credential.BANK)
-        bank_balance = 0
-        for cred in bank_credentials:
-            bank_balance += cred.balance if cred.balance else 0
-        data = [{'key': 'Bank Balance', 'value': bank_balance},
-                {'key': 'Average Monthly Income', 'value': avg_monthly_income},
-                {'key': 'Average Monthly Expenses', 'value': avg_monthly_expenses}]
-        return Response(data)
-
-
-class TransactionViewSet(viewsets.ModelViewSet):
-    serializer_class = TransactionRestSerializer
-    filterset_fields = {
-        'date': ['gte', 'lte', 'exact', 'gt', 'lt'],
-    }
-
-    def get_queryset(self):
-        if self.request.GET.get('category'):
-            return self.request.user.transaction_set.filter(tag__name=self.request.GET.get('category')).order_by(
-                '-date')
-        return self.request.user.transaction_set.all().order_by('-date')
-
-
-class CredentialViewSet(viewsets.ModelViewSet):
-    serializer_class = CredentialSerializer
-
-    def get_queryset(self):
-        return Credential.objects.filter(user=self.request.user)
-
-
-class CredentialTypes(APIView):
-    def get(self, request):
-        return Response(models.Credential.COMPANY_CHOICES_WITH_FIELDS)
-
-    def post(self, request):
-        data = request.data
-        data['user'] = request.user
-        m = models.Credential.objects.create(**data)
-        return Response(status=201)
-
-
-class UserView(APIView):
-    def get(self, request):
-        return Response(UserSerializer(request.user).data)
-
-
-class UserTagViewSet(viewsets.ModelViewSet):
-    serializer_class = TagSerializer
-
-    def get_queryset(self):
-        return Tag.objects.filter(user=self.request.user)
-
-    def create(self, request, *args, **kwargs):  # create Goal when creating tag
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        tag = serializer.save()
-        goal = request.data['goal']
-        models.TagGoal.objects.create(user=request.user, tag=tag, value=goal)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-
-class UserTagGoalView(APIView):
-    serializer_class = TagGoalSerializer
-
-    def post(self, request):
-        data = request.data
-        data['user'] = request.user
-        m, created = models.TagGoal.objects.update_or_create(tag_id=data['tag'], defaults={'value': data['value']})
-        return Response(data=self.serializer_class(m).data, status=201, ) if created else Response(
-            data=self.serializer_class(m).data, status=200)

@@ -1,12 +1,16 @@
+###########################################################
+#                    DEPRECATED
+###########################################################
+"""
+Excel Parsers to upload files from the different Accounts
+"""
+
 # import logging
 # from abc import abstractmethod
-#
 # import openpyxl
-#
 # from myFinance.models import TransactionNameTag
 # from datetime import datetime
 # logger = logging.getLogger(__name__)
-#
 #
 # class _ExcelParser:
 # 	@abstractmethod

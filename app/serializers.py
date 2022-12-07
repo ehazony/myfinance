@@ -1,5 +1,5 @@
-from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
+from rest_framework import serializers
 
 
 class CustomRegisterSerializer(RegisterSerializer):
@@ -15,3 +15,11 @@ class CustomRegisterSerializer(RegisterSerializer):
             'first_name': self.validated_data.get('firstname', ''),
             'last_name': self.validated_data.get('lastname', '')
         }
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+
