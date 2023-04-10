@@ -32,3 +32,4 @@ selenium-stealth
 chromedriver_autoinstaller
 pandas
 gspread
+seleniumwire
