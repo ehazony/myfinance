@@ -8,7 +8,7 @@ from django.urls import path, re_path, include
 from rest_framework.routers import DefaultRouter
 
 from app import views
-from app.views import TransactionViewSet, UserTagViewSet, CredentialViewSet
+from app.views import TransactionViewSet, UserTagViewSet, CredentialViewSet, RecurringTransactionsViewSet
 from myFinance.admin import admin_site
 
 # from myFinance import views as f_views
@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/user_credentials/', views.CredentialTypes.as_view()),
     path('api/user_goals/', views.UserTagGoalView.as_view()),
     path('api/users/', views.UserView.as_view()),
+    path('user_transactions_names', views.UserTransactionsNames.as_view()),
 
     # path('', views.index, name='home'),
     # re_path(r'^.*\.html', views.pages, name='pages'),
@@ -43,6 +44,7 @@ dj_login_patterns = [path('dj-rest-auth/', include('dj_rest_auth.urls')),
 router = DefaultRouter()
 router.register(r'user_transactions', TransactionViewSet, basename='user_transactions')
 router.register(r'user_accounts', CredentialViewSet, basename='user_accounts')
+router.register(r'user_recurring_transactions', RecurringTransactionsViewSet, basename='user_recurring_transactions')
 router.register(r'user_tags', UserTagViewSet, basename='user_tags')
 
 urlpatterns += router.urls

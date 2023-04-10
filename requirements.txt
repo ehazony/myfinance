@@ -13,7 +13,7 @@ requests
 djangorestframework
 zappa
 python-decouple==3.6
-psycopg2
+psycopg2-binary
 django-cors-headers
 undetected-chromedriver
 django-filter==22.1
@@ -29,4 +29,6 @@ gunicorn==20.1.0
 dj_rest_auth
 django-allauth
 selenium-stealth
-
+chromedriver_autoinstaller
+pandas
+gspread

@@ -1,15 +1,23 @@
 from django.contrib import admin
 
 # from app.forms import UserAdminAuthenticationForm
-from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag, TagGoal, Credential, AdditionalInfo
+from myFinance.models import Transaction, Tag, DateInput, TransactionNameTag, TagGoal, Credential, AdditionalInfo, \
+    ErrorLog
 
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'value', 'month', 'date', 'tag', 'month_date', 'bank', 'arn')
+    list_display = ('name', 'value', 'month', 'date', 'tag', 'month_date', 'bank', 'identifier')
 
     class Meta:
         model = Transaction
+
+@admin.register(ErrorLog)
+class ErrorLogAdmin(admin.ModelAdmin):
+    list_display = ('message', 'created_at', 'user')
+
+    class Meta:
+        model = ErrorLog
 
 
 @admin.register(TagGoal)

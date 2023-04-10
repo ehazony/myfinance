@@ -19,7 +19,7 @@ from selenium.webdriver.common.by import By
 from bank_scraper.selenium_api import get_selenium_driver
 
 URL = "https://start.telebank.co.il/Titan/gatewayAPI/lastTransactions/transactions/0142181635/ByDate"
-
+URL_LOANS = 'https://start.telebank.co.il/Titan/gatewayAPI/onlineLoans/loansQuery/0142181635'
 HEADERS = {
     'Accept': 'application/json, text/plain, */*',
     'Accept-Language': 'he-IL,he;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -85,8 +85,8 @@ PARAMS = {"FromDate": None, "ToDate": None,
 class DiscountScraper(Scraper):
     COMPANY = 'DISCOUNT'
 
-    def get_transactions(self, start, end, credential, username=None, password=None, user_id=None, *args, **kwargs):
-        driver = get_selenium_driver(headless=True, grid=True)
+    def get_transactions(self, start, end, credential, username=None, password=None, user_id=None,headless=False, grid=True, *args, **kwargs):
+        driver = get_selenium_driver(headless=headless, grid=grid)
         try:
             driver.get('https://start.telebank.co.il/login/#/LOGIN_PAGE')
             time.sleep(2)
@@ -107,6 +107,15 @@ class DiscountScraper(Scraper):
                 return transactions
             account_balance = data[0]['CurrentAccountLastTransactions']['CurrentAccountInfo']['AccountBalance']
             credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = account_balance
+            s = self.get_with_requests(driver,URL_LOANS,HEADERS, PARAMS)
+            loans = -s['LoansQuery']['Summary']['TotalBalance']
+
+            # temp
+            import pandas as pd
+            df = pd.DataFrame(s['LoansQuery']['LoanDetailsBlock']['LoanEntry'])
+            df.to_csv('loans.csv')
+
+            credential.additional_info[credential.ADDITIONAL_INFO_LOANS] = loans
             credential.save()
         except Exception as e:
             driver.quit()
@@ -116,7 +125,7 @@ class DiscountScraper(Scraper):
             transactions.append({
                 'date': datetime.datetime.strptime(transaction['OperationDate'], '%Y%m%d'),
                 'name': transaction['OperationDescription'],
-                'urn': transaction['Urn'],
+                'identifier': transaction['OperationNumber'],
                 'value': transaction['OperationAmount'] * -1,
                 'bank': True
 

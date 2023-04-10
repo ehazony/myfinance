@@ -1,6 +1,11 @@
 import time
 
+import chromedriver_autoinstaller
+
+
+from seleniumwire import webdriver as seleniumwire
 from selenium import webdriver
+
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium_stealth import stealth
 
@@ -26,9 +31,13 @@ def get_driver():
     return driver
 
 
-def get_selenium_driver(grid=True, headless = True):
+def get_selenium_driver(grid=True, headless = True, wire = False):
     # options = uc.ChromeOptions()
-    options = webdriver.ChromeOptions()
+    if wire:
+        driver = seleniumwire
+    else:
+        driver = webdriver
+    options = driver.ChromeOptions()
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-gpu')
     options.add_argument('--disable-dev-shm-usage')
@@ -37,11 +46,12 @@ def get_selenium_driver(grid=True, headless = True):
         options.add_argument('--headless')
         options.headless = True
     if grid:
-        driver = webdriver.Remote(
+        driver = driver.Remote(
             command_executor=settings.GRID_ENDPOINT,
             desired_capabilities=DesiredCapabilities.CHROME, options=options)
     else:
-        driver = webdriver.Chrome(options=options)
+        chromedriver_autoinstaller.install()
+        driver = driver.Chrome(options=options)
     # driver.implicitly_wait(10)
         stealth(driver,
                 languages=["en-US", "en"],
@@ -53,6 +63,17 @@ def get_selenium_driver(grid=True, headless = True):
                 )
     return driver
 
+# from seleniumwire import webdriver  # Import from seleniumwire
+# from seleniumwire.utils import decode
+     # for request in driver.requests:
+#         if request.response and 'application/json' in request.response.headers['Content-Type']:
+#             print('#######################################')
+#             print(
+#                 request.url,
+#                 request.response.status_code,
+#                 request.response.headers['Content-Type'],
+#                 decode(request.response.body, request.response.headers.get('Content-Encoding', 'identity'))
+#             )
 
 def run_process(browser):
     browser.get('https://pricebackers.com/')

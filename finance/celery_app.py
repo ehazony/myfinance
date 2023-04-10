@@ -3,7 +3,7 @@ import logging
 import os
 
 import django
-
+import traceback
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
 
 django.setup()
@@ -70,9 +70,18 @@ def load_transactions_by_credential(self, **options):
         return
     logger.info('starting work for user {} company {}'.format(credential.user, credential.company))
     logger.info('start date: {} , end date: {}'.format(start, end))
-    scraper = scraper_factory(credential.company)
-    transactions = scraper.get_transactions(start, end, credential, **credential.get_credential)
-    utils.update_transactions(credential, transactions, )
+    try:
+        scraper = scraper_factory(credential.company)
+        transactions = scraper.get_transactions(start, end, credential, **credential.get_credential, headless=options.get('headless', False), grid= options.get('headless', True))
+        utils.update_transactions(credential, transactions, )
+        if end > credential.last_scanned:
+            credential.last_scanned = end
+            credential.save()
+    except Exception as e:
+        trace = traceback.format_exc()
+        message = 'Error loading Transactions for company {}: {}'.format(credential.company, trace)
+        models.ErrorLog.objects.create(user=credential.user, message={'error': message})
+        telegram_bot_api.send_message(message)
     # sorted_transactions = sort_to_categories(transactions, user=credential.user)
     # for transaction in sorted_transactions:
     #     bank = transaction.get('bank') if transaction.get('bank') else False
@@ -80,9 +89,7 @@ def load_transactions_by_credential(self, **options):
     #                                       date=transaction['date'], name=transaction['name'],
     #                                       value=transaction['amount'], tag=transaction['tag'],
     #                                       bank=bank, credential=credential)
-    if end > credential.last_scanned:
-        credential.last_scanned = end
-        credential.save()
+
     logger.info('starting work for user {} company {}'.format(credential.user, credential.company))
     logger.info('done work for user {} company {}'.format(credential.user, credential.company))
 

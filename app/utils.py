@@ -5,6 +5,8 @@ from django.db.models import Sum
 
 from myFinance.models import Transaction, DateInput
 
+def approx_rolling_average(avg, new_sample, n):
+    return (avg * (n - 1) + new_sample) / n
 
 def expenses_transactions(user):
     """:returns anything that should not be excluded from the monthly expenses calculation"""
@@ -12,8 +14,7 @@ def expenses_transactions(user):
         return Transaction.objects.filter(user=user)
     start_date = DateInput.objects.get(name='start_date', user=user).date
     end = datetime.datetime.now()
-    return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user).exclude(
-        tag__key__in=['exclude', 'credit_cards', 'salary'])
+    return Transaction.objects.filter(date__gte=start_date, date__lte=end, user=user).exclude( tag__expense=False,)
 
 
 def all_transactions_in_dates(user):

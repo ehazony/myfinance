@@ -7,6 +7,7 @@ import calendar
 import datetime
 
 from bootstrap_modal_forms.generic import BSModalFormView
+from dateutil.relativedelta import relativedelta
 from django.db.models import Sum, Max, Min
 from django.forms import formset_factory
 from django.shortcuts import render
@@ -19,10 +20,11 @@ from rest_framework.views import APIView
 import app.utils
 from app.forms import TransactionForm
 from myFinance import models
-from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential
+from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential, RecurringTransaction
 from myFinance.serialisers import TransactionRestSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer, \
-    UserSerializer
+    UserSerializer, RecurringTransactionSerializer
 from telegram_bot import telegram_bot_api
+from .date_utils import date_in_bill_month, next_bill_date, end_month
 from .forms import TransactionModelForm
 from .utils import expenses_transactions, average_income
 
@@ -110,26 +112,25 @@ class MonthCategoryView(APIView):
             start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
         end_month = start_month.replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
                                         minute=0, second=0, microsecond=0)
-        transactions = Transaction.objects.exclude(
-            tag__name__in=['Credit Cards', 'Bills', 'Salary', 'Same', 'Debt Payment', 'Donations',
-                           'Other Income',
-                           'Commission', 'Exclude', 'Vacation']).filter(date__gte=start_month,
-                                                                        date__lte=end_month,
-                                                                        user=request.user)
+        transactions = Transaction.objects.exclude(tag__expense=False, tag__key__in=['credit_cards', 'exclude']).filter(
+            date__gte=start_month,
+            date__lte=end_month,
+            user=request.user)
         if 'category' in request.GET:
             transactions = transactions.filter(tag__name__in=request.GET['category'])
 
         tag_sums = transactions.values('tag_id').annotate(Sum('value'))
         for i, tag_sum in enumerate(tag_sums):
             tag = Tag.objects.get(id=tag_sum['tag_id'])
-            diff = int(tag.taggoal_set.first().value) - tag_sum['value__sum']
-            value_sum = round(tag_sum['value__sum']) if diff >= 0 else '*{}*'.format(round(tag_sum['value__sum']))
+            # diff = int(tag.taggoal_set.first().value) - tag_sum['value__sum']
+            # value_sum = round(tag_sum['value__sum']) if diff >= 0 else '*{}*'.format(round(tag_sum['value__sum']))
             value = round(tag_sum['value__sum'])
-            goal = int(tag.taggoal_set.first().value)
+            goal = int(tag.taggoal_set.first().value) if tag.taggoal_set.first() else 0
 
             data.append(
                 {'category_id': tag.id, 'category': tag.name, 'key': tag.name, 'value': value, 'goal': goal,
-                 'percent': value / goal * 100,
+                 'type': tag.type,
+                 'percent': value / goal * 100 if goal and goal > 0 else 100,
                  'color': Pas[i % len(Pas)]})
         return Response(data)
 
@@ -142,14 +143,48 @@ class BankInfo(APIView):
         now = datetime.datetime.now()
         avg_monthly_income = app.utils.average_income(request.user)
         avg_monthly_expenses = app.utils.average_expenses(request.user)
-        bank_credentials = models.Credential.objects.filter(user=request.user, type=models.Credential.BANK)
-        bank_balance = 0
+        bank_credentials = models.Credential.objects.filter(user=request.user)
+        bank_balance = total_balance = 0
         for cred in bank_credentials:
-            bank_balance += cred.balance if cred.balance else 0
-        data = [{'key': 'Bank Balance', 'value': bank_balance},
-                {'key': 'Average Monthly Income', 'value': avg_monthly_income},
-                {'key': 'Average Monthly Expenses', 'value': avg_monthly_expenses}]
+            bank_balance += cred.balance if cred.balance and cred.type == models.Credential.BANK else 0
+            total_balance += cred.balance if cred.balance else 0
+        bank_balance = round(bank_balance, 2)
+        total_balance = round(total_balance, 2)
+        estimated_recurring_transactions_month = RecurringTransaction.objects.filter(user=request.user,
+                                                                                     id__in=[item.id for item in
+                                                                                             estimated_recurring_transactions(
+                                                                                                 False, request.user)])
+        estimated_recurring_month_sum = \
+            estimated_recurring_transactions_month.exclude(value__lte=0).aggregate(Sum('value'))[
+                'value__sum'] or 0
+        month_current_sum = \
+            app.utils.expenses_transactions(request.user).filter(date__gte=start_month, date__lte=end_month).aggregate(
+                Sum('value'))['value__sum'] or 0
+        month_expected_sum = month_current_sum + estimated_recurring_month_sum
+
+        estimated_recurring_transactions_bill_month = RecurringTransaction.objects.filter(user=request.user,
+                                                                                          id__in=[item.id for item in
+                                                                                                  estimated_recurring_transactions(
+                                                                                                      True,
+                                                                                                      request.user)])
+        estimated_transactions_bill_month_total = estimated_recurring_transactions_bill_month.aggregate(Sum('value'))[
+                                                      'value__sum'] or 0
+        estimated_total_balance = total_balance - estimated_transactions_bill_month_total
+
+        data = [
+            {'key': 'Bank Balance', 'value': bank_balance},
+            {'key': 'Account Balance', 'value': total_balance},
+            {'key': 'Expected Balance', 'value': round(estimated_total_balance)},
+            {'key': 'Expected End Of Month Expenses', 'value': round(month_expected_sum)},
+            {'key': 'Average Monthly Income', 'value': avg_monthly_income},
+            {'key': 'Average Monthly Expenses', 'value': avg_monthly_expenses}]
         return Response(data)
+
+
+class UserTransactionsNames(APIView):
+    def get(self, request, format=None):
+        transactions = Transaction.objects.filter(user=request.user).values_list('name').distinct()
+        return Response(data=transactions)
 
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -170,6 +205,42 @@ class CredentialViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Credential.objects.filter(user=self.request.user)
+
+
+def estimated_recurring_transactions(bill_month, user):
+    non_registered_transactions = []
+    for item in RecurringTransaction.objects.filter(user=user):
+        if bill_month:
+            date__in_month = date_in_bill_month(item.date.day, user)
+            end = next_bill_date(user)
+            start = end - relativedelta(months=1)
+        else:
+            date__in_month = datetime.date.today().replace(day=min(item.date.day, end_month(datetime.date.today()).day))
+            start = datetime.date.today().replace(day=1)
+            end = datetime.date.today().replace(day=calendar.monthrange(start.year, start.month)[1])
+
+        if not Transaction.objects.filter(user=user,
+                                          name__contains=item.name,
+                                          value__lte=item.value * 1.1,
+                                          value__gte=item.value * 0.9,
+                                          date__gte=start,
+                                          date__lte=end).exists():
+            item.date = date__in_month.date() if isinstance(date__in_month, datetime.datetime) else date__in_month
+            non_registered_transactions.append(item)
+    return non_registered_transactions
+    # return RecurringTransaction.objects.filter(user=user, id__in=non_registered_transactions)
+
+
+class RecurringTransactionsViewSet(viewsets.ModelViewSet):
+    serializer_class = RecurringTransactionSerializer
+
+    def get_queryset(self):
+        return RecurringTransaction.objects.filter(user=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        return Response(
+            RecurringTransactionSerializer(estimated_recurring_transactions(bill_month=True, user=request.user),
+                                           many=True).data)
 
 
 class CredentialTypes(APIView):
@@ -194,6 +265,20 @@ class UserTagViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Tag.objects.filter(user=self.request.user)
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        data['goal'] = instance.taggoal_set.first().value if instance.taggoal_set.exists() else None
+        transactions_exp = expenses_transactions(instance.user).filter(tag=instance)
+        values = transactions_exp.values('month_date').annotate(Sum('value')).order_by('month_date')
+        data['expense_month_avg'] = round(sum([v['value__sum'] for v in values]) / len(values)) if values else 0
+        data['expense_month_avg'] = round(sum([v['value__sum'] for v in values]) / len(values)) if values else 0
+        last_months = list(values)[-4:]
+        data['expense_last_months_avg'] = round(
+            sum([v['value__sum'] for v in last_months]) / len(last_months)) if last_months else 0
+        return Response(data)
+
     def create(self, request, *args, **kwargs):  # create Goal when creating tag
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -207,6 +292,15 @@ class UserTagViewSet(viewsets.ModelViewSet):
 class TotalMonthExpensesView(APIView):
 
     def get(self, request, format=None):
+        def moving_average(data, window_size):
+            moving_average = []
+            for i in range(len(data)):
+                sum = 0
+                for j in range(max(0, i - window_size), i):
+                    sum += data[j]
+                moving_average.append(sum / window_size)
+            return moving_average
+
         data = []
         start_date = DateInput.objects.filter(user=request.user, name='start_date')
         if start_date.exists():
@@ -214,12 +308,16 @@ class TotalMonthExpensesView(APIView):
             # transactions_all = all_transactions_in_dates(request.user)
             if transactions_exp.count() == 0:
                 return None
-            aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value'))
+            if request.GET.get('category'):
+                transactions_exp = transactions_exp.filter(tag=request.GET.get('category'))
+            aggregated_trans = transactions_exp.values('month_date').annotate(Sum('value')).order_by('month_date')
             max_value = aggregated_trans.aggregate(Max('value__sum'))
             min_value = aggregated_trans.aggregate(Min('value__sum'))
-            for d in aggregated_trans.order_by('month_date'):
+            moving_average = moving_average([item['value__sum'] for item in aggregated_trans], 3)
+            for i, d in enumerate(aggregated_trans):
                 data.append(
                     {
+                        'moving_average': moving_average[i],
                         'value': round(d['value__sum']),
                         # AnswerRef: 'one',
                         'text': d['month_date'].strftime("'%y/%m"),
@@ -298,7 +396,7 @@ def create_continuous_category_summery(user):
 
         s += t
         # add TagGaols with 0 spent
-    tag_goals = models.TagGoal.objects.exclude(
+    tag_goals = models.TagGoal.objects.exclude( # TODO FIX so it will not have all the tag names
         tag__name__in=['credit cards', 'bills', 'salary', 'same', 'debt payment', 'Donations', 'other income',
                        'commission', 'exclude', 'vacation'])
     tag_goals = tag_goals.filter(tag__type=Tag.CONTINUOUS).exclude(

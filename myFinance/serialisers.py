@@ -1,14 +1,16 @@
 from django.contrib.auth.models import User
+from django.db.models import Sum
 from rest_framework import serializers
 
-from myFinance.models import Transaction, Tag, Credential, TagGoal
+from app.utils import expenses_transactions
+from myFinance.models import Transaction, Tag, Credential, TagGoal, RecurringTransaction
 
 
 class TransactionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Transaction
         fields = '__all__'
+
 
 class RestModelSerializer(serializers.ModelSerializer):
 
@@ -28,13 +30,31 @@ class TransactionRestSerializer(RestModelSerializer):
         model = Transaction
         fields = '__all__'
 
-class UserSerializer(RestModelSerializer):
 
+class UserSerializer(RestModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
 
+
 class TagSerializer(RestModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
+
+
+class TagExtendedSerializer(TagSerializer):
+    goal = serializers.SerializerMethodField()
+    expense_month_avg = serializers.SerializerMethodField()
+
+    def get_goal(self, obj):
+        return obj.taggoal_set.first().value if obj.taggoal_set.exists() else None
+
+    def get_expense_month_avg(self, obj):
+        transactions_exp = expenses_transactions(obj.user).filter(tag=obj)
+        values = transactions_exp.values('month_date').annotate(Sum('value')).order_by('month_date')
+        return round(sum([v['value__sum'] for v in values]) / len(values)) if values else 0
+
     class Meta:
         model = Tag
         fields = '__all__'
@@ -53,4 +73,10 @@ class CredentialSerializer(RestModelSerializer):
 
     class Meta:
         model = Credential
-        fields = ('company', 'type', 'last_scanned', 'additional_info', 'balance')
+        fields = ('id', 'company', 'type', 'last_scanned', 'additional_info', 'balance')
+
+
+class RecurringTransactionSerializer(RestModelSerializer):
+    class Meta:
+        model = RecurringTransaction
+        fields = '__all__'

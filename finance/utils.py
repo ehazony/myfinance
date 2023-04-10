@@ -2,6 +2,7 @@ import datetime
 from functools import reduce
 
 from myFinance import serialisers
+from myFinance.models import Transaction
 from sort_transactions import get_category
 
 
@@ -22,12 +23,12 @@ def update_transactions(credential, transaction_list):
 
     db_transactions_list = list(db_transactions)
     i = 0
-    arn = bool(transaction_list_sorted[0].get('arn'))
+    identifier = bool(transaction_list_sorted[0].get('identifier'))
     for current in transaction_list_sorted:
         if type(current['date']) == datetime.datetime:
             current['date'] = current['date'].date()
-        if arn:
-            if db_transactions.filter(arn=current['arn']).exists():
+        if identifier:
+            if db_transactions.filter(identifier=current['identifier'], credential=credential).exists():
                 continue
         else:
             if i < len(db_transactions_list) and is_transaction(current, db_transactions_list[i]):
@@ -41,3 +42,9 @@ def update_transactions(credential, transaction_list):
             serializer.save()
         else:
             raise Exception('could not validate transaction for credential: ' + credential.company)
+
+
+def remove_duplicate_transactions(transaction_list):
+    for t in transaction_list.values('user', 'date', 'name', 'value').distinct():
+        Transaction.objects.filter(
+            pk__in=Transaction.objects.filter(**t).values_list('id', flat=True)[1:]).delete()

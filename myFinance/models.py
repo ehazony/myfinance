@@ -32,6 +32,7 @@ class Credential(models.Model):
     CARD = 'DEBIT_CARD'
 
     ADDITIONAL_INFO_BALANCE = 'balance'
+    ADDITIONAL_INFO_LOANS = 'loans'
     COMPANY_CHOICES = (
         (DISCOUNT, "Discount"),
         (CAL, "Cal"),
@@ -56,7 +57,13 @@ class Credential(models.Model):
                 {'key': 'username', 'name': 'User Name', 'type': 'text'},
                 {'key': 'email', 'name': 'Email', 'type': 'email'},
                 {'key': 'password', 'name': 'Password', 'type': 'password'}],
-        }, ]
+        },
+        {
+            'key': MAX, 'name': 'Max',
+            'fields': [{'key': 'username', 'name': 'User Name', 'type': 'text'},
+                       {'key': 'password', 'name': 'Password', 'type': 'password'}],
+        }
+    ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     company = models.CharField(max_length=30, choices=COMPANY_CHOICES, default="1")
@@ -84,7 +91,7 @@ class Credential(models.Model):
 
 
 class Tag(models.Model):
-    MONTHLY_FIXED = 'MONTHLY_FIXED'
+    MONTHLY_FIXED = 'MONTHLY FIXED'
     PERIODIC = 'PERIODIC'
     CONTINUOUS = 'CONTINUOUS'
     TYPE_CHOICES = (
@@ -121,7 +128,7 @@ class Transaction(models.Model):
     tag = models.ForeignKey(Tag, null=True, on_delete=models.SET_NULL)
     month_date = models.DateField(null=True)
     bank = models.BooleanField(default=False)
-    arn = models.CharField(max_length=64, null=True)
+    identifier = models.CharField(max_length=64, null=True)
     __original_tag = None
 
     def __init__(self, *args, **kwargs):
@@ -156,6 +163,14 @@ class Transaction(models.Model):
                                                         defaults={'tag': self.tag})
         self.__original_tag = self.tag
         return super(Transaction, self).save(*args, **kwargs)
+
+
+class RecurringTransaction(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=200)
+    date = models.DateField()
+    credential = models.ForeignKey(Credential, on_delete=models.CASCADE, null=True)
+    value = models.FloatField()
 
 
 class TransactionNameTag(models.Model):
@@ -206,3 +221,9 @@ class DiscountCredential(models.Model):
     password = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
     user_identification = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
     user_name = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
+
+
+class ErrorLog(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    message = JSONField(default={})
+    created_at = models.DateTimeField(auto_now_add=True)

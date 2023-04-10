@@ -13,10 +13,12 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import logging.config
 import os
 
+import boto3
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 # import django_heroku
 from decouple import config
-
+if config('AWS_PROFILE', None):
+    boto3.setup_default_session(profile_name=config('AWS_PROFILE'))
 GRID_ENDPOINT = config('GRID_ENDPOINT')
 FRONT_ENDPOINT = config('FRONT_ENDPOINT')
 

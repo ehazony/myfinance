@@ -11,6 +11,8 @@ import time
 import urllib
 
 import django
+from dateutil import relativedelta
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
 django.setup()
 
@@ -150,20 +152,27 @@ class MaxScraper(Scraper):
             driver.find_element(By.XPATH, '//*[@formcontrolname="password"]').send_keys(password)
             driver.find_elements(By.XPATH, "//button[@id='send-code']")[1].click()
             time.sleep(5)
-        # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
+            # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
             driver.get('https://www.max.co.il/transaction-details/personal')
             time.sleep(3)
             print('trying')
             home_page_data = self.get_with_requests(driver, URL, HEADERS, PAYLOAD)
             current_month_total_some = home_page_data['Result']['UserCards']['Summary'][0]['ActualDebitSum']
-            credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = float(current_month_total_some)*-1
+            card_details = [{'last_digits': card['Last4Digits'],
+                             'next_bill': card['CycleSummary'][0]['Date'],
+                             'debit': card['CycleSummary'][0]['ActualDebitSum']} for card in
+                            home_page_data['Result']['UserCards']['Cards']]
+
+            credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = float(current_month_total_some) * -1
+            credential.additional_info['card_details'] = card_details
             credential.save()
 
             url = 'https://www.max.co.il/api/registered/transactionDetails/getTransactionsAndGraphs?filterData={}&firstCallCardIndex=-1null&v=V3.85-HF.21'.format(
                 urllib.parse.unquote(
-                    json.dumps({"userIndex": -1, "cardIndex": -1, "monthView": False, "date": "2022-05-30",
-                                "dates": {"startDate": start.strftime('%Y-%m-%d'), "endDate": end.strftime('%Y-%m-%d')},
-                                "bankAccount": {"bankAccountIndex": -1, "cards": None}})))
+                    json.dumps(
+                        {"userIndex": -1, "cardIndex": -1, "monthView": False, "date": start.strftime('%Y-%m-%d'),
+                         "dates": {"startDate": start.strftime('%Y-%m-%d'), "endDate": end.strftime('%Y-%m-%d')},
+                         "bankAccount": {"bankAccountIndex": -1, "cards": None}})))
             transactions_response = self.get_with_requests(driver, url, HEADERS, PAYLOAD)
         except Exception as e:
             driver.quit()
@@ -173,11 +182,23 @@ class MaxScraper(Scraper):
         for t in transactions_response['result']['transactions']:
             name = t['merchantName']
             date = datetime.datetime.strptime(t['purchaseDate'], '%Y-%m-%dT%X')
+
             amount = t['actualPaymentAmount']
             arn = t['arn']
-            trans.append({'name': name, 'date': date, 'value': amount, 'arn': arn, })
-        return trans
+            comment = t.get('comments')
+            plan = t['planName']
+            if plan in ['תשלומים', 'קרדיט']:
+                current, last = comment.split(' ')[1], comment.split(' ')[3]
+                for i in range(int(last) - int(current)):
+                    trans.append(
+                        {'name': name, 'date': date + relativedelta.relativedelta(months=i + 1), 'value': amount,
+                         'identifier': arn + '_' + str(int(current) + i + 1),
+                         'comment': str(int(current) + i + 1) + ' מתוך ' + last,
+                         'plan': plan})
 
+            trans.append(
+                {'name': name, 'date': date, 'value': amount, 'identifier': arn, 'comment': comment, 'plan': plan})
+        return trans
 
 # if __name__ == "__main__":
 #     # TODO cant import model becuse of cerculer imports
