@@ -30,6 +30,5 @@ dj_rest_auth
 django-allauth
 selenium-stealth
 chromedriver_autoinstaller
-pandas
 gspread
 selenium-wire

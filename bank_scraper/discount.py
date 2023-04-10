@@ -111,9 +111,9 @@ class DiscountScraper(Scraper):
             loans = -s['LoansQuery']['Summary']['TotalBalance']
 
             # temp
-            import pandas as pd
-            df = pd.DataFrame(s['LoansQuery']['LoanDetailsBlock']['LoanEntry'])
-            df.to_csv('loans.csv')
+            # import pandas as pd
+            # df = pd.DataFrame(s['LoansQuery']['LoanDetailsBlock']['LoanEntry'])
+            # df.to_csv('loans.csv')
 
             credential.additional_info[credential.ADDITIONAL_INFO_LOANS] = loans
             credential.save()
