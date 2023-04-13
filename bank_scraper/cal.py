@@ -34,7 +34,7 @@ class CalScraper(Scraper):
             start = datetime.datetime(start.year, start.month, start.day, 0, 0, 0)
         if type(end) == datetime.date:
             end = datetime.datetime(end.year, end.month, end.day, 0, 0, 0)
-        driver = get_selenium_driver(grid=False, headless=False, wire=True)  # headless must be True for remote
+        driver = get_selenium_driver(grid=False, headless=True, wire=True)  # headless must be True for remote
         try:
 
             # driver = uc.Chrome()
