@@ -64,9 +64,13 @@ class CalScraper(Scraper):
                 if request.url == url:
                     headers = request.headers
                     payload = request._body
+                    response = request.response
+                    from seleniumwire.utils import decode
 
-
-            months = [dt.month for dt in rrule(MONTHLY, dtstart=start, until=end)]
+                    body = json.loads(decode(response.body, response.headers.get('Content-Encoding', 'identity')).decode('utf-8'))
+                    bill_date = datetime.datetime.strptime(
+                        body['result']['bankAccounts'][0]['debitDates'][0]['toPurchaseDate'].split('T')[0], '%Y-%m-%d')
+            months = [dt.month for dt in rrule(MONTHLY, dtstart=start, until=bill_date)]
             payload = json.loads(payload)
             transactions= []
             for month in months:
@@ -78,6 +82,8 @@ class CalScraper(Scraper):
                 trn['date'] = datetime.datetime.strptime(trn['trnPurchaseDate'].split('T')[0], '%Y-%m-%d')
                 trn['value'] =trn['trnAmt']
                 trn['name'] = trn['merchantName']
+                trn['identifier'] = trn['trnIntId']
+
 
 
 
