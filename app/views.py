@@ -372,6 +372,27 @@ def get_color(value, min_value, max_value):
     return colors[int(percent // 25)]
 
 
+def create_continuous_day_summery(user):
+    start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
+    end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
+                                                minute=0, second=0, microsecond=0)
+    transactions = Transaction.objects.filter(tag__type=Tag.CONTINUOUS, date__gte=start_month, date__lte=end_month,
+                                              user=user)
+    date_sums = transactions.values('date').annotate(Sum('value'))
+    s=""
+    goal = 0
+    for date_sum in date_sums:
+        t = '\n' + '{} ({}): {}'.format(date_sum['date'].strftime('%d/%m'), date_sum['date'].strftime('%a'),
+                                       round(date_sum['value__sum']))
+
+        s += t
+
+    tag_goals = models.TagGoal.objects.filter(tag__type=Tag.CONTINUOUS)
+    per_day = round(tag_goals.aggregate(Sum('value'))['value__sum'] / 30)
+
+    s += '\n\n*Goal per day*: {}'.format(round(per_day))
+
+    return s
 def create_continuous_category_summery(user):
     start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
     end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
