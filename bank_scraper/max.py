@@ -157,7 +157,10 @@ class MaxScraper(Scraper):
             time.sleep(3)
             print('trying')
             home_page_data = self.get_with_requests(driver, URL, HEADERS, PAYLOAD)
-            current_month_total_some = home_page_data['Result']['UserCards']['Summary'][0]['ActualDebitSum']
+            current_month_total_some = 0
+            for x in home_page_data['Result']['UserCards']['Summary']:
+                if x['CurrencySymbol'] == '₪':
+                    current_month_total_some = x['ActualDebitSum']
             card_details = [{'last_digits': card['Last4Digits'],
                              'next_bill': card['CycleSummary'][0]['Date'],
                              'debit': card['CycleSummary'][0]['ActualDebitSum']} for card in

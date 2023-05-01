@@ -54,7 +54,7 @@ class CalScraper(Scraper):
             driver.find_elements(By.XPATH, "//button[contains(., ' כניסה ')]")[0].click()
             # time.sleep(10)
             # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
-            WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CLASS_NAME,
+            WebDriverWait(driver, 40).until(EC.element_to_be_clickable((By.CLASS_NAME,
                                                                         "butn-medium-dark"))).click()
             driver.get('https://digital-web.cal-online.co.il/transactions')
             url = 'https://api.cal-online.co.il/Transactions/api/transactionsDetails/getCardTransactionsDetails'

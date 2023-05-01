@@ -16,6 +16,8 @@ def is_transaction(transaction_fields, transaction):
 
 def update_transactions(credential, transaction_list):
     transaction_list_sorted = sorted(transaction_list, key=lambda x: (x['date'], x['name'], x['value']))
+    if not transaction_list_sorted:
+        return
     first_date, end_date = transaction_list_sorted[0]['date'], transaction_list_sorted[-1]['date']
     db_transactions = credential.transaction_set.filter(date__gte=first_date, date__lte=end_date).order_by('date',
                                                                                                            'name',
