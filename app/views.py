@@ -219,11 +219,11 @@ def estimated_recurring_transactions(bill_month, user):
             start = datetime.date.today().replace(day=1)
             end = datetime.date.today().replace(day=calendar.monthrange(start.year, start.month)[1])
 
-        min, max = (item.value * 0.9, item.value * 1.1) if item.value > 0 else (item.value * 1.1, item.value * 0.9)
+        min_val, max_val = (item.value * 0.9, item.value * 1.1) if item.value > 0 else (item.value * 1.1, item.value * 0.9)
         if not Transaction.objects.filter(user=user,
                                           name__contains=item.name,
-                                          value__lte=max,
-                                          value__gte=min,
+                                          value__lte=max_val,
+                                          value__gte=min_val,
                                           date__gte=start,
                                           date__lte=end).exists():
             item.date = date__in_month.date() if isinstance(date__in_month, datetime.datetime) else date__in_month
