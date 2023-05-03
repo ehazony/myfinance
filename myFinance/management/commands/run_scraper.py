@@ -12,5 +12,7 @@ from myFinance import models
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        c = models.Credential.objects.first()
-        load_transactions_by_credential(credential_id= 2, headless=False, grid=False)
+        load_transactions_by_credential(credential_id= int(options.get('credential_id')), headless=False, grid=False)
+
+    def add_arguments(self, parser):
+        parser.add_argument('--credential_id', type=str, help="start date")

@@ -97,6 +97,7 @@ class DiscountScraper(Scraper):
             driver.find_element(By.XPATH, "//button[contains(., 'כניסה')]").click()
             time.sleep(5)
             transactions = []
+            start = start - datetime.timedelta(days=3)
             PARAMS['FromDate'] = start.strftime('%Y%m%d')
             PARAMS['ToDate'] = end.strftime('%Y%m%d')
             data = self.get_with_requests(driver, URL, HEADERS, PARAMS)

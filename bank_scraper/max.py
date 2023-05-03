@@ -138,11 +138,11 @@ HEADERS = {
 class MaxScraper(Scraper):
     COMPANY = 'MAX'
 
-    def get_transactions(self, start, end, credential, username=None, password=None, grid=True, *args, **kwargs):
+    def get_transactions(self, start, end, credential, username=None, password=None, grid=True, headless = True, *args, **kwargs):
         # options = uc.ChromeOptions()
         # options.headless = True
         # options.add_argument('--headless')
-        driver = get_selenium_driver(grid=grid)  # driver = uc.Chrome(enable_cdp_events=True)
+        driver = get_selenium_driver(grid=grid, headless = headless)  # driver = uc.Chrome(enable_cdp_events=True)
         try:
             driver.get('https://www.max.co.il/homepage/welcome')
             time.sleep(2)
