@@ -13,3 +13,12 @@ async def _send_message(text):
 
 def send_message(text):
     asyncio.run(_send_message(text))
+
+
+async def _send_img(img):
+    bot = telegram.Bot(settings.TELEGRAM_BOT_TOKEN)
+    async with bot:
+        await bot.send_photo(907681435, photo=img)
+
+def send_img(img):
+    asyncio.run(_send_img(img))

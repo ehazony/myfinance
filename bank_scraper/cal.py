@@ -8,12 +8,13 @@ import requests
 import selenium.webdriver.support.expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from finance import settings
+from telegram_bot import telegram_bot_api
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
 django.setup()
 from selenium.webdriver.common.by import By
 from dateutil import relativedelta
+
 TIMEWAIT = 120
 from bank_scraper.selenium_api import get_selenium_driver
 from bank_scraper.base_scraper import Scraper
@@ -67,25 +68,24 @@ class CalScraper(Scraper):
                     response = request.response
                     from seleniumwire.utils import decode
 
-                    body = json.loads(decode(response.body, response.headers.get('Content-Encoding', 'identity')).decode('utf-8'))
+                    body = json.loads(
+                        decode(response.body, response.headers.get('Content-Encoding', 'identity')).decode('utf-8'))
                     bill_date = datetime.datetime.strptime(
                         body['result']['bankAccounts'][0]['debitDates'][0]['toPurchaseDate'].split('T')[0], '%Y-%m-%d')
             months = [dt.month for dt in rrule(MONTHLY, dtstart=start, until=bill_date)]
             payload = json.loads(payload)
-            transactions= []
+            transactions = []
             for month in months:
                 payload['month'] = str(month)
                 response = requests.request("POST", url, headers=headers, json=payload)
-                transactions.extend( json.loads(response.text)['result']['bankAccounts'][0]['debitDates'][0]['transactions'])
+                transactions.extend(
+                    json.loads(response.text)['result']['bankAccounts'][0]['debitDates'][0]['transactions'])
 
             for trn in transactions:
                 trn['date'] = datetime.datetime.strptime(trn['trnPurchaseDate'].split('T')[0], '%Y-%m-%d')
-                trn['value'] =trn['trnAmt']
+                trn['value'] = trn['trnAmt']
                 trn['name'] = trn['merchantName']
                 trn['identifier'] = trn['trnIntId']
-
-
-
 
             # next_debit_sum = WebDriverWait(driver, 220).until(
             #     EC.visibility_of_element_located((By.ID, "lblNextDebitSum"))).text
@@ -166,6 +166,7 @@ class CalScraper(Scraper):
             #
             #         transactions.extend(current_transactions)
         except Exception as e:
+            telegram_bot_api._send_img(driver.get_screenshot_as_png())
             driver.quit()
             raise e
         driver.quit()

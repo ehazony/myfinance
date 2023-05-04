@@ -9,6 +9,7 @@ import django
 # from pyppeteer import launch
 # from pyppeteer_stealth import stealth
 from bank_scraper.base_scraper import Scraper
+from telegram_bot import telegram_bot_api
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +120,7 @@ class DiscountScraper(Scraper):
             credential.additional_info[credential.ADDITIONAL_INFO_LOANS] = loans
             credential.save()
         except Exception as e:
+            telegram_bot_api._send_img(driver.get_screenshot_as_png())
             driver.quit()
             raise e
         driver.quit()

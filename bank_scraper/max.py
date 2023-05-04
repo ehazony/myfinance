@@ -13,6 +13,8 @@ import urllib
 import django
 from dateutil import relativedelta
 
+from telegram_bot import telegram_bot_api
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
 django.setup()
 
@@ -178,6 +180,7 @@ class MaxScraper(Scraper):
                          "bankAccount": {"bankAccountIndex": -1, "cards": None}})))
             transactions_response = self.get_with_requests(driver, url, HEADERS, PAYLOAD)
         except Exception as e:
+            telegram_bot_api._send_img(driver.get_screenshot_as_png())
             driver.quit()
             raise e
         driver.quit()
