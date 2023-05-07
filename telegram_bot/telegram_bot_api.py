@@ -8,7 +8,10 @@ async def _send_message(text):
     bot = telegram.Bot(settings.TELEGRAM_BOT_TOKEN)
     async with bot:
         print(text)
-        await bot.send_message(text=text, chat_id=907681435, parse_mode='markdown')
+        try:
+            await bot.send_message(text=text, chat_id=907681435, parse_mode='markdown')
+        except:
+            await bot.send_message(text=text, chat_id=907681435)
 
 
 def send_message(text):
