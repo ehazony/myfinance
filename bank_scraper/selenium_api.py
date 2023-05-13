@@ -50,7 +50,7 @@ def get_selenium_driver(grid=True, headless = True, wire = False):
             command_executor=settings.GRID_ENDPOINT,
             desired_capabilities=DesiredCapabilities.CHROME, options=options)
     else:
-        chromedriver_autoinstaller.install()
+        # chromedriver_autoinstaller.install()
         driver = driver.Chrome(options=options)
     # driver.implicitly_wait(10)
         stealth(driver,
