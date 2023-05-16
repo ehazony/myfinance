@@ -72,7 +72,7 @@ def load_transactions_by_credential(self, **options):
     logger.info('start date: {} , end date: {}'.format(start, end))
     try:
         scraper = scraper_factory(credential.company)
-        transactions = scraper.get_transactions(start, end, credential, **credential.get_credential, headless=options.get('headless', False), grid= options.get('headless', True))
+        transactions = scraper.get_transactions(start, end, credential, **credential.get_credential, headless=options.get('headless', True), grid= options.get('grid', True))
         utils.update_transactions(credential, transactions, )
         if end > credential.last_scanned:
             credential.last_scanned = end
