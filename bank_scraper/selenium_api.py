@@ -74,6 +74,11 @@ def get_selenium_driver(grid=True, headless = True, wire = False):
         driver = create_grid_driver(options)
     else:
         chromedriver_autoinstaller.install()
+        # Get the location where chromedriver_autoinstaller package is installed
+        chromedriver_dir = os.path.dirname(chromedriver_autoinstaller.__file__)
+
+        # Add the directory to PATH
+        os.environ["PATH"] += os.pathsep + chromedriver_dir
         driver = driver.Chrome(options=options)
     # driver.implicitly_wait(10)
         stealth(driver,
