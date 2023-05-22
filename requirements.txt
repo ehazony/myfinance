@@ -32,3 +32,5 @@ selenium-stealth
 chromedriver_autoinstaller
 gspread
 selenium-wire
+unittest2
+watchdog

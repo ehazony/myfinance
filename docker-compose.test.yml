@@ -1,27 +1,16 @@
 version: '3'
-# https://testdriven.io/blog/dockerizing-django-with-postgres-gunicorn-and-nginx/ for reference
-# static files are not taken care of in this project.
-# new user for applications is not taken care of in this project
-# media files are also not taken care of
 services:
   app:
     build:
       context: .
-    expose:
-      - "8000"
     volumes:
       - ./:/app
-      - static_volume:/app/staticfiles
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
-    command: >
-      sh -c "python3 manage.py wait_for_db &&
-             gunicorn finance.wsgi:application --bind 0.0.0.0:8000"
     env_file:
       - ./.env.prod
   redis:
     image: redis:alpine
   celery:
-    restart: always
     build:
       context: .
     command: celery -A finance.celery_app worker -l info --concurrency=4
@@ -45,21 +34,17 @@ services:
     depends_on:
       - redis
       - app
-  nginx:
-    build: ./nginx
-    ports:
-      - 8000:80
-    volumes:
-      - static_volume:/app/staticfiles
-    depends_on:
-      - app
-
-  watcher:
+  test:
     build:
       context: .
     volumes:
       - ./:/app
-    command: sh -c "chmod +x /app/watchdog_restart.sh && /app/watchdog_restart.sh"
-
-volumes:
-  static_volume:
+      - $HOME/.aws/credentials:/root/.aws/credentials:ro
+    command: python manage.py test --verbosity=3
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - redis
+      - app
+      - celery
+      - celery-beat

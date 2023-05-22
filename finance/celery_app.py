@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.core import management
 
 from app.views import create_continuous_category_summery, create_continuous_day_summery
-from bank_scraper import scraper_factory
+from bank_scraper.base import scraper_factory
 from finance import settings, utils
 from myFinance import models
 from sort_transactions import sort_to_categories
@@ -90,7 +90,7 @@ def load_transactions_by_credential(self, **options):
     #                                       value=transaction['amount'], tag=transaction['tag'],
     #                                       bank=bank, credential=credential)
 
-    logger.info('starting work for user {} company {}'.format(credential.user, credential.company))
+
     logger.info('done work for user {} company {}'.format(credential.user, credential.company))
 
 

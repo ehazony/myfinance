@@ -3,7 +3,6 @@ import json
 
 import requests
 
-
 class Scraper:
     @abc.abstractmethod
     def get_transactions(self, start, end,credential,  *args, **kwargs):

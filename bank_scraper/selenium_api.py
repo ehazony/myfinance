@@ -1,3 +1,4 @@
+import os
 import time
 
 import chromedriver_autoinstaller
@@ -5,10 +6,10 @@ import chromedriver_autoinstaller
 
 from seleniumwire import webdriver as seleniumwire
 from selenium import webdriver
-
+import logging
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium_stealth import stealth
-
+logging.getLogger('seleniumwire').setLevel(logging.WARNING)
 from finance import settings
 
 
@@ -30,7 +31,30 @@ def get_driver():
     # driver = webdriver.Chrome(options=options)
     return driver
 
+def create_grid_driver(options):
+    # Check if we're inside a Docker container
+    if 'HOSTNAME' in os.environ:
+        grid_url = 'http://host.docker.internal:4444/wd/hub'
+    else:
+        grid_url = settings.GRID_ENDPOINT  # replace with your setting variable
 
+
+    driver = webdriver.Remote(
+        command_executor=grid_url,
+        desired_capabilities=DesiredCapabilities.CHROME, options=options)
+
+    # Selenium Wire options
+    # wire_options = {
+    #     'addr': '127.0.0.1'
+    # }
+    # Create a new instance of the Google Chrome driver
+    # driver = seleniumwire.Remote(
+    #     command_executor=grid_url,
+    #     desired_capabilities=desired_cap,
+    #     seleniumwire_options=wire_options
+    # )
+
+    return driver
 def get_selenium_driver(grid=True, headless = True, wire = False):
     # options = uc.ChromeOptions()
     if wire:
@@ -46,9 +70,8 @@ def get_selenium_driver(grid=True, headless = True, wire = False):
         options.add_argument('--headless')
         options.headless = True
     if grid:
-        driver = driver.Remote(
-            command_executor=settings.GRID_ENDPOINT,
-            desired_capabilities=DesiredCapabilities.CHROME, options=options)
+
+        driver = create_grid_driver(options)
     else:
         # chromedriver_autoinstaller.install()
         driver = driver.Chrome(options=options)
@@ -62,6 +85,32 @@ def get_selenium_driver(grid=True, headless = True, wire = False):
                 fix_hairline=True,
                 )
     return driver
+
+
+
+
+def test_selenium_chrome(driver):
+    try:
+        # Setup ChromeDriver
+        webdriver_service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=webdriver_service)
+
+        # Open a webpage
+        driver.get("http://www.google.com")
+
+        # Check if title of the opened page is correct
+        assert "Google" in driver.title
+
+        # Close the browser
+        driver.quit()
+
+        print("Selenium Chrome test passed.")
+    except Exception as e:
+        print("Selenium Chrome test failed.")
+        print(f"Exception: {e}")
+
+
+
 
 # from seleniumwire import webdriver  # Import from seleniumwire
 # from seleniumwire.utils import decode
