@@ -72,7 +72,7 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps \
     pip install python-telegram-bot==20.0a4 && \
     pip install redis && \
     apk del .tmp-build-deps
-
+RUN export PATH=$PATH:/usr/bin/chromedriver
 #COPY . /app
 
 # Final base image
