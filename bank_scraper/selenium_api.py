@@ -33,11 +33,11 @@ def get_driver():
 
 def create_grid_driver(options):
     # Check if we're inside a Docker container
-    if 'HOSTNAME' in os.environ:
-        grid_url = 'http://host.docker.internal:4444/wd/hub'
-    else:
-        grid_url = settings.GRID_ENDPOINT  # replace with your setting variable
-
+    # if 'HOSTNAME' in os.environ: # dosent work on docker linux
+    #     grid_url = 'http://host.docker.internal:4444/wd/hub'
+    # else:
+    #     grid_url = settings.GRID_ENDPOINT  # replace with your setting variable
+    grid_url = settings.GRID_ENDPOINT
 
     driver = webdriver.Remote(
         command_executor=grid_url,
