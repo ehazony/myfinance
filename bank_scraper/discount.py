@@ -5,9 +5,6 @@ import os
 import time
 
 import django
-
-# from pyppeteer import launch
-# from pyppeteer_stealth import stealth
 from bank_scraper.base_scraper import Scraper
 from telegram_bot import telegram_bot_api
 
@@ -42,10 +39,7 @@ HEADERS = {
     'sec-ch-ua-platform': '"macOS"',
     'site': 'retail'
 }
-# must fill FromDate, ToDate
-# PARAMS = {"FromDate": None, "ToDate": None,
-#           "IsTransactionDetails": True, "IsFutureTransactionFlag": True,
-#           "IsEventNames": True, "IsCategoryDescCode": True}
+
 PARAMS = {
     'IsTransactionDetails': 'True',
     'IsFutureTransactionFlag': 'True',
@@ -102,5 +96,4 @@ class DiscountScraper(Scraper):
                     'identifier': transaction['OperationNumber'],
                     'value': transaction['OperationAmount'] * -1,
                     'bank': True
-
                 })
