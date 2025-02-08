@@ -7,7 +7,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('myFinance', '0034_transaction_credential'),
+        ('myFinance', '0033_tag_type'),
     ]
 
     operations = [

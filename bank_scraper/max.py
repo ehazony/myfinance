@@ -23,69 +23,6 @@ from selenium.webdriver.common.by import By
 from bank_scraper.base_scraper import Scraper
 from bank_scraper.selenium_api import get_selenium_driver
 
-# async def intercept_network_request(request):
-#     # print(request.url)
-#     # await request.continue_()
-#     # if "application/json" in request.headers.get("content-type", ""):
-#     r = await request.json()
-#     print(request.url)
-#     print(r)
-# async def main():
-#     # driver = uc.Chrome()
-#     # driver.get('https://nowsecure.nl')
-#
-#     # setup
-#     browser = await launch({'headless': False})
-#     page = await browser.newPage()
-#     # await page.setUserAgent(
-#     #     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36')
-#     await stealth(page, ['user_agent_override'])
-#     # await stealth(page, )
-#     # page size
-#     await page.setViewport({'width': 1600, 'height': 796})
-#
-#     # go to site
-#     try:
-#         await page.goto('https://www.max.co.il/homepage/welcome')
-#         time.sleep(2)
-#         button = await page.xpath('//a[@class="go-to-personal-area"]')
-#         await page.click('.go-to-personal-area')
-#         await page.click('#login-password-link')
-#         time.sleep(2)
-#         # el = await page.querySelector('[formcontrolname="username"]')
-#         # await page.evaluate( 'el => el.value = "EFRAIMHAZONY@gmail.com"', el)
-#         # el = await page.querySelector('[formcontrolname="password"]')
-#         # await page.evaluate( 'el => el.value = "Cinnamongirl1"', el)
-#         await page.type('[formcontrolname="username"]', "EFRAIMHAZONY@gmail.com")
-#         # await page.click('#send-code')
-#         await page.type('[formcontrolname="password"]', "Cinnamongirl1")
-#         button = await page.xpath("//button[@id='send-code']")
-#         await page.evaluate( 'el => el.click()', button[1])
-#         time.sleep(5)
-#         button = await page.xpath("//a[contains(., 'פירוט חיובים')]")
-#         await page.setRequestInterception(value=True)
-#         page.on('response', lambda req: asyncio.ensure_future(intercept_network_request(req)))
-#         # await page.evaluate( 'el => el.click()', button[1])
-#         response = await page.goto('https://www.max.co.il/transaction-details/personal')
-#         # response = await page.goto('https://www.max.co.il/api/registered/transactionDetails/getTransactionsAndGraphs?filterData={%22userIndex%22:-1,%22cardIndex%22:-1,%22monthView%22:true,%22date%22:%222022-05-30%22,%22dates%22:{%22startDate%22:%220%22,%22endDate%22:%220%22},%22bankAccount%22:{%22bankAccountIndex%22:-1,%22cards%22:null}}&firstCallCardIndex=-1null&v=V3.85-HF.21')
-#         # await asyncio.sleep(10)
-#         # time.sleep(10)
-#         await page.waitForNavigation({'waitUntil': "networkidle0"})
-#         # response = await response.json()
-#         # print(response)
-#         await browser.close()
-#         return None# response
-#     except:
-#         await browser.close()
-# # https://www.max.co.il/api/registered/transactionDetails/getTransactionsAndGraphs?filterData=&firstCallCardIndex=-1null&v=V3.85-HF.21
-# if __name__ == '__main__':
-#
-#     loop = asyncio.get_event_loop()
-#     loop.set_debug(False)
-#     loop.run_until_complete(main())
-# def mylousyprintfunction(eventdata):
-# if eventdata.get('p/arams') and eventdata.get('params')['']
-# print(pformat(eventdata))
 
 URL = "https://www.max.co.il/api/registered/getHomePageData?v=V3.90-HF.29.53"
 
@@ -107,54 +44,23 @@ HEADERS = {
 }
 
 
-# result_example = {'Result': {'UserCards': {
-#     'Summary': [{'Currency': 376, 'ActualDebitSum': 4892.43, 'TotalDebitSum': 4892.43, 'CurrencySymbol': '₪'},
-#                 {'Currency': 840, 'ActualDebitSum': 0.0, 'TotalDebitSum': 0.0, 'CurrencySymbol': '$'},
-#                 {'Currency': 978, 'ActualDebitSum': 0.0, 'TotalDebitSum': 0.0, 'CurrencySymbol': '€'}], 'Cards': [
-#         {'CatalogId': '640004', 'Last4Digits': '9894', 'ExpirationDate': '03/27', 'OwnerFullName': 'אפרים חזוני',
-#          'CardName': 'max executive', 'CardImage': 'https://onlinelcapi.max.co.il/SharedMedia/12448/card296.png',
-#          'CreditLimit': 15000.0, 'OpenToBuy': 12657.05, 'FixedDebit': 15000.0, 'CycleSummary': [
-#             {'Date': '2022-10-11T00:00:00', 'Currency': 376, 'ActualDebitSum': 1436.32, 'TotalDebitSum': 1436.32,
-#              'IsFinnal': False, 'CurrencySymbol': '₪'},
-#             {'Date': '2022-10-11T00:00:00', 'Currency': 840, 'ActualDebitSum': 0.0, 'TotalDebitSum': 0.0,
-#              'IsFinnal': False, 'CurrencySymbol': '$'},
-#             {'Date': '2022-10-11T00:00:00', 'Currency': 978, 'ActualDebitSum': 0.0, 'TotalDebitSum': 0.0,
-#              'IsFinnal': False, 'CurrencySymbol': '€'}], 'CycleSummaryInfo': None, 'ReturnCode': 0, 'CardLogo': 9,
-#          'Index': 0, 'CreditLimitType': 0, 'IsActiveDigitalCard': False, 'IsOwnerDigitalCard': False,
-#          'ShowMonthlyBillingLayout': False, 'IsControlsBiZCardSubscribe': False, 'ClearingAmtForOtb': None},
-#         {'CatalogId': '460001', 'Last4Digits': '5920', 'ExpirationDate': '03/27', 'OwnerFullName': 'שרה אסקין חזוני',
-#          'CardName': 'Dream Card VIP', 'CardImage': 'https://onlinelcapi.max.co.il/SharedMedia/12430/card277.png',
-#          'CreditLimit': 20000.0, 'OpenToBuy': 16113.45, 'FixedDebit': 20000.0, 'CycleSummary': [
-#             {'Date': '2022-10-11T00:00:00', 'Currency': 376, 'ActualDebitSum': 3456.11, 'TotalDebitSum': 3456.11,
-#              'IsFinnal': False, 'CurrencySymbol': '₪'},
-#             {'Date': '2022-10-11T00:00:00', 'Currency': 840, 'ActualDebitSum': 0.0, 'TotalDebitSum': 0.0,
-#              'IsFinnal': False, 'CurrencySymbol': '$'},
-#             {'Date': '2022-10-11T00:00:00', 'Currency': 978, 'ActualDebitSum': 0.0, 'TotalDebitSum': 0.0,
-#              'IsFinnal': False, 'CurrencySymbol': '€'}], 'CycleSummaryInfo': None, 'ReturnCode': 0, 'CardLogo': 2,
-#          'Index': 1, 'CreditLimitType': 0, 'IsActiveDigitalCard': False, 'IsOwnerDigitalCard': False,
-#          'ShowMonthlyBillingLayout': False, 'IsControlsBiZCardSubscribe': False, 'ClearingAmtForOtb': None}],
-#     'IsMultUsers': True, 'IsMultAccounts': False}}, 'CorrelationID': '6bd90b42-b717-4920-8406-a1e9c4babd4d',
-#           'ReturnCode': 0, 'RcDesc': None}
-
 
 class MaxScraper(Scraper):
     COMPANY = 'MAX'
 
     def get_transactions(self, start, end, credential, username=None, password=None, grid=True, headless = True, *args, **kwargs):
-        # options = uc.ChromeOptions()
-        # options.headless = True
-        # options.add_argument('--headless')
+
         driver = get_selenium_driver(grid=grid, headless = headless)  # driver = uc.Chrome(enable_cdp_events=True)
         try:
             driver.get('https://www.max.co.il/homepage/welcome')
             time.sleep(2)
-            driver.find_element(By.CLASS_NAME, 'go-to-personal-area').click()
-            driver.find_element(By.ID, 'login-password-link').click()
+
+            driver.execute_script("arguments[0].click();", driver.find_element(By.CLASS_NAME, 'go-to-personal-area'))
+            driver.execute_script("arguments[0].click();", driver.find_element(By.ID, 'login-password-link'))
             driver.find_element(By.XPATH, '//*[@formcontrolname="username"]').send_keys(username)
             driver.find_element(By.XPATH, '//*[@formcontrolname="password"]').send_keys(password)
-            driver.find_elements(By.XPATH, "//button[@id='send-code']")[1].click()
+            driver.execute_script("arguments[0].click();", driver.find_elements(By.XPATH, "//button[@id='send-code']")[1])
             time.sleep(5)
-            # driver.add_cdp_listener('Network.responseReceived', mylousyprintfunction)
             driver.get('https://www.max.co.il/transaction-details/personal')
             time.sleep(3)
             print('trying')
@@ -166,7 +72,7 @@ class MaxScraper(Scraper):
             card_details = [{'last_digits': card['Last4Digits'],
                              'next_bill': card['CycleSummary'][0]['Date'],
                              'debit': card['CycleSummary'][0]['ActualDebitSum']} for card in
-                            home_page_data['Result']['UserCards']['Cards']]
+                            home_page_data['Result']['UserCards']['Cards'] if len(card['CycleSummary']) > 0]
 
             credential.additional_info[credential.ADDITIONAL_INFO_BALANCE] = float(current_month_total_some) * -1
             credential.additional_info['card_details'] = card_details
@@ -206,10 +112,3 @@ class MaxScraper(Scraper):
                 {'name': name, 'date': date, 'value': amount, 'identifier': arn, 'comment': comment, 'plan': plan})
         return trans
 
-# if __name__ == "__main__":
-#     # TODO cant import model becuse of cerculer imports
-#     c= models.Credential.objects.get(user__username= 'efraim', company='MAX')
-#     end = datetime.datetime.now().replace(day=23)
-#     start = datetime.datetime.now().replace(day=21)
-#     transactions = MaxScraper().get_transactions(start, end,c, **c.get_credential)
-#     print(transactions)

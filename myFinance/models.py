@@ -67,7 +67,7 @@ class Credential(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     company = models.CharField(max_length=30, choices=COMPANY_CHOICES, default="1")
-    credential = KMSEncryptedCharField(key_id="7388ca30-4279-45cc-a05e-f05f9fb7d4af")
+    credential = models.CharField(max_length=512, null=True)
     last_scanned = models.DateField(null=True)
     type = models.CharField(max_length=32, choices=TYPE_CHOICES, default="1")
     additional_info = JSONField(default={})
@@ -88,6 +88,12 @@ class Credential(models.Model):
 
     def __str__(self):
         return self.company
+
+    def set_password(self, password):
+        creds = self.get_credential
+        creds['password'] = password
+        self.credential = json.dumps(creds)
+        self.save()
 
 
 class Tag(models.Model):

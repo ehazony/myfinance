@@ -34,3 +34,5 @@ gspread
 selenium-wire
 unittest2
 watchdog
+blinker<1.8.0
+boto3
