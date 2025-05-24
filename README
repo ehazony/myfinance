@@ -53,3 +53,40 @@
 - Ensure PostgreSQL is running and the database specified in `.env` exists.
 - The backend and frontend can be started independently.
 - For production, additional configuration may be required.
+
+---
+
+## Running the Bank Scraper
+
+The bank scraper is integrated as a Django management command. It loads/scrapes transactions for the specified user, credential, and date range.
+
+### Usage
+
+```sh
+python manage.py load_transactions [--start YYYY-MM-DD] [--end YYYY-MM-DD] [--username USERNAME] [--credential_id ID]
+```
+
+#### Parameters
+- `--start YYYY-MM-DD` : (optional) Start date for transactions (default: first day of the end month)
+- `--end YYYY-MM-DD`   : (optional) End date for transactions (default: today)
+- `--username USERNAME`: (optional) Only load transactions for this username
+- `--credential_id ID` : (optional) Only load transactions for this credential ID
+
+You can use any combination of these parameters. If none are provided, the command will process all credentials for all users for the default date range.
+
+### Examples
+
+- Load all transactions for all users for the current month:
+  ```sh
+  python manage.py load_transactions
+  ```
+
+- Load transactions for a specific user for a specific date range:
+  ```sh
+  python manage.py load_transactions --username alice --start 2024-01-01 --end 2024-01-31
+  ```
+
+- Load transactions for a specific credential:
+  ```sh
+  python manage.py load_transactions --credential_id 5
+  ```
