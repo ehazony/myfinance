@@ -1,131 +1,66 @@
-# Mantis Free React Material UI Dashboard Template [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Download%20Mantis%20React%20-%20The%20professional%20Material%20designed%20React%20Admin%20Dashboard%20Template%20&url=https://mantisdashboard.io&via=codedthemes&hashtags=reactjs,webdev,developers,javascript)
+# Dashboard Frontend
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Price](https://img.shields.io/badge/price-FREE-0098f7.svg)](https://github.com/codedthemes/mantis-free-react-admin-template/blob/main/LICENSE)
-[![GitHub package version](https://img.shields.io/github/package-json/v/codedthemes/mantis-free-react-admin-template)](https://github.com/codedthemes/mantis-free-react-admin-template/)
+This directory contains the React application used for the web dashboard. It is built on top of the Mantis free React template and uses Material‑UI components with Redux for state management.
 
-Mantis is a free and open source React redux dashboard template made using the Material UI React component library with aim of flexibility and better customizability.
+## Features
 
-### Name Derived From Nature
+- React 18 with functional components and hooks
+- Material‑UI v5 for the UI and theming
+- Redux Toolkit and Recoil for state management
+- React Router v6 for routing
+- Preconfigured ESLint and Prettier
+- Unit testing setup with React Testing Library
 
-Mantis Logo is inspired from the insect name - 'Mantises' as they have triangular heads with flexible Necks. Also, the name is derived from two popular UI frameworks, Material UI and Ant Design (M-Ant-is).
+## Prerequisites
 
-Mantis has Ant Design principal on top of the MAterial UI React component library.
+- Node.js 16 or higher
+- npm or Yarn package manager
 
-:star: :star: :star: Support us by giving star (Top right of this page) if you like the theme :star: :star: :star:
+## Getting Started
 
-![mantis-free-react-dashboard-template.jpg](https://mantisdashboard.io/adv-banner-images/og-social-v1.1.0.png)
+Install dependencies and start the development server:
 
-The [Pro version](https://mantisdashboard.io) of Mantis react template includes features such as TypeScript, apps, authentication methods (i.e. JWT, Auth0, Firebase), advance components, form plugins, layouts, widgets, and more.
-
-| [Mantis Free](https://mantisdashboard.io/free) | [Mantis Pro](https://mantisdashboard.io)                          |
-| ---------------------------------------------- | :---------------------------------------------------------------- |
-| **7** Demo pages                               | **85+** Demo pages                                               |
-| -                                              | ✓ Multi-language                                                  |
-| -                                              | ✓ Dark/Light Mode 🌓                                              |
-| -                                              | ✓ TypeScript version                                              |
-| -                                              | ✓ Design files (Figma)                                            |
-| -                                              | ✓ Multiple color options                                          |
-| -                                              | ✓ RTL                                                             |
-| -                                              | ✓ JWT, Firebase, Auth0, AWS authentication                        |
-| -                                              | ✓ [More components](https://mantisdashboard.io/components-overview/autocomplete) |
-| ✓ MIT License                                  | ✓ [Pro License](https://mui.com/store/license/)                   |
-
-## Why Mantis?
-
-Mantis offers everything needed to build an advanced dashboard application. In the initial release, we included following high-end features,
-
--   Support React18.
--   Professional user interface.
--   Material UI React components.
--   Fully responsive, all modern browser supported.
--   Easy to use code structure
--   Flexible & high-Performance code
--   Simple documentation
-
-## Free Mantis React version
-
-#### Preview
-
--   [Demo](https://mantisdashboard.io/free)
-
-#### Download
-
--   [Download from GitHub](https://github.com/codedthemes/mantis-free-react-admin-template)
-
-## Mantis Pro version
-
-#### Preview
-
--   [Demo](https://mantisdashboard.io)
-
-#### Purchase
-
--   [Buy now](https://mui.com/store/items/mantis-react-admin-dashboard-template/)
-
-## Table of contents
-
--   [Getting started](#getting-started)
--   [Documentation](#documentation)
--   [Technology stack](#technology-stack)
--   [Author](#author)
--   [Issues?](#issues)
--   [License](#license)
--   [More products](#more-free-react-material-admin-templates)
--   [Follow us](#follow-us)
-
-## Getting started
-
-Clone from GitHub
-
-```
-git clone https://github.com/codedthemes/mantis-free-react-admin-template.git
-yarn
-yarn start
+```bash
+cd front/dashboard
+npm install      # or yarn
+npm start        # or yarn start
 ```
 
-## Documentation
+Open <http://localhost:3000> to view the app in the browser. The page will reload when you make edits.
 
-[Mantis documentation](https://codedthemes.gitbook.io/mantis/) helps you out in all aspects from Installation to deployment.
+## Available Scripts
 
-## Technology stack
+- `npm start` – Runs the app in development mode
+- `npm run build` – Builds the app for production to the `build/` folder
+- `npm test` – Launches the test runner
+- `npm run eject` – Ejects from Create React App (this action is permanent)
 
--   [Material UI V5](https://mui.com/core/)
--   Built with React Hooks API.
--   Redux & React context API for state management.
--   Redux toolkit.
--   React Router for navigation routing.
--   Support for react-script.
--   Code splitting.
--   CSS-in-JS.
+## Environment Variables
 
-## Author
+Create a `.env` file in the project root to override settings from `package.json` or provide API URLs and other secrets. See the [Create React App documentation](https://create-react-app.dev/docs/adding-custom-environment-variables/) for more details.
 
-Mantis is managed by team [CodedThemes](https://codedthemes.com).
+## Folder Structure
 
-## Issues
+```
+front/dashboard
+├── public          # Static assets and HTML template
+├── src             # Application source code
+│   ├── assets      # Images and fonts
+│   ├── components  # Reusable UI components
+│   ├── pages       # Route level pages
+│   ├── store       # Redux store configuration
+│   └── ...         # Other helpers and utilities
+```
 
-Please generate a [GitHub issue](https://github.com/codedthemes/mantis-free-react-admin-template/issues) if you found a bug in any version. We are try our best to resolve the issue.
+## Deployment
+
+Run `npm run build` to create a production bundle. Deploy the contents of the `build/` directory to any static hosting service or web server.
+
+## Contributing
+
+Contributions are welcome. Please open an issue or submit a pull request to propose changes.
 
 ## License
 
--   Licensed under [MIT](https://github.com/codedthemes/datta-able-bootstrap-dashboard/blob/master/LICENSE)
+This project is licensed under the MIT License and incorporates the [Mantis Free React Dashboard](https://github.com/codedthemes/mantis-free-react-admin-template) design.
 
-## Checkout free React Material admin dashboard templates
-
--   [Free Materially](https://codedthemes.com/item/materially-free-reactjs-admin-template/)
--   [Free Berry](https://mui.com/store/items/berry-react-material-admin-free/)
-
-## Checkout premium React Material admin dashboard templates
-
--   [Materially](https://codedthemes.com/item/materially-reactjs-admin-dashboard/)
--   [Berry](https://mui.com/store/items/berry-react-material-admin/)
-
-## Follow us
-
--   Website [https://mantisdashboard.io](https://mantisdashboard.io)
--   Blog [https://blog.mantisdashboard.io](https://blog.mantisdashboard.io)
--   CodedThemes [https://codedthemes.com](https://codedthemes.com)
--   Dribbble [https://dribbble.com/codedthemes](https://dribbble.com/codedthemes)
--   Facebook [https://www.facebook.com/codedthemes](https://www.facebook.com/codedthemes)
--   Twitter [https://twitter.com/codedthemes](https://twitter.com/codedthemes)
