@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_celery_beat',
     # 'session_security',
+    'drf_spectacular',
 ]
 INSTALLED_APPS += ['django_extensions']
 
@@ -91,6 +92,7 @@ REST_FRAMEWORK = {
 
         # 'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
