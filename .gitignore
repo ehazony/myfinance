@@ -3,3 +3,5 @@
 /static/
 /staticfiles/
 /.idea/
+.env
+.env.prod
