@@ -90,39 +90,3 @@ You can use any combination of these parameters. If none are provided, the comma
   ```sh
   python manage.py load_transactions --credential_id 5
   ```
-
----
-
-## Committing and Pushing Changes
-
-To save your work and share it with others, use the following Git workflow:
-
-1. **Stage your changes:**
-   ```sh
-   git add <file1> <file2> ...
-   # or to add all changes:
-   git add -A
-   ```
-
-2. **Commit your changes with a descriptive message:**
-   ```sh
-   git commit -m "Describe your changes here"
-   ```
-
-3. **Pull the latest changes from the remote (recommended if working in a team):**
-   ```sh
-   git pull
-   ```
-
-4. **Push your changes to the remote repository:**
-   ```sh
-   git push origin master
-   ```
-
-**Example:**
-```sh
-git add README
-git commit -m "Update documentation with commit and push instructions"
-git pull
-git push origin master
-```
