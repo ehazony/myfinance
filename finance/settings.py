@@ -21,7 +21,7 @@ if config('AWS_PROFILE', None):
     boto3.setup_default_session(profile_name=config('AWS_PROFILE'))
 GRID_ENDPOINT = config('GRID_ENDPOINT')
 FRONT_ENDPOINT = config('FRONT_ENDPOINT')
-
+DJANGO_ALLOW_ASYNC_UNSAFE = True
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
@@ -233,31 +233,18 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "verbose": {
-            "()": "colorlog.ColoredFormatter",
-            "format": "%(log_color)s %(levelname)-8s %(asctime)s %(request_id)s  %(process)s --- "
-                      "%(lineno)-8s [%(name)s] %(funcName)-24s : %(message)s",
-            "log_colors": {
-                "DEBUG": "blue",
-                "INFO": "white",
-                "WARNING": "yellow",
-                "ERROR": "red",
-                "CRITICAL": "bold_red",
-            },
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
         },
         "aws": {
             "format": "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
-    "filters": {
-        "request_id": {"()": "log_request_id.filters.RequestIDFilter"},
-    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
-            "filters": ["request_id"],
-
         },
     },
     "loggers": {

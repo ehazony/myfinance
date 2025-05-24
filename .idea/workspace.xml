@@ -4,28 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7bea3e36-44a0-4ec4-b3a4-61b858cfccb1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dockerfile-transaction-scraper" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/myFinance/migrations/0040_auto_20250122_1725.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/myFinance/migrations/0041_remove_credential_credential.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/myFinance/migrations/0042_credential_credential.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitlab-ci.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.gitlab-ci.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/finance.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/finance.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="7bea3e36-44a0-4ec4-b3a4-61b858cfccb1" name="Default Changelist" comment="some updates">
+      <change afterPath="$PROJECT_DIR$/app/summarize.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/supermarket_graph.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bank_scraper/cal.py" beforeDir="false" afterPath="$PROJECT_DIR$/bank_scraper/cal.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bank_scraper/discount.py" beforeDir="false" afterPath="$PROJECT_DIR$/bank_scraper/discount.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bank_scraper/max.py" beforeDir="false" afterPath="$PROJECT_DIR$/bank_scraper/max.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/finance/celery_app.py" beforeDir="false" afterPath="$PROJECT_DIR$/finance/celery_app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/finance/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/finance/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myFinance/management/commands/load_transactions.py" beforeDir="false" afterPath="$PROJECT_DIR$/myFinance/management/commands/load_transactions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myFinance/management/commands/run_scraper.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/myFinance/migrations/0035_alter_additionalinfo_value.py" beforeDir="false" afterPath="$PROJECT_DIR$/myFinance/migrations/0035_alter_additionalinfo_value.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myFinance/migrations/0037_recurringtransaction.py" beforeDir="false" afterPath="$PROJECT_DIR$/myFinance/migrations/0037_recurringtransaction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/myFinance/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/myFinance/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,6 +45,7 @@
         <option value="HTML File" />
         <option value="JavaScript File" />
         <option value="Python Script" />
+        <option value="Jupyter Notebook" />
       </list>
     </option>
   </component>
@@ -127,6 +112,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$USER_HOME$/.pyenv/versions/3.11.9/lib/python3.11/asyncio/base_events.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$USER_HOME$/.pyenv/versions/3.11.9/lib/python3.11/logging/config.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/venv/lib/python3.11/site-packages/aws_cdk/aws_lambda/__init__.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/venv/lib/python3.11/site-packages/constructs/__init__.py" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/venv/lib/python3.11/site-packages/dateutil/rrule.py" root0="SKIP_INSPECTION" />
@@ -259,32 +245,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Django Server.finance.executor": "Debug",
-    "Docker.Dockerfile-transaction-scraper.executor": "Run",
-    "Docker.test_lambda/Dockerfile.executor": "Run",
-    "Python.load_transactions.executor": "Debug",
-    "Python.load_transactions_by_credential.executor": "Debug",
-    "Python.selenium_script.executor": "Run",
-    "RunOnceActivity.OpenDjangoStructureViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "/Users/efraimhazony/code/finance",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Django Server.finance.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.Dockerfile-transaction-scraper.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.test_lambda/Dockerfile.executor&quot;: &quot;Run&quot;,
+    &quot;Python.load_transactions.executor&quot;: &quot;Run&quot;,
+    &quot;Python.load_transactions_by_credential.executor&quot;: &quot;Debug&quot;,
+    &quot;Python.selenium_script.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenDjangoStructureViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.pycharm.django.structure.promotion.once.per.project&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/efraimhazony/code/finance&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.notebooks.jupyter.connections.configuration.JupyterServerConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -301,7 +288,7 @@
       <recent name="C:\Users\efrai\Desktop\bills\finance\myFinance" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.load_transactions">
+  <component name="RunManager" selected="Django Server.finance">
     <configuration name="load_transactions" type="PythonConfigurationType" factoryName="Python">
       <module name="finance" />
       <option name="ENV_FILES" value="" />
@@ -580,7 +567,17 @@
       <workItem from="1738530382626" duration="647000" />
       <workItem from="1738590527496" duration="598000" />
       <workItem from="1738655425340" duration="884000" />
-      <workItem from="1738756917143" duration="22871000" />
+      <workItem from="1738756917143" duration="28610000" />
+      <workItem from="1739092152565" duration="42000" />
+      <workItem from="1739121996232" duration="6357000" />
+      <workItem from="1739427122366" duration="2079000" />
+      <workItem from="1739429331320" duration="7350000" />
+      <workItem from="1739456181575" duration="2237000" />
+      <workItem from="1739793905517" duration="95000" />
+      <workItem from="1739804919696" duration="4486000" />
+      <workItem from="1740129582835" duration="1239000" />
+      <workItem from="1740299549270" duration="594000" />
+      <workItem from="1740315189698" duration="593000" />
     </task>
     <task id="LOCAL-00001" summary="added is_bank checkbox">
       <created>1589917358199</created>
@@ -764,7 +761,23 @@
       <option name="project" value="LOCAL" />
       <updated>1641237276723</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="some updates">
+      <option name="closed" value="true" />
+      <created>1739041129593</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1739041129593</updated>
+    </task>
+    <task id="LOCAL-00028" summary="some updates">
+      <option name="closed" value="true" />
+      <created>1739041154245</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1739041154245</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -879,7 +892,8 @@
     <MESSAGE value="Ben Leumi 2" />
     <MESSAGE value="fix income income_transactions to include last month" />
     <MESSAGE value="update discont parser" />
-    <option name="LAST_COMMIT_MESSAGE" value="update discont parser" />
+    <MESSAGE value="some updates" />
+    <option name="LAST_COMMIT_MESSAGE" value="some updates" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -937,8 +951,23 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/bank_scraper/discount.py</url>
-          <line>80</line>
+          <line>74</line>
           <option name="timeStamp" value="204" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/summarize.py</url>
+          <line>40</line>
+          <option name="timeStamp" value="208" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/finance/settings.py</url>
+          <line>80</line>
+          <option name="timeStamp" value="212" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/app/summarize.py</url>
+          <line>30</line>
+          <option name="timeStamp" value="213" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -962,7 +991,7 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/finance$load_transactions_by_credential.coverage" NAME="load_transactions Coverage Results" MODIFIED="1720514954720" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/finance$selenium_script.coverage" NAME="selenium_script Coverage Results" MODIFIED="1737566801445" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/scraper_lambda" />
-    <SUITE FILE_PATH="coverage/finance$load_transactions.coverage" NAME="load_transactions Coverage Results" MODIFIED="1739040864438" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/finance$load_transactions.coverage" NAME="load_transactions Coverage Results" MODIFIED="1739433880654" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
   </component>
   <component name="debuggerHistoryManager">
     <expressions id="evaluateCodeFragment">
