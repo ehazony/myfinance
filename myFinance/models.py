@@ -4,7 +4,6 @@ import random
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models.signals import post_save
 from django_kms.fields import KMSEncryptedCharField
@@ -70,7 +69,7 @@ class Credential(models.Model):
     credential = models.CharField(max_length=512, null=True)
     last_scanned = models.DateField(null=True)
     type = models.CharField(max_length=32, choices=TYPE_CHOICES, default="1")
-    additional_info = JSONField(default={})
+    additional_info = models.JSONField(default=dict)
 
     def save(self, *args, **kwargs):
         if type(self.credential) == dict:
@@ -204,7 +203,7 @@ class AdditionalInfo(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    value = JSONField(default={})
+    value = models.JSONField(default=dict)
 
     @classmethod
     def create_user_code(cls):
@@ -231,5 +230,5 @@ class DiscountCredential(models.Model):
 
 class ErrorLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-    message = JSONField(default={})
+    message = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)

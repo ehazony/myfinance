@@ -12,7 +12,11 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthTracking'
+          description: ''
   /api/user_credentials/:
     get:
       operationId: api_user_credentials_retrieve
@@ -22,16 +26,36 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialTypes'
+          description: ''
     post:
       operationId: api_user_credentials_create
       tags:
       - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialTypes'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CredentialTypes'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CredentialTypes'
+        required: true
       security:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialTypes'
+          description: ''
   /api/user_goals/:
     post:
       operationId: api_user_goals_create
@@ -67,7 +91,11 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
   /bank_info.*:
     get:
       operationId: bank_info.*_retrieve
@@ -77,7 +105,11 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankInfo'
+          description: ''
   /dj-rest-auth/login/:
     post:
       operationId: dj_rest_auth_login_create
@@ -422,7 +454,11 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthCategory'
+          description: ''
   /summery_widgets.*:
     get:
       operationId: summery_widgets.*_retrieve
@@ -432,7 +468,11 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummeryWidgets'
+          description: ''
   /total_month_expenses.*:
     get:
       operationId: total_month_expenses.*_retrieve
@@ -442,7 +482,11 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalMonthExpenses'
+          description: ''
   /user_accounts/:
     get:
       operationId: user_accounts_list
@@ -491,7 +535,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this credential.
         required: true
       tags:
       - user_accounts
@@ -510,7 +555,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this credential.
         required: true
       tags:
       - user_accounts
@@ -541,7 +587,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this credential.
         required: true
       tags:
       - user_accounts
@@ -571,7 +618,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this credential.
         required: true
       tags:
       - user_accounts
@@ -628,7 +676,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this recurring transaction.
         required: true
       tags:
       - user_recurring_transactions
@@ -647,7 +696,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this recurring transaction.
         required: true
       tags:
       - user_recurring_transactions
@@ -678,7 +728,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this recurring transaction.
         required: true
       tags:
       - user_recurring_transactions
@@ -708,7 +759,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this recurring transaction.
         required: true
       tags:
       - user_recurring_transactions
@@ -765,7 +817,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this tag.
         required: true
       tags:
       - user_tags
@@ -784,7 +837,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this tag.
         required: true
       tags:
       - user_tags
@@ -815,7 +869,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this tag.
         required: true
       tags:
       - user_tags
@@ -845,7 +900,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this tag.
         required: true
       tags:
       - user_tags
@@ -857,6 +913,32 @@ paths:
   /user_transactions/:
     get:
       operationId: user_transactions_list
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date__gt
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date__gte
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date__lt
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date__lte
+        schema:
+          type: string
+          format: date
       tags:
       - user_transactions
       security:
@@ -902,7 +984,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this transaction.
         required: true
       tags:
       - user_transactions
@@ -921,7 +1004,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this transaction.
         required: true
       tags:
       - user_transactions
@@ -952,7 +1036,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this transaction.
         required: true
       tags:
       - user_transactions
@@ -982,7 +1067,8 @@ paths:
       - in: path
         name: id
         schema:
-          type: string
+          type: integer
+        description: A unique integer value identifying this transaction.
         required: true
       tags:
       - user_transactions
@@ -1000,9 +1086,24 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTransactionsNames'
+          description: ''
 components:
   schemas:
+    BankInfo:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: number
+          format: double
+      required:
+      - key
+      - value
     Credential:
       type: object
       properties:
@@ -1026,6 +1127,22 @@ components:
       - company
       - id
       - type
+    CredentialTypes:
+      type: object
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        fields:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+      required:
+      - fields
+      - key
+      - name
     Login:
       type: object
       properties:
@@ -1038,6 +1155,43 @@ components:
           type: string
       required:
       - password
+    MonthCategory:
+      type: object
+      properties:
+        category_id:
+          type: integer
+        category:
+          type: string
+        key:
+          type: string
+        value:
+          type: number
+          format: double
+        goal:
+          type: integer
+        type:
+          type: string
+        percent:
+          type: number
+          format: double
+        color:
+          type: string
+      required:
+      - category
+      - category_id
+      - color
+      - goal
+      - key
+      - percent
+      - type
+      - value
+    MonthTracking:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+      - text
     PasswordChange:
       type: object
       properties:
@@ -1266,6 +1420,29 @@ components:
           readOnly: true
       required:
       - detail
+    SummeryWidgets:
+      type: object
+      properties:
+        graphs:
+          type: object
+          additionalProperties: {}
+        average_expenses:
+          type: number
+          format: double
+        average_income:
+          type: number
+          format: double
+        number_of_months:
+          type: integer
+        average_bank_expenses:
+          type: number
+          format: double
+      required:
+      - average_bank_expenses
+      - average_expenses
+      - average_income
+      - graphs
+      - number_of_months
     Tag:
       type: object
       properties:
@@ -1316,6 +1493,24 @@ components:
           maxLength: 40
       required:
       - key
+    TotalMonthExpenses:
+      type: object
+      properties:
+        moving_average:
+          type: number
+          format: double
+        value:
+          type: number
+          format: double
+        text:
+          type: string
+        color:
+          type: string
+      required:
+      - color
+      - moving_average
+      - text
+      - value
     TransactionRest:
       type: object
       properties:
@@ -1374,6 +1569,68 @@ components:
         * `MONTHLY FIXED` - MONTHLY FIXED
         * `PERIODIC` - PERIODIC
         * `CONTINUOUS` - CONTINUOUS
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        password:
+          type: string
+          maxLength: 128
+        last_login:
+          type: string
+          format: date-time
+          nullable: true
+        is_superuser:
+          type: boolean
+          title: Superuser status
+          description: Designates that this user has all permissions without explicitly
+            assigning them.
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        is_staff:
+          type: boolean
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        date_joined:
+          type: string
+          format: date-time
+        groups:
+          type: array
+          items:
+            type: integer
+          description: The groups this user belongs to. A user will get all permissions
+            granted to each of their groups.
+        user_permissions:
+          type: array
+          items:
+            type: integer
+          description: Specific permissions for this user.
+      required:
+      - id
+      - password
+      - username
     UserDetails:
       type: object
       description: User model w/o password
@@ -1403,6 +1660,13 @@ components:
       - email
       - pk
       - username
+    UserTransactionsNames:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+      - name
     VerifyEmail:
       type: object
       properties:

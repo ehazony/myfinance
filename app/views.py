@@ -21,8 +21,21 @@ import app.utils
 from app.forms import TransactionForm
 from myFinance import models
 from myFinance.models import Transaction, TransactionNameTag, DateInput, Tag, Credential, RecurringTransaction
-from myFinance.serialisers import TransactionRestSerializer, TagSerializer, CredentialSerializer, TagGoalSerializer, \
-    UserSerializer, RecurringTransactionSerializer
+from myFinance.serialisers import (
+    TransactionRestSerializer,
+    TagSerializer,
+    CredentialSerializer,
+    TagGoalSerializer,
+    UserSerializer,
+    RecurringTransactionSerializer,
+    SummeryWidgetsSerializer,
+    MonthTrackingSerializer,
+    MonthCategorySerializer,
+    BankInfoSerializer,
+    TotalMonthExpensesSerializer,
+    UserTransactionsNamesSerializer,
+    CredentialTypesSerializer,
+)
 from telegram_bot import telegram_bot_api
 from .date_utils import date_in_bill_month, next_bill_date, end_month
 from .forms import TransactionModelForm
@@ -42,6 +55,7 @@ NO_DATA_HTML = "<div id=chartContainer style=height: 360px; width: 100%;> No dat
 
 
 class SummeryWidgetsView(APIView):
+    serializer_class = SummeryWidgetsSerializer
 
     def get(self, request, format=None):
         data = {}
@@ -82,6 +96,7 @@ class TransactionCreateView(BSModalFormView):
 
 
 class MonthTrackingView(APIView):
+    serializer_class = MonthTrackingSerializer
 
     def get(self, request, format=None):
         s = create_continuous_category_summery(request.user)
@@ -90,6 +105,7 @@ class MonthTrackingView(APIView):
 
 
 class MonthCategoryView(APIView):
+    serializer_class = MonthCategorySerializer
 
     def get(self, request, format=None):
         Pas = [
@@ -136,6 +152,7 @@ class MonthCategoryView(APIView):
 
 
 class BankInfo(APIView):
+    serializer_class = BankInfoSerializer
     def get(self, request, format=None):
         start_month = datetime.datetime.now().replace(day=1, minute=0, second=0, microsecond=0)
         end_month = datetime.datetime.now().replace(day=calendar.monthrange(start_month.year, start_month.month)[1],
@@ -182,6 +199,7 @@ class BankInfo(APIView):
 
 
 class UserTransactionsNames(APIView):
+    serializer_class = UserTransactionsNamesSerializer
     def get(self, request, format=None):
         transactions = Transaction.objects.filter(user=request.user).values_list('name').distinct()
         return Response(data=transactions)
@@ -189,11 +207,14 @@ class UserTransactionsNames(APIView):
 
 class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionRestSerializer
+    queryset = Transaction.objects.none()
     filterset_fields = {
         'date': ['gte', 'lte', 'exact', 'gt', 'lt'],
     }
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Transaction.objects.none()
         if self.request.GET.get('category'):
             return self.request.user.transaction_set.filter(tag__name=self.request.GET.get('category')).order_by(
                 '-date')
@@ -202,8 +223,11 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
 class CredentialViewSet(viewsets.ModelViewSet):
     serializer_class = CredentialSerializer
+    queryset = Credential.objects.none()
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Credential.objects.none()
         return Credential.objects.filter(user=self.request.user)
 
 
@@ -234,8 +258,11 @@ def estimated_recurring_transactions(bill_month, user):
 
 class RecurringTransactionsViewSet(viewsets.ModelViewSet):
     serializer_class = RecurringTransactionSerializer
+    queryset = RecurringTransaction.objects.none()
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return RecurringTransaction.objects.none()
         return RecurringTransaction.objects.filter(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
@@ -245,6 +272,7 @@ class RecurringTransactionsViewSet(viewsets.ModelViewSet):
 
 
 class CredentialTypes(APIView):
+    serializer_class = CredentialTypesSerializer
     def get(self, request):
         return Response(models.Credential.COMPANY_CHOICES_WITH_FIELDS)
 
@@ -256,14 +284,19 @@ class CredentialTypes(APIView):
 
 
 class UserView(APIView):
+    serializer_class = UserSerializer
+
     def get(self, request):
         return Response(UserSerializer(request.user).data)
 
 
 class UserTagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
+    queryset = Tag.objects.none()
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return Tag.objects.none()
         return Tag.objects.filter(user=self.request.user)
 
     def retrieve(self, request, *args, **kwargs):
@@ -291,6 +324,7 @@ class UserTagViewSet(viewsets.ModelViewSet):
 
 
 class TotalMonthExpensesView(APIView):
+    serializer_class = TotalMonthExpensesSerializer
 
     def get(self, request, format=None):
         def moving_average(data, window_size):
