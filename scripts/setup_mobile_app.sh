@@ -6,7 +6,9 @@
 set -e
 
 # Set PNPM_HOME and ensure global bin directory is available
-export PNPM_HOME="$HOME/.pnpm-global"
+# NOTE: We skip 'pnpm setup' for compatibility with Ubuntu/Universal images and non-interactive shells.
+# This script sets PNPM_HOME and PATH directly to avoid shell inference errors.
+export PNPM_HOME="$HOME/Library/pnpm"
 export PATH="$PNPM_HOME/bin:$PATH"
 mkdir -p "$PNPM_HOME/bin"
 
@@ -14,9 +16,6 @@ mkdir -p "$PNPM_HOME/bin"
 if ! command -v pnpm >/dev/null; then
   npm install -g pnpm
 fi
-
-# Run pnpm setup to initialize environment
-pnpm setup
 
 # Ensure pnpm global bin directory exists and is in PATH
 PNPM_GLOBAL_BIN=$(pnpm bin -g 2>/dev/null || true)

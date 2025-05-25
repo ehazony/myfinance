@@ -19,7 +19,7 @@ The rewrite will involve creating a new project (using Expo for simplicity) and 
 - **Sentry** (or **Bugsnag**) for crash/error monitoring
 - **Detox** + **Storybook 7** for end‑to‑end and visual testing
 - **drf‑spectacular** for OpenAPI 3.1 schema generation from Django REST Framework (backend)
-- **openapi‑zod‑client** (or `openapi-typescript --zod`) to generate Zod‑validated TypeScript clients from the spec
+- **msw-openapi** for mocking API requests based on OpenAPI specs
 
 ## API Contract Workflow
 
@@ -127,7 +127,7 @@ Add `pnpm generate:api` to the **mobile app’s** `prebuild` script and to backe
    - Ensure `api/openapi.yaml` is committed from the backend and runnable by the `generate:api` script.
 
 2. **Dependencies**
-   - [ ] Install React Navigation, Redux Toolkit, React Query, React Native Paper, React Hook Form, Yup, and testing libraries
+   - [ ] Install React Navigation, Redux Toolkit, React Query, React Native Paper, React Hook Form, Yup, and testing libraries, msw-openapi
    - [ ] Configure TypeScript path aliases in `tsconfig.json`
    - [ ] Install Expo Router, FlashList, NativeWind (and/or Tamagui), Reanimated 3, Moti, Zod, Sentry, Detox, Storybook 7, openapi‑zod‑client
 
