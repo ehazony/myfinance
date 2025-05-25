@@ -8,6 +8,14 @@ set -e
 # Install pnpm globally if not present
 if ! command -v pnpm >/dev/null; then
   npm install -g pnpm
+  pnpm setup
+fi
+
+# Ensure pnpm global bin directory is in PATH
+PNPM_GLOBAL_BIN=$(pnpm bin -g)
+if [[ ":$PATH:" != *":$PNPM_GLOBAL_BIN:"* ]]; then
+  export PATH="$PNPM_GLOBAL_BIN:$PATH"
+  echo "[INFO] Added pnpm global bin directory to PATH for this script: $PNPM_GLOBAL_BIN"
 fi
 
 # Install Expo CLI if not present
