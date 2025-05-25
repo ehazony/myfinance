@@ -5,14 +5,29 @@
 # all dependencies required for development.
 set -e
 
+# Set PNPM_HOME and ensure global bin directory is available
+export PNPM_HOME="$HOME/.pnpm-global"
+export PATH="$PNPM_HOME/bin:$PATH"
+mkdir -p "$PNPM_HOME/bin"
+
 # Install pnpm globally if not present
 if ! command -v pnpm >/dev/null; then
   npm install -g pnpm
-  pnpm setup
 fi
 
-# Ensure pnpm global bin directory is in PATH
-PNPM_GLOBAL_BIN=$(pnpm bin -g)
+# Run pnpm setup to initialize environment
+pnpm setup
+
+# Ensure pnpm global bin directory exists and is in PATH
+PNPM_GLOBAL_BIN=$(pnpm bin -g 2>/dev/null || true)
+if [ -z "$PNPM_GLOBAL_BIN" ]; then
+  echo "[ERROR] Could not determine pnpm global bin directory." >&2
+  exit 1
+fi
+if [ ! -d "$PNPM_GLOBAL_BIN" ]; then
+  mkdir -p "$PNPM_GLOBAL_BIN"
+  echo "[INFO] Created pnpm global bin directory: $PNPM_GLOBAL_BIN"
+fi
 if [[ ":$PATH:" != *":$PNPM_GLOBAL_BIN:"* ]]; then
   export PATH="$PNPM_GLOBAL_BIN:$PATH"
   echo "[INFO] Added pnpm global bin directory to PATH for this script: $PNPM_GLOBAL_BIN"
