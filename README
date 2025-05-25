@@ -47,6 +47,18 @@
    ```
    - The frontend will be available at: http://localhost:3000/
 
+### Mobile (React Native)
+
+Run the following script **while network access is available** to bootstrap the
+new React Native application using Expo and install all required packages:
+
+```sh
+./scripts/setup_mobile_app.sh
+```
+
+This will create a `mobile/` directory with the Expo project and install the
+dependencies listed in `docs/react_native_migration.md`.
+
 ---
 
 ### Notes

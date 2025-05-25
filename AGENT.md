@@ -38,6 +38,10 @@ docker-compose -f docker-compose.test.yml down
 
 ## Frontend
 The React dashboard resides in `front/dashboard`. See its `README.md` for package.json scripts and development instructions.
+The repository also contains `scripts/setup_mobile_app.sh` which bootstraps a
+React Native project described in `docs/react_native_migration.md`. Run this
+script **while network access is available** to create the `mobile/` directory
+and install dependencies.
 
 ## Important notes
 - Keep sensitive information such as credentials out of commits. Environment variables are stored in `.env.prod`.
