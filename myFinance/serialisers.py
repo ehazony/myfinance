@@ -80,3 +80,49 @@ class RecurringTransactionSerializer(RestModelSerializer):
     class Meta:
         model = RecurringTransaction
         fields = '__all__'
+
+
+class SummeryWidgetsSerializer(serializers.Serializer):
+    graphs = serializers.DictField()
+    average_expenses = serializers.FloatField()
+    average_income = serializers.FloatField()
+    number_of_months = serializers.IntegerField()
+    average_bank_expenses = serializers.FloatField()
+
+
+class MonthTrackingSerializer(serializers.Serializer):
+    text = serializers.CharField()
+
+
+class MonthCategorySerializer(serializers.Serializer):
+    category_id = serializers.IntegerField()
+    category = serializers.CharField()
+    key = serializers.CharField()
+    value = serializers.FloatField()
+    goal = serializers.IntegerField()
+    type = serializers.CharField()
+    percent = serializers.FloatField()
+    color = serializers.CharField()
+
+
+class BankInfoSerializer(serializers.Serializer):
+    key = serializers.CharField()
+    value = serializers.FloatField()
+
+
+class TotalMonthExpensesSerializer(serializers.Serializer):
+    moving_average = serializers.FloatField()
+    value = serializers.FloatField()
+    text = serializers.CharField()
+    color = serializers.CharField()
+
+
+class UserTransactionsNamesSerializer(serializers.Serializer):
+    name = serializers.CharField()
+
+
+class CredentialTypesSerializer(serializers.Serializer):
+    key = serializers.CharField()
+    name = serializers.CharField()
+    fields = serializers.ListField(child=serializers.DictField())
+
