@@ -42,6 +42,7 @@ from .forms import TransactionModelForm
 from .utils import expenses_transactions, average_income
 from .models import Conversation, Message
 from .serializers import MessageSerializer
+from agents import Orchestrator
 
 # from app.graph.graph_api import monthly_average_by_category, line_fig_by_tag_by_month, line_fig_by_month, \
 #     Tag, \
@@ -520,44 +521,21 @@ class ChatSendView(APIView):
     def post(self, request):
         conversation, _ = Conversation.objects.get_or_create(user=request.user)
         text = request.data.get("text", "")
-        user_msg = Message.objects.create(
+        Message.objects.create(
             conversation=conversation,
             sender=Message.USER,
             content_type=Message.TEXT,
             payload={"text": text},
         )
 
-        if "chart" in text.lower() or "graph" in text.lower():
-            agent_msg = Message.objects.create(
-                conversation=conversation,
-                sender=Message.AGENT,
-                content_type=Message.CHART,
-                payload={
-                    "labels": ["Jan", "Feb", "Mar", "Apr"],
-                    "values": [50, 20, 80, 30],
-                },
-            )
-        elif "button" in text.lower():
-            agent_msg = Message.objects.create(
-                conversation=conversation,
-                sender=Message.AGENT,
-                content_type=Message.BUTTONS,
-                payload={"buttons": ["Yes", "No"]},
-            )
-        elif "image" in text.lower():
-            agent_msg = Message.objects.create(
-                conversation=conversation,
-                sender=Message.AGENT,
-                content_type=Message.IMAGE,
-                payload={"url": "https://placekitten.com/300/200"},
-            )
-        else:
-            agent_msg = Message.objects.create(
-                conversation=conversation,
-                sender=Message.AGENT,
-                content_type=Message.TEXT,
-                payload={"text": f"Echo: {text}"},
-            )
+        orchestrator = Orchestrator()
+        content_type, payload = orchestrator.handle_message(text)
+        agent_msg = Message.objects.create(
+            conversation=conversation,
+            sender=Message.AGENT,
+            content_type=content_type,
+            payload=payload,
+        )
         return Response(MessageSerializer(agent_msg).data)
 
 

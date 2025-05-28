@@ -8,6 +8,7 @@ This repository contains a Django backend and a React frontend. The backend live
 - `finance/` – main Django project settings and Celery configuration.
 - `core/` – additional Django project used by templates.
 - `app/` – domain models and business logic.
+- `agents/` – LangChain-based finance agents and orchestrator logic.
 - `telegram_bot/` – code for interacting with Telegram.
 - `front/dashboard/` – Legacy React dashboard application.
 - `front/FinanceAgent/` – Modern Next.js/Expo app for the new finance dashboard (web and mobile).
@@ -60,5 +61,6 @@ The new FinanceAgent app is a modern, unified codebase for both web and mobile f
 ## Important notes
 - Keep sensitive information such as credentials out of commits. Environment variables are stored in `.env.prod`.
 - If you add or change setup steps, test commands, or repository structure, update both this `AGENT.md` file and the root `README.md` accordingly. If you change the FinanceAgent app setup, update its README as well.
+- The `agents/` package relies on `langchain` and `langgraph`; ensure these packages are listed in `requirements.txt`.
 - Ensure new code includes tests where possible.
 
