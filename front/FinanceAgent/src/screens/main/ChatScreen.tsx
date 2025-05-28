@@ -1,64 +1,196 @@
 "use client"
-import { useEffect, useState } from 'react'
-import { View, StyleSheet, FlatList, TextInput, Image, Dimensions, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native'
-import { Text, Button, useTheme, IconButton } from 'react-native-paper'
+import { useEffect, useState, useRef, useCallback } from 'react'
+import { View, StyleSheet, FlatList, TextInput, Image, Dimensions, KeyboardAvoidingView, Platform, TouchableOpacity, Animated } from 'react-native'
+import { Text, Button, useTheme, IconButton, ActivityIndicator } from 'react-native-paper'
 import { LineChart } from 'react-native-chart-kit'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import { chatService } from '../../services/chatService'
+import { audioService } from '../../services/audioService'
 import type { ChatMessage } from '../../types/chat'
 
 const { width: screenWidth } = Dimensions.get('window')
 
+type MessageStatus = 'sending' | 'sent' | 'delivered' | 'failed'
+
+interface EnhancedChatMessage extends ChatMessage {
+  status: MessageStatus
+}
+
 export default function ChatScreen() {
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<EnhancedChatMessage[]>([])
   const [text, setText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [isSending, setIsSending] = useState(false)
   const theme = useTheme()
+  const flatListRef = useRef<FlatList>(null)
+  const typingTimeoutRef = useRef<NodeJS.Timeout>()
+  const fadeAnim = useRef(new Animated.Value(0)).current
+  const scaleAnim = useRef(new Animated.Value(1)).current
 
   useEffect(() => {
+    initializeAudio()
     loadHistory()
+    
+    // Fade in animation on mount
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start()
+
+    return () => {
+      audioService.cleanup()
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current)
+      }
+    }
   }, [])
+
+  const initializeAudio = async () => {
+    try {
+      await audioService.initialize()
+    } catch (error) {
+      console.warn('Audio initialization failed:', error)
+    }
+  }
 
   const loadHistory = async () => {
     try {
       const history = await chatService.fetchHistory()
-      setMessages(history)
+      const enhancedHistory = history.map(msg => ({
+        ...msg,
+        status: 'delivered' as MessageStatus
+      }))
+      setMessages(enhancedHistory)
+      scrollToBottom()
     } catch (err) {
       console.error('Failed to load history', err)
+      audioService.playError()
     }
   }
 
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({ animated: true })
+    }, 100)
+  }, [])
+
+  const handleTextChange = useCallback((newText: string) => {
+    setText(newText)
+    
+    // Play typing sound with throttling
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+    
+    if (newText.length > text.length) {
+      audioService.playTyping()
+    }
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      // Stop typing sound after user stops typing
+    }, 500)
+  }, [text])
+
+  const animateSendButton = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.9,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start()
+  }
+
   const send = async () => {
-    if (!text.trim()) return
+    if (!text.trim() || isSending) return
     
     const messageText = text.trim()
     setText('')
+    setIsSending(true)
     setIsTyping(true)
     
+    // Play send sound and haptic feedback
+    audioService.playSend()
+    animateSendButton()
+    
     try {
-      const userMessage: ChatMessage = {
+      const userMessage: EnhancedChatMessage = {
         id: Date.now(),
         conversation: 1,
         sender: 'user',
         content_type: 'text',
         payload: { text: messageText },
         timestamp: new Date().toISOString(),
-        status: 'sent'
+        status: 'sending'
       }
       
       setMessages(prev => [...prev, userMessage])
+      scrollToBottom()
+      
+      // Update message status to sent
+      setTimeout(() => {
+        setMessages(prev => prev.map(msg => 
+          msg.id === userMessage.id ? { ...msg, status: 'sent' } : msg
+        ))
+      }, 500)
       
       const reply = await chatService.sendMessage(messageText)
-      setMessages(prev => [...prev, reply])
+      const enhancedReply: EnhancedChatMessage = {
+        ...reply,
+        status: 'delivered'
+      }
+      
+      // Update user message to delivered
+      setMessages(prev => prev.map(msg => 
+        msg.id === userMessage.id ? { ...msg, status: 'delivered' } : msg
+      ))
+      
+      // Add AI reply with animation
+      setTimeout(() => {
+        setMessages(prev => [...prev, enhancedReply])
+        audioService.playReceive()
+        scrollToBottom()
+      }, 300)
+      
+      audioService.playSuccess()
+      
     } catch (err) {
       console.error('Send failed', err)
+      audioService.playError()
+      
+      // Update message status to failed
+      setMessages(prev => prev.map(msg => 
+        msg.id === Date.now() ? { ...msg, status: 'failed' } : msg
+      ))
     } finally {
+      setIsSending(false)
       setIsTyping(false)
     }
   }
 
-  const renderItem = ({ item, index }: { item: ChatMessage; index: number }) => {
+  const renderMessageStatus = (status: MessageStatus) => {
+    switch (status) {
+      case 'sending':
+        return <ActivityIndicator size="small" color="#9CA3AF" style={styles.statusIndicator} />
+      case 'sent':
+        return <Text style={styles.statusText}>✓</Text>
+      case 'delivered':
+        return <Text style={styles.statusText}>✓✓</Text>
+      case 'failed':
+        return <Text style={[styles.statusText, { color: '#EF4444' }]}>!</Text>
+      default:
+        return null
+    }
+  }
+
+  const renderItem = ({ item, index }: { item: EnhancedChatMessage; index: number }) => {
     const isUser = item.sender === 'user'
     const isLastMessage = index === messages.length - 1
     
@@ -95,7 +227,10 @@ export default function ChatScreen() {
             <TouchableOpacity
               key={btnIndex}
               style={[styles.chatButton, { borderColor: theme.colors.primary }]}
-              onPress={() => setText(buttonText)}
+              onPress={() => {
+                audioService.playButtonTap()
+                setText(buttonText)
+              }}
             >
               <Text style={[styles.chatButtonText, { color: theme.colors.primary }]}>
                 {buttonText}
@@ -148,7 +283,13 @@ export default function ChatScreen() {
     }
 
     return (
-      <View style={[styles.messageContainer, isUser ? styles.userContainer : styles.agentContainer]}>
+      <Animated.View 
+        style={[
+          styles.messageContainer, 
+          isUser ? styles.userContainer : styles.agentContainer,
+          { opacity: fadeAnim }
+        ]}
+      >
         {!isUser && (
           <View style={styles.avatarContainer}>
             <LinearGradient
@@ -184,7 +325,13 @@ export default function ChatScreen() {
             </View>
           </View>
         )}
-      </View>
+        
+        {isUser && (
+          <View style={styles.statusContainer}>
+            {renderMessageStatus(item.status)}
+          </View>
+        )}
+      </Animated.View>
     )
   }
 
@@ -192,7 +339,7 @@ export default function ChatScreen() {
     if (!isTyping) return null
     
     return (
-      <View style={[styles.messageContainer, styles.agentContainer]}>
+      <Animated.View style={[styles.messageContainer, styles.agentContainer, { opacity: fadeAnim }]}>
         <View style={styles.avatarContainer}>
           <LinearGradient
             colors={[theme.colors.primary, theme.colors.secondary]}
@@ -205,13 +352,13 @@ export default function ChatScreen() {
         <View style={[styles.messageBubble, styles.agentBubble]}>
           <View style={[styles.agentContent, { backgroundColor: theme.colors.surface }]}>
             <View style={styles.typingIndicator}>
-              <View style={[styles.typingDot, styles.typingDot1]} />
-              <View style={[styles.typingDot, styles.typingDot2]} />
-              <View style={[styles.typingDot, styles.typingDot3]} />
+              <Animated.View style={[styles.typingDot, styles.typingDot1]} />
+              <Animated.View style={[styles.typingDot, styles.typingDot2]} />
+              <Animated.View style={[styles.typingDot, styles.typingDot3]} />
             </View>
           </View>
         </View>
-      </View>
+      </Animated.View>
     )
   }
 
@@ -227,12 +374,15 @@ export default function ChatScreen() {
           keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
           <FlatList 
+            ref={flatListRef}
             data={messages} 
             renderItem={renderItem} 
             keyExtractor={(item) => item.id.toString()}
             contentContainerStyle={styles.messagesList}
             showsVerticalScrollIndicator={false}
             ListFooterComponent={renderTypingIndicator}
+            onContentSizeChange={scrollToBottom}
+            onLayout={scrollToBottom}
           />
           
           <View style={[styles.inputContainer, { backgroundColor: theme.colors.surface }]}>
@@ -244,32 +394,40 @@ export default function ChatScreen() {
                   borderColor: theme.colors.outline
                 }]}
                 value={text}
-                onChangeText={setText}
+                onChangeText={handleTextChange}
                 placeholder="Type your message..."
                 placeholderTextColor={theme.colors.onSurfaceVariant}
                 multiline
                 maxLength={500}
+                editable={!isSending}
               />
               
-              <TouchableOpacity
-                style={[styles.sendButton, { opacity: text.trim() ? 1 : 0.5 }]}
-                onPress={send}
-                disabled={!text.trim() || isTyping}
-              >
-                <LinearGradient
-                  colors={['#3B82F6', '#1D4ED8']}
-                  style={styles.sendGradient}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
+              <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+                <TouchableOpacity
+                  style={[styles.sendButton, { opacity: text.trim() && !isSending ? 1 : 0.5 }]}
+                  onPress={send}
+                  disabled={!text.trim() || isSending}
+                  onPressIn={() => audioService.playButtonTap()}
                 >
-                  <IconButton
-                    icon="send"
-                    iconColor="#FFFFFF"
-                    size={20}
-                    style={styles.sendIcon}
-                  />
-                </LinearGradient>
-              </TouchableOpacity>
+                  <LinearGradient
+                    colors={['#3B82F6', '#1D4ED8']}
+                    style={styles.sendGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                  >
+                    {isSending ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <IconButton
+                        icon="send"
+                        iconColor="#FFFFFF"
+                        size={20}
+                        style={styles.sendIcon}
+                      />
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Animated.View>
             </View>
           </View>
         </KeyboardAvoidingView>
@@ -410,6 +568,20 @@ const styles = StyleSheet.create({
   },
   typingDot3: {
     animationDelay: '300ms',
+  },
+  statusContainer: {
+    marginLeft: 4,
+    justifyContent: 'flex-end',
+    paddingBottom: 4,
+  },
+  statusIndicator: {
+    width: 16,
+    height: 16,
+  },
+  statusText: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    fontWeight: '500',
   },
   inputContainer: {
     paddingHorizontal: 16,
