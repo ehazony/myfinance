@@ -1,6 +1,8 @@
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
 
+from .models import Conversation, Message
+
 
 class CustomRegisterSerializer(RegisterSerializer):
     first_name = serializers.CharField()
@@ -21,5 +23,26 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     def create(self, validated_data):
         pass
+
+
+class ConversationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Conversation
+        fields = ["id", "user", "created_at"]
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Message
+        fields = [
+            "id",
+            "conversation",
+            "sender",
+            "content_type",
+            "payload",
+            "timestamp",
+            "status",
+        ]
+
 
 
