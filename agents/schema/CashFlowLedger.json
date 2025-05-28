@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "CashFlowLedger",
+    "type": "object",
+    "required": ["ledger_id","snapshot_id","period_start","period_end","currency","transactions"],
+    "properties": {
+      "ledger_id":   { "type": "string", "format": "uuid" },
+      "snapshot_id": { "type": "string", "format": "uuid" },
+      "period_start":{"type":"string","format":"date"},
+      "period_end":  {"type":"string","format":"date"},
+      "currency":    {"type":"string","pattern":"^[A-Z]{3}$"},
+      "transactions":{
+        "type":"array",
+        "items":{ "$ref":"Transaction" }
+      },
+      "category_map":{
+        "type":"object",
+        "description":"user-defined overrides, key=merchant|description regex, value=category"
+      }
+    },
+  
+    "definitions":{
+      "Transaction":{
+        "type":"object",
+        "required":["transaction_id","date","description","amount","currency","account_id"],
+        "properties":{
+          "transaction_id":{ "type":"string","format":"uuid"},
+          "date":          { "type":"string","format":"date"},
+          "description":   { "type":"string"},
+          "amount":        { "type":"number"},
+          "currency":      { "type":"string","pattern":"^[A-Z]{3}$"},
+          "account_id":    { "type":"string","format":"uuid"},
+          "category":      { "type":"string"},
+          "tags":          { "type":"array","items":{"type":"string"} }
+        }
+      }
+    }
+  }

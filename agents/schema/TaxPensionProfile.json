@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "TaxPensionProfile",
+    "type": "object",
+    "required": ["profile_id","tax_year","gross_income","pension_plans"],
+    "properties": {
+      "profile_id":{"type":"string","format":"uuid"},
+      "tax_year":{"type":"integer"},
+      "gross_income":{"type":"number"},
+      "tax_bracket":{"type":"number"},
+      "used_tax_credits":{"type":"number"},
+      "available_tax_credits":{"type":"number"},
+  
+      "pension_plans":{
+        "type":"array",
+        "items":{"$ref":"PensionPlan"}
+      },
+      "recommendations":{
+        "type":"array",
+        "items":{"type":"string"}
+      }
+    },
+  
+    "definitions":{
+      "PensionPlan":{
+        "type":"object",
+        "required":["plan_id","provider","plan_type","balance","management_fee","contribution_rate"],
+        "properties":{
+          "plan_id":{"type":"string","format":"uuid"},
+          "provider":{"type":"string"},
+          "plan_type":{"type":"string","enum":["keren_pensia","keren_hishtalmut","bituach_menahelim","provident_fund"]},
+          "balance":{"type":"number"},
+          "management_fee":{"type":"number"},
+          "contribution_rate":{"type":"number"},
+          "investment_track":{"type":"string"}
+        }
+      }
+    }
+  }

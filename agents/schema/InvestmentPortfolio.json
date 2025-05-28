@@ -1,0 +1,56 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "InvestmentPortfolio",
+    "type": "object",
+    "required": ["portfolio_id","snapshot_date","currency","target_allocation","current_allocation","holdings"],
+    "properties": {
+      "portfolio_id":{"type":"string","format":"uuid"},
+      "snapshot_date":{"type":"string","format":"date"},
+      "currency":{"type":"string","pattern":"^[A-Z]{3}$"},
+  
+      "target_allocation":{
+        "type":"object",
+        "additionalProperties":{"type":"number","minimum":0,"maximum":1}
+      },
+      "current_allocation":{
+        "type":"object",
+        "additionalProperties":{"type":"number","minimum":0,"maximum":1}
+      },
+      "rebalance_bands":{"type":"number","description":"e.g. 0.05 for ±5% bands"},
+      "holdings":{
+        "type":"array",
+        "items":{"$ref":"Holding"}
+      },
+      "recommended_trades":{
+        "type":"array",
+        "items":{"$ref":"Trade"}
+      }
+    },
+  
+    "definitions":{
+      "Holding":{
+        "type":"object",
+        "required":["holding_id","ticker","quantity","price","value","asset_class","currency"],
+        "properties":{
+          "holding_id":{"type":"string","format":"uuid"},
+          "ticker":{"type":"string"},
+          "name":{"type":"string"},
+          "quantity":{"type":"number"},
+          "price":{"type":"number"},
+          "value":{"type":"number"},
+          "asset_class":{"type":"string","enum":["equity","bond","cash","alternatives","real_estate"]},
+          "currency":{"type":"string","pattern":"^[A-Z]{3}$"}
+        }
+      },
+      "Trade":{
+        "type":"object",
+        "required":["action","ticker","quantity"],
+        "properties":{
+          "action":{"type":"string","enum":["buy","sell"]},
+          "ticker":{"type":"string"},
+          "quantity":{"type":"number"},
+          "estimated_value":{"type":"number"}
+        }
+      }
+    }
+  }

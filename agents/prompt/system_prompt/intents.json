@@ -1,0 +1,15 @@
+{
+    "upload_documents":       { "agent": "Onboarding & Baseline" },
+    "update_accounts":        { "agent": "Onboarding & Baseline" },
+    "show_net_worth":         { "agent": "Reporting & Visualisation" },
+    "show_budget":            { "agent": "Reporting & Visualisation" },
+    "create_report":          { "agent": "Reporting & Visualisation" },
+    "categorize_txns":        { "agent": "Cash-Flow & Budget" },
+    "set_goal":               { "agent": "Goal-Setting" },
+    "list_goals":             { "agent": "Goal-Setting" },
+    "assess_safety":          { "agent": "Safety-Layer" },
+    "debt_strategy":          { "agent": "Debt-Strategy" },
+    "tax_optimiser":          { "agent": "Tax & Pension Optimiser" },
+    "plan_investment":        { "agent": "Investment Architect" },
+    "schedule_review":        { "agent": "Review & Reminder Scheduler" }
+  }
