@@ -28,6 +28,8 @@ urlpatterns = [
     path('api/user_goals/', views.UserTagGoalView.as_view()),
     path('api/users/', views.UserView.as_view()),
     path('user_transactions_names', views.UserTransactionsNames.as_view()),
+    path('api/chat/send/', views.ChatSendView.as_view()),
+    path('api/chat/history/', views.ChatHistoryView.as_view()),
 
     # path('', views.index, name='home'),
     # re_path(r'^.*\.html', views.pages, name='pages'),
