@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { useTheme } from "react-native-paper"
 import Icon from "react-native-vector-icons/MaterialCommunityIcons"
 import DashboardScreen from "../screens/main/DashboardScreen"
+import ChatScreen from "../screens/main/ChatScreen"
 import TransactionsScreen from "../screens/main/TransactionsScreen"
 import AccountsScreen from "../screens/main/AccountsScreen"
 import SettingsScreen from "../screens/main/SettingsScreen"
@@ -19,7 +20,9 @@ export default function MainNavigator() {
         tabBarIcon: ({ focused, color, size }) => {
           let iconName
 
-          if (route.name === "Dashboard") {
+          if (route.name === "Chat") {
+            iconName = focused ? "message" : "message-outline"
+          } else if (route.name === "Dashboard") {
             iconName = focused ? "view-dashboard" : "view-dashboard-outline"
           } else if (route.name === "Transactions") {
             iconName = focused ? "swap-horizontal" : "swap-horizontal"
@@ -44,6 +47,7 @@ export default function MainNavigator() {
         },
       })}
     >
+      <Tab.Screen name="Chat" component={ChatScreen} />
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Transactions" component={TransactionsScreen} />
       <Tab.Screen name="Accounts" component={AccountsScreen} />
