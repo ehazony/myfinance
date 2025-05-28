@@ -12,6 +12,9 @@
    ```sh
    pip install --index-url https://pypi.org/simple -r requirements.txt
    ```
+   This project uses LangChain to coordinate multiple finance agents located in
+   the new `agents/` package. Be sure your environment has all dependencies from
+   `requirements.txt` installed.
 
 3. **Configure environment variables:**
    - Copy `.env` or `.env.prod` to the project root and set your database and other secrets as needed.
