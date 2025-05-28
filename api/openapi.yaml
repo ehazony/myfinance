@@ -3,6 +3,48 @@ info:
   title: ''
   version: 0.0.0
 paths:
+  /api/chat/history/:
+    get:
+      operationId: api_chat_history_retrieve
+      description: Return conversation history for the authenticated user.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: ''
+  /api/chat/send/:
+    post:
+      operationId: api_chat_send_create
+      description: Accept a user message and return the agent response.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Message'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Message'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: ''
   /api/month-tracking:
     get:
       operationId: api_month_tracking_retrieve
@@ -1155,6 +1197,32 @@ components:
           type: string
       required:
       - password
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload: {}
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - sender
+      - timestamp
     MonthCategory:
       type: object
       properties:
@@ -1420,6 +1488,14 @@ components:
           readOnly: true
       required:
       - detail
+    SenderEnum:
+      enum:
+      - user
+      - agent
+      type: string
+      description: |-
+        * `user` - User
+        * `agent` - Agent
     SummeryWidgets:
       type: object
       properties:
