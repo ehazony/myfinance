@@ -10,7 +10,7 @@ This repository contains a Django backend and a React frontend. The backend live
 - `app/` – domain models and business logic.
 - `telegram_bot/` – code for interacting with Telegram.
 - `front/dashboard/` – Legacy React dashboard application.
-- `front/FinanceTracker/` – Modern Next.js/Expo app for the new finance dashboard (web and mobile).
+- `front/FinanceAgent/` – Modern Next.js/Expo app for the new finance dashboard (web and mobile).
 - `docker-compose.yml` – runs the application with Redis, Celery and Nginx.
 - `docker-compose.test.yml` – test environment.
 - `.env.prod` – environment variables used by docker-compose.
@@ -39,13 +39,13 @@ docker-compose -f docker-compose.test.yml down
 
 ## Frontend
 The legacy React dashboard resides in `front/dashboard`. See its `README.md` for package.json scripts and development instructions.
-The new FinanceTracker app resides in `front/FinanceTracker`. See its `README.md` for Next.js/Expo usage and development instructions.
+The new FinanceAgent app resides in `front/FinanceAgent`. See its `README.md` for Next.js/Expo usage and development instructions.
 
-## FinanceTracker App
+## FinanceAgent App
 
-The new FinanceTracker app is a modern, unified codebase for both web and mobile finance dashboards. It uses Next.js for the web frontend and Expo (React Native) for mobile, sharing most business logic and UI components.
+The new FinanceAgent app is a modern, unified codebase for both web and mobile finance dashboards. It uses Next.js for the web frontend and Expo (React Native) for mobile, sharing most business logic and UI components.
 
-- **Location:** `front/FinanceTracker`
+- **Location:** `front/FinanceAgent`
 - **Purpose:** Modern replacement for the old dashboard, supporting both web and mobile from a single codebase.
 - **Web (Next.js):**
   - Install dependencies: `npm install` or `pnpm install`
@@ -55,10 +55,10 @@ The new FinanceTracker app is a modern, unified codebase for both web and mobile
   - Install dependencies: `npm install` or `pnpm install`
   - Start Expo: `npx expo start`
   - Use Expo Go app or an emulator to preview on your device.
-- **See** `front/FinanceTracker/README.md` **for more details and advanced usage.**
+- **See** `front/FinanceAgent/README.md` **for more details and advanced usage.**
 
 ## Important notes
 - Keep sensitive information such as credentials out of commits. Environment variables are stored in `.env.prod`.
-- If you add or change setup steps, test commands, or repository structure, update both this `AGENT.md` file and the root `README.md` accordingly. If you change the FinanceTracker app setup, update its README as well.
+- If you add or change setup steps, test commands, or repository structure, update both this `AGENT.md` file and the root `README.md` accordingly. If you change the FinanceAgent app setup, update its README as well.
 - Ensure new code includes tests where possible.
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the plan to rewrite the existing web-based React dashboard located under `front/FinanceTracker` into a modern React Native application written in TypeScript. The new application should run on Android, iOS and the web (via React Native Web) while preserving all functionality of the current dashboard.
+This document outlines the plan to rewrite the existing web-based React dashboard located under `front/FinanceAgent` into a modern React Native application written in TypeScript. The new application should run on Android, iOS and the web (via React Native Web) while preserving all functionality of the current dashboard.
 
 The rewrite will involve creating a new project (using Expo for simplicity) and porting logic and screens from the existing codebase into React Native components. The goal is to maintain business logic while replacing Material-UI and DOM specific code with React Native equivalents.
 
