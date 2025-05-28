@@ -47,6 +47,22 @@
    ```
    - The frontend will be available at: http://localhost:3000/
 
+### FinanceTracker (Next.js/Expo)
+
+The new FinanceTracker app is a modern, unified codebase for both web and mobile finance dashboards. It uses Next.js for the web frontend and Expo (React Native) for mobile, sharing most business logic and UI components.
+
+- **Location:** `front/FinanceTracker`
+- **Purpose:** Modern replacement for the old dashboard, supporting both web and mobile from a single codebase.
+- **Web (Next.js):**
+  - Install dependencies: `npm install` or `pnpm install`
+  - Start dev server: `npm run dev` or `pnpm dev`
+  - Runs at http://localhost:3000/
+- **Mobile (Expo):**
+  - Install dependencies: `npm install` or `pnpm install`
+  - Start Expo: `npx expo start`
+  - Use Expo Go app or an emulator to preview on your device.
+- **See** `front/FinanceTracker/README.md` **for more details and advanced usage.**
+
 ### Mobile (React Native)
 
 Run the following script **while network access is available** to bootstrap the
@@ -65,6 +81,7 @@ dependencies listed in `docs/react_native_migration.md`.
 - Ensure PostgreSQL is running and the database specified in `.env` exists.
 - The backend and frontend can be started independently.
 - For production, additional configuration may be required.
+- The new FinanceTracker app (web/mobile) lives in `front/FinanceTracker`. See its README for details.
 
 ---
 
