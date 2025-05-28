@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "SecurityAuditRecord",
+    "type": "object",
+    "required": ["record_id","timestamp","action","actor","object_id"],
+    "properties": {
+      "record_id":{"type":"string","format":"uuid"},
+      "timestamp":{"type":"string","format":"date-time"},
+      "action":{"type":"string","enum":["scrub","delete","redact","access"]},
+      "actor":{"type":"string"},
+      "object_id":{"type":"string"},
+      "details":{"type":"string"}
+    }
+  }
