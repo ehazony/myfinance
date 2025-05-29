@@ -10,6 +10,9 @@ from .safety import SafetyAgent
 from .tax_pension import TaxPensionAgent
 from .investment import InvestmentAgent
 from .reporting import ReportingAgent
+from .debt_strategy import DebtStrategyAgent
+from .reminder_scheduler import ReminderSchedulerAgent
+from .compliance_privacy import CompliancePrivacyAgent
 
 
 class Orchestrator:
@@ -24,6 +27,9 @@ class Orchestrator:
             "tax_pension": TaxPensionAgent(),
             "investment": InvestmentAgent(),
             "reporting": ReportingAgent(),
+            "debt_strategy": DebtStrategyAgent(),
+            "reminder_scheduler": ReminderSchedulerAgent(),
+            "compliance_privacy": CompliancePrivacyAgent(),
         }
 
     def route(self, text: str) -> str:
@@ -41,6 +47,12 @@ class Orchestrator:
             return "investment"
         elif "cash" in lower:
             return "cash_flow"
+        elif any(word in lower for word in ["debt", "payoff", "refinance", "loan"]):
+            return "debt_strategy"
+        elif any(word in lower for word in ["remind", "schedule", "recurring", "check"]):
+            return "reminder_scheduler"
+        elif any(word in lower for word in ["privacy", "delete", "scrub", "access", "audit"]):
+            return "compliance_privacy"
         else:
             return "onboarding"
 
