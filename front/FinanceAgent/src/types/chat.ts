@@ -1,5 +1,6 @@
 export type ChatContentType = 'text' | 'image' | 'buttons' | 'chart'
 
+/** Payload sent with a chat message. */
 export type ChatPayload =
   | { text: string }
   | { url: string }
