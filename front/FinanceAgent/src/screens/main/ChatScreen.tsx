@@ -10,6 +10,8 @@ import { chatService } from '../../services/chatService'
 import { audioService } from '../../services/audioService'
 import MediaModal from '../../components/common/MediaModal'
 import type { ChatMessage } from '../../types/chat'
+import FormModal from '../../components/common/FormModal'
+import FormButton from '../../components/common/FormButton'
 
 const { width: screenWidth } = Dimensions.get('window')
 
@@ -34,11 +36,47 @@ export default function ChatScreen() {
   const [selectedMediaWidth, setSelectedMediaWidth] = useState<number>(300)
   const [selectedMediaHeight, setSelectedMediaHeight] = useState<number>(160)
   
+  // Form modal state
+  const [formModalVisible, setFormModalVisible] = useState(false)
+  const [currentForm, setCurrentForm] = useState<any>(null)
+
   const theme = useTheme()
   const flatListRef = useRef<FlatList>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout>()
   const fadeAnim = useRef(new Animated.Value(0)).current
   const scaleAnim = useRef(new Animated.Value(1)).current
+
+  // Test form data - can be removed later
+  const testFormData = {
+    title: "Financial Assessment",
+    subtitle: "Help us understand your financial situation",
+    icon: "account-cash",
+    fields: [
+      {
+        id: "income",
+        type: "number" as const,
+        label: "Monthly Income",
+        placeholder: "Enter your monthly income",
+        required: true,
+        validation: { min: 0 }
+      },
+      {
+        id: "savings",
+        type: "number" as const,
+        label: "Current Savings",
+        placeholder: "Total savings amount",
+        required: true,
+        validation: { min: 0 }
+      },
+      {
+        id: "goals",
+        type: "dropdown" as const,
+        label: "Financial Goal",
+        required: true,
+        options: ["Emergency Fund", "Home Purchase", "Retirement", "Investment", "Debt Payoff"]
+      }
+    ]
+  }
 
   useEffect(() => {
     initializeAudio()
@@ -50,6 +88,20 @@ export default function ChatScreen() {
       duration: 300,
       useNativeDriver: true,
     }).start()
+
+    // Add test form button to messages on load
+    const demoFormMessage: EnhancedChatMessage = {
+      id: 999999,
+      conversation: 1,
+      sender: 'agent',
+      content_type: 'form',
+      content: JSON.stringify(testFormData),
+      payload: testFormData,
+      timestamp: new Date().toISOString(),
+      status: 'delivered'
+    }
+    
+    setMessages(prev => [...prev, demoFormMessage])
 
     return () => {
       audioService.cleanup()
@@ -219,6 +271,23 @@ export default function ChatScreen() {
     }, 200) // Wait for exit animation
   }
 
+  const openFormModal = (formData: any) => {
+    setCurrentForm(formData)
+    setFormModalVisible(true)
+  }
+
+  const handleFormSubmit = async (data: Record<string, any>) => {
+    console.log('Form submitted:', data)
+    
+    // Send form data as message using the existing send pattern
+    const formMessage = `Form completed: ${JSON.stringify(data, null, 2)}`
+    setText(formMessage)
+    await send()
+    
+    setFormModalVisible(false)
+    setCurrentForm(null)
+  }
+
   const renderMessageStatus = (status: MessageStatus) => {
     switch (status) {
       case 'sending':
@@ -347,6 +416,41 @@ export default function ChatScreen() {
           />
         )
       }
+    } else if (item.content_type === 'form') {
+      let payload = item.payload
+      if (typeof item.content === 'string') {
+        try {
+          payload = JSON.parse(item.content)
+        } catch {
+          payload = item.payload
+        }
+      }
+      
+      return (
+        <Animated.View 
+          style={[
+            styles.messageContainer, 
+            styles.agentContainer,
+            { opacity: fadeAnim }
+          ]}
+        >
+          <View style={styles.avatarContainer}>
+            <LinearGradient
+              colors={[theme.colors.primary, theme.colors.secondary]}
+              style={styles.avatar}
+            >
+              <Text style={styles.avatarText}>AI</Text>
+            </LinearGradient>
+          </View>
+          
+          <FormButton
+            title={(payload as any)?.title || 'Complete Form'}
+            subtitle={(payload as any)?.subtitle || 'Tap to fill out this form'}
+            icon={(payload as any)?.icon || 'form-textbox'}
+            onPress={() => openFormModal(payload)}
+          />
+        </Animated.View>
+      )
     }
 
     return (
@@ -510,6 +614,20 @@ export default function ChatScreen() {
         originalHeight={selectedMediaHeight}
         onClose={closeMediaModal}
       />
+
+      {/* Form Modal */}
+      <FormModal
+        visible={formModalVisible}
+        title={currentForm?.title || 'Form'}
+        subtitle={currentForm?.subtitle}
+        fields={currentForm?.fields || []}
+        onSubmit={handleFormSubmit}
+        onClose={() => setFormModalVisible(false)}
+        submitText={currentForm?.submitText || 'Submit'}
+        showProgress={currentForm?.showProgress}
+        currentStep={currentForm?.currentStep}
+        totalSteps={currentForm?.totalSteps}
+      />
     </LinearGradient>
   )
 }
@@ -636,13 +754,25 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
   },
   typingDot1: {
-    animationDelay: '0ms',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#9CA3AF',
+    marginHorizontal: 2,
   },
   typingDot2: {
-    animationDelay: '150ms',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#9CA3AF',
+    marginHorizontal: 2,
   },
   typingDot3: {
-    animationDelay: '300ms',
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#9CA3AF',
+    marginHorizontal: 2,
   },
   statusContainer: {
     marginLeft: 4,
