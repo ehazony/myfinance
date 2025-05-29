@@ -28,13 +28,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Message'
+              $ref: '#/components/schemas/ChatSendRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Message'
+              $ref: '#/components/schemas/ChatSendRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Message'
+              $ref: '#/components/schemas/ChatSendRequest'
         required: true
       security:
       - tokenAuth: []
@@ -43,7 +43,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/ChatSendResponse'
           description: ''
   /api/month-tracking:
     get:
@@ -1146,6 +1146,198 @@ components:
       required:
       - key
       - value
+    BaselineSnapshot:
+      type: object
+      properties:
+        snapshot_id:
+          type: string
+        user_id:
+          type: string
+        created_at:
+          type: string
+        currency:
+          type: string
+        accounts:
+          type: array
+          items: {}
+        assets:
+          type: array
+          items: {}
+        liabilities:
+          type: array
+          items: {}
+        monthly_income:
+          type: number
+          format: double
+        monthly_expenses:
+          type: number
+          format: double
+        notes:
+          type: string
+      required:
+      - accounts
+      - assets
+      - created_at
+      - currency
+      - liabilities
+      - snapshot_id
+      - user_id
+    BaselineSnapshotMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/BaselineSnapshot'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
+    BudgetPlan:
+      type: object
+      properties:
+        budget_id:
+          type: string
+        effective_from:
+          type: string
+        currency:
+          type: string
+        categories:
+          type: array
+          items: {}
+        savings_rate_target:
+          type: number
+          format: double
+        notes:
+          type: string
+      required:
+      - budget_id
+      - categories
+      - currency
+      - effective_from
+    BudgetPlanMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/BudgetPlan'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
+    CashFlowLedger:
+      type: object
+      properties:
+        ledger_id:
+          type: string
+        snapshot_id:
+          type: string
+        period_start:
+          type: string
+        period_end:
+          type: string
+        currency:
+          type: string
+        transactions:
+          type: array
+          items: {}
+        category_map:
+          type: object
+          additionalProperties: {}
+      required:
+      - currency
+      - ledger_id
+      - period_end
+      - period_start
+      - snapshot_id
+      - transactions
+    CashFlowLedgerMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/CashFlowLedger'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
+    ChatSendRequest:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+      - text
+    ChatSendResponse:
+      oneOf:
+      - $ref: '#/components/schemas/InvestmentPortfolioMessage'
+      - $ref: '#/components/schemas/BaselineSnapshotMessage'
+      - $ref: '#/components/schemas/GoalListMessage'
+      - $ref: '#/components/schemas/ReportMessage'
+      - $ref: '#/components/schemas/ReminderTaskMessage'
+      - $ref: '#/components/schemas/SecurityAuditRecordMessage'
+      - $ref: '#/components/schemas/SafetyLayerMessage'
+      - $ref: '#/components/schemas/CashFlowLedgerMessage'
+      - $ref: '#/components/schemas/DebtStrategyMessage'
+      - $ref: '#/components/schemas/TaxPensionProfileMessage'
+      - $ref: '#/components/schemas/BudgetPlanMessage'
+      discriminator:
+        propertyName: content_type
+        mapping:
+          None: '#/components/schemas/BudgetPlanMessage'
     Credential:
       type: object
       properties:
@@ -1185,6 +1377,152 @@ components:
       - fields
       - key
       - name
+    DebtStrategy:
+      type: object
+      properties:
+        strategy_id:
+          type: string
+        snapshot_id:
+          type: string
+        payoff_method:
+          type: string
+        interest_saved_estimate:
+          type: number
+          format: double
+        debts:
+          type: array
+          items: {}
+        payoff_schedule:
+          type: array
+          items: {}
+      required:
+      - debts
+      - payoff_method
+      - snapshot_id
+      - strategy_id
+    DebtStrategyMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/DebtStrategy'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
+    GoalList:
+      type: object
+      properties:
+        goals:
+          type: array
+          items: {}
+      required:
+      - goals
+    GoalListMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/GoalList'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
+    InvestmentPortfolio:
+      type: object
+      properties:
+        portfolio_id:
+          type: string
+        snapshot_date:
+          type: string
+        currency:
+          type: string
+        target_allocation:
+          type: object
+          additionalProperties: {}
+        current_allocation:
+          type: object
+          additionalProperties: {}
+        rebalance_bands:
+          type: number
+          format: double
+        holdings:
+          type: array
+          items: {}
+        recommended_trades:
+          type: array
+          items: {}
+      required:
+      - currency
+      - current_allocation
+      - holdings
+      - portfolio_id
+      - snapshot_date
+      - target_allocation
+    InvestmentPortfolioMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/InvestmentPortfolio'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
     Login:
       type: object
       properties:
@@ -1472,6 +1810,103 @@ components:
       - email
       - password1
       - password2
+    ReminderTask:
+      type: object
+      properties:
+        task_id:
+          type: string
+        description:
+          type: string
+        schedule:
+          type: string
+        next_run:
+          type: string
+        status:
+          type: string
+        related_object_id:
+          type: string
+      required:
+      - description
+      - schedule
+      - status
+      - task_id
+    ReminderTaskMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/ReminderTask'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
+    Report:
+      type: object
+      properties:
+        report_id:
+          type: string
+        type:
+          type: string
+        generated_at:
+          type: string
+        source_refs:
+          type: array
+          items: {}
+        chart_url:
+          type: string
+        summary_markdown:
+          type: string
+      required:
+      - generated_at
+      - report_id
+      - source_refs
+      - type
+    ReportMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/Report'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
     ResendEmailVerification:
       type: object
       properties:
@@ -1488,6 +1923,111 @@ components:
           readOnly: true
       required:
       - detail
+    SafetyLayer:
+      type: object
+      properties:
+        safety_id:
+          type: string
+        snapshot_id:
+          type: string
+        emergency_months_required:
+          type: number
+          format: double
+        emergency_months_current:
+          type: number
+          format: double
+        protection_score:
+          type: number
+          format: double
+        insurance_coverages:
+          type: array
+          items: {}
+        estate_documents:
+          type: array
+          items: {}
+      required:
+      - emergency_months_current
+      - emergency_months_required
+      - insurance_coverages
+      - safety_id
+      - snapshot_id
+    SafetyLayerMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/SafetyLayer'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
+    SecurityAuditRecord:
+      type: object
+      properties:
+        record_id:
+          type: string
+        timestamp:
+          type: string
+        action:
+          type: string
+        actor:
+          type: string
+        object_id:
+          type: string
+        details:
+          type: string
+      required:
+      - action
+      - actor
+      - object_id
+      - record_id
+      - timestamp
+    SecurityAuditRecordMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/SecurityAuditRecord'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
     SenderEnum:
       enum:
       - user
@@ -1560,6 +2100,64 @@ components:
       required:
       - id
       - value
+    TaxPensionProfile:
+      type: object
+      properties:
+        profile_id:
+          type: string
+        tax_year:
+          type: integer
+        gross_income:
+          type: number
+          format: double
+        tax_bracket:
+          type: number
+          format: double
+        used_tax_credits:
+          type: number
+          format: double
+        available_tax_credits:
+          type: number
+          format: double
+        pension_plans:
+          type: array
+          items: {}
+        recommendations:
+          type: array
+          items: {}
+      required:
+      - gross_income
+      - pension_plans
+      - profile_id
+      - tax_year
+    TaxPensionProfileMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload:
+          $ref: '#/components/schemas/TaxPensionProfile'
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - payload
+      - sender
+      - timestamp
     Token:
       type: object
       description: Serializer for Token model.
