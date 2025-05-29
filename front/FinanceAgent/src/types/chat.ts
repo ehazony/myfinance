@@ -12,12 +12,8 @@ export type ChatPayload =
   | { buttons: string[] }
   | { labels: string[]; values: number[] }
 
-export interface ChatMessage {
-  id: number
-  conversation: number
-  sender: 'user' | 'agent'
-  content_type: ChatContentType
-  payload: ChatPayload
-  timestamp: string
-  status: string
-}
+import type { z } from 'zod'
+import { schemas } from '../api/client'
+
+export type ChatMessage = z.infer<typeof schemas.Message>
+

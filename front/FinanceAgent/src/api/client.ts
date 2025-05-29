@@ -2,6 +2,19 @@ import { makeApi, Zodios, type ZodiosOptions } from "@zodios/core";
 import { z } from "zod";
 
 const MonthTracking = z.object({ text: z.string() }).passthrough();
+const SenderEnum = z.enum(["user", "agent"]);
+const Message = z
+  .object({
+    id: z.number().int(),
+    conversation: z.number().int(),
+    sender: SenderEnum,
+    content_type: z.string().max(20),
+    payload: z.any(),
+    timestamp: z.string().datetime({ offset: true }),
+    status: z.string().max(20),
+  })
+  .passthrough();
+const ChatSendRequest = z.object({ text: z.string() }).passthrough();
 const CredentialTypes = z
   .object({
     key: z.string(),
@@ -229,6 +242,9 @@ const UserTransactionsNames = z.object({ name: z.string() }).passthrough();
 
 export const schemas = {
   MonthTracking,
+  SenderEnum,
+  Message,
+  ChatSendRequest,
   CredentialTypes,
   TagGoal,
   User,
@@ -260,6 +276,27 @@ export const schemas = {
 };
 
 const endpoints = makeApi([
+  {
+    method: "get",
+    path: "/api/chat/history/",
+    alias: "api_chat_history_retrieve",
+    requestFormat: "json",
+    response: z.array(Message),
+  },
+  {
+    method: "post",
+    path: "/api/chat/send/",
+    alias: "api_chat_send_create",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: ChatSendRequest,
+      },
+    ],
+    response: Message,
+  },
   {
     method: "get",
     path: "/api/month-tracking",

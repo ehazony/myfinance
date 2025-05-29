@@ -1,12 +1,14 @@
-import axios from 'axios'
+import { createApiClient, schemas } from '../api/client'
 import { secureStorage } from '../utils/secureStorage'
-import type { ChatMessage } from '../types/chat'
+import type { z } from 'zod'
+
+export type ChatMessage = z.infer<typeof schemas.Message>
 
 // TODO: replace with real backend url
 const API_BASE_URL = 'http://localhost:8000'
 
 class ChatService {
-  private axiosInstance = axios.create({ baseURL: API_BASE_URL })
+  private apiClient = createApiClient(API_BASE_URL)
 
   private async authHeaders() {
     const token = await secureStorage.getToken()
@@ -15,14 +17,14 @@ class ChatService {
 
   async sendMessage(text: string): Promise<ChatMessage> {
     const headers = await this.authHeaders()
-    const res = await this.axiosInstance.post('/api/chat/send/', { text }, { headers })
-    return res.data
+    const res = await this.apiClient.api_chat_send_create({ body: { text } }, { headers })
+    return res
   }
 
   async fetchHistory(): Promise<ChatMessage[]> {
     const headers = await this.authHeaders()
-    const res = await this.axiosInstance.get('/api/chat/history/', { headers })
-    return res.data
+    const res = await this.apiClient.api_chat_history_retrieve(undefined, { headers })
+    return res
   }
 }
 
