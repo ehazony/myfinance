@@ -19,8 +19,8 @@ import boto3
 from decouple import config
 if config('AWS_PROFILE', None):
     boto3.setup_default_session(profile_name=config('AWS_PROFILE'))
-GRID_ENDPOINT = config('GRID_ENDPOINT')
-FRONT_ENDPOINT = config('FRONT_ENDPOINT')
+GRID_ENDPOINT = config('GRID_ENDPOINT', default='http://testserver')
+FRONT_ENDPOINT = config('FRONT_ENDPOINT', default='http://testserver')
 DJANGO_ALLOW_ASYNC_UNSAFE = True
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #
@@ -150,10 +150,10 @@ WSGI_APPLICATION = 'finance.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        "NAME": config("DB_NAME"),
-        "USER": config("DB_USER"),
-        "PASSWORD": config("DB_PASSWORD"),
-        'HOST': config("HOST"),
+        "NAME": config("DB_NAME", default="test"),
+        "USER": config("DB_USER", default="test"),
+        "PASSWORD": config("DB_PASSWORD", default="test"),
+        'HOST': config("HOST", default="test"),
         'PORT': '5432',
     }
 }
@@ -282,8 +282,8 @@ CORS_ALLOW_CREDENTIALS = True
 KMS_FIELD_REGION = 'us-east-2'
 KMS_FIELD_CACHE_SIZE = 500
 
-CELERY_BROKER_URL = config('REDIS_ENDPOINT')
-CELERY_RESULT_BACKEND = config('REDIS_ENDPOINT')
+CELERY_BROKER_URL = config('REDIS_ENDPOINT', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('REDIS_ENDPOINT', default='redis://localhost:6379/0')
 CELERY_TRACK_STARTED = True
 CELERYD_LOG_FILE = os.path.join(BASE_DIR, 'celery.log')
 CELERYD_LOG_LEVEL = "INFO"
