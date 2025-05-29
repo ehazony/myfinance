@@ -142,8 +142,7 @@ class AuthService {
       // Call logout endpoint if token exists
       const token = await secureStorage.getToken();
       if (token) {
-        // @ts-ignore - logout endpoint expects no parameters
-        await this.apiClient.dj_rest_auth_logout_create();
+        await this.apiClient.dj_rest_auth_logout_create(undefined);
       }
     } catch (error) {
       console.error('Logout API error:', error);
