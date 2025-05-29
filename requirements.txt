@@ -45,3 +45,4 @@ jsonschema
 litellm
 selenium
 python-dotenv
+numpy
