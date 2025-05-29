@@ -16,6 +16,11 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from drf_spectacular.utils import (
+    extend_schema,
+    PolymorphicProxySerializer,
+    inline_serializer,
+)
 
 import app.utils
 from app.forms import TransactionForm
@@ -43,6 +48,7 @@ from .utils import expenses_transactions, average_income
 from .models import Conversation, Message
 from .serializers import MessageSerializer
 from agents import Orchestrator
+from agents.openapi_utils import get_all_message_serializers
 
 # from app.graph.graph_api import monthly_average_by_category, line_fig_by_tag_by_month, line_fig_by_month, \
 #     Tag, \
@@ -518,6 +524,17 @@ class ChatSendView(APIView):
 
     serializer_class = MessageSerializer
 
+    @extend_schema(
+        request=inline_serializer(
+            name="ChatSendRequest",
+            fields={"text": serializers.CharField()},
+        ),
+        responses=PolymorphicProxySerializer(
+            component_name="ChatSendResponse",
+            serializers=lambda: get_all_message_serializers(),
+            resource_type_field_name="content_type",
+        ),
+    )
     def post(self, request):
         conversation, _ = Conversation.objects.get_or_create(user=request.user)
         text = request.data.get("text", "")
