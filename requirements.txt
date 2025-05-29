@@ -42,3 +42,4 @@ langgraph
 jsonschema
 litellm
 selenium
+python-dotenv

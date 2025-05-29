@@ -1,11 +1,16 @@
+from dotenv import load_dotenv
+load_dotenv()
 from typing import Tuple, Dict
 import json
 import os
+import logging
 from pathlib import Path
 from jsonschema import validate
 import litellm
 from jsonschema import validate
 from app.models import Message
+
+logger = logging.getLogger(__name__)
 
 
 class BaseAgent:
@@ -37,7 +42,11 @@ class BaseAgent:
         """Validate the payload against the agent schema."""
         schema = self.load_schema()
         if schema:
-            validate(instance=payload, schema=schema)
+            try:
+                validate(instance=payload, schema=schema)
+            except Exception as e:
+                logger.warning(f"[SCHEMA WARNING] Validation failed: {e}\nPayload: {payload}")
+                raise
 
     def generate_payload(self, text: str) -> Dict:
         """Call the LLM using litellm and return the parsed JSON payload."""
@@ -49,8 +58,11 @@ class BaseAgent:
         try:
             response = litellm.completion(model=model, messages=messages)
             content = response["choices"][0]["message"]["content"]
+            logger.debug(f"[LLM DEBUG] Raw LLM output: {content}")
             payload = json.loads(content)
-        except Exception:
+            logger.debug(f"[LLM DEBUG] Parsed payload: {payload}")
+        except Exception as e:
+            logger.error(f"[LLM DEBUG] Exception during LLM call or parsing: {e}")
             payload = {}
         return payload
 
