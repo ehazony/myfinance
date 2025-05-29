@@ -4,6 +4,9 @@ from app.models import Message
 
 class CashFlowAgent(BaseAgent):
     name = "cash_flow"
+    schema_file = "CashFlowLedger.json"
 
     def handle_message(self, text: str):
-        return Message.TEXT, {"text": "Here is your cash flow summary."}
+        payload = self.generate_payload(text)
+        self.validate_payload(payload)
+        return Message.TEXT, payload

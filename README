@@ -13,7 +13,8 @@
    pip install --index-url https://pypi.org/simple -r requirements.txt
    ```
    This project uses LangChain to coordinate multiple finance agents located in
-   the new `agents/` package. Be sure your environment has all dependencies from
+   the new `agents/` package. It now relies on `litellm` to interface with
+   multiple LLM providers. Be sure your environment has all dependencies from
    `requirements.txt` installed.
 
 3. **Configure environment variables:**
