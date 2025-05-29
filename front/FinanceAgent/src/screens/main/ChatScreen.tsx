@@ -240,46 +240,62 @@ export default function ChatScreen() {
         </View>
       )
     } else if (item.content_type === 'chart') {
-      const { labels, values } = item.payload as any
-      content = (
-        <View style={styles.chartContainer}>
-          <LineChart
-            data={{ 
-              labels, 
-              datasets: [{ 
-                data: values,
+      const payload = item.payload as any
+      if (payload.labels && payload.values) {
+        content = (
+          <View style={styles.chartContainer}>
+            <LineChart
+              data={{
+                labels: payload.labels,
+                datasets: [
+                  {
+                    data: payload.values,
+                    color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+                    strokeWidth: 3,
+                  },
+                ],
+              }}
+              width={Math.min(screenWidth * 0.75, 300)}
+              height={200}
+              chartConfig={{
+                backgroundColor: 'transparent',
+                backgroundGradientFrom: 'transparent',
+                backgroundGradientTo: 'transparent',
+                decimalPlaces: 0,
                 color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
-                strokeWidth: 3
-              }] 
-            }}
-            width={Math.min(screenWidth * 0.75, 300)}
-            height={200}
-            chartConfig={{
-              backgroundColor: 'transparent',
-              backgroundGradientFrom: 'transparent',
-              backgroundGradientTo: 'transparent',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
-              style: {
-                borderRadius: 16
-              },
-              propsForDots: {
-                r: "6",
-                strokeWidth: "2",
-                stroke: "#3B82F6"
-              },
-              propsForBackgroundLines: {
-                strokeDasharray: "5,5",
-                stroke: "#E5E7EB",
-                strokeWidth: 1
-              }
-            }}
-            style={styles.chart}
-            bezier
-          />
-        </View>
-      )
+                labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
+                style: {
+                  borderRadius: 16,
+                },
+                propsForDots: {
+                  r: '6',
+                  strokeWidth: '2',
+                  stroke: '#3B82F6',
+                },
+                propsForBackgroundLines: {
+                  strokeDasharray: '5,5',
+                  stroke: '#E5E7EB',
+                  strokeWidth: 1,
+                },
+              }}
+              style={styles.chart}
+              bezier
+            />
+          </View>
+        )
+      } else if (payload.url || payload.chart_url) {
+        // Fallback for chart images returned by the backend
+        const imageUrl = payload.url ?? payload.chart_url
+        content = (
+          <View style={styles.imageContainer}>
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.messageImage}
+              resizeMode="cover"
+            />
+          </View>
+        )
+      }
     }
 
     return (
