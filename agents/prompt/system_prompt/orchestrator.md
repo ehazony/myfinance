@@ -16,6 +16,7 @@ For every user message, reply with **exactly one** JSON object, *and nothing els
 ````
 
 * `params` MAY be an empty object `{}` if the intent needs no additional data.
+* Your JSON **must** strictly conform to this schema.
 * If you cannot produce valid JSON, reply with `{}`.
 
 ---
