@@ -48,7 +48,7 @@ def message_serializer_for_schema(schema_file: str) -> Type[serializers.Serializ
     return type(
         f"{path.stem}MessageSerializer",
         (MessageSerializer,),
-        {"payload": payload_serializer()}
+        {"payload": payload_serializer}
     )
 
 

@@ -21,6 +21,7 @@ from drf_spectacular.utils import (
     PolymorphicProxySerializer,
     inline_serializer,
 )
+from rest_framework import serializers
 
 import app.utils
 from app.forms import TransactionForm
