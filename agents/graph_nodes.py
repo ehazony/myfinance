@@ -11,6 +11,9 @@ from .safety import SafetyAgent
 from .tax_pension import TaxPensionAgent
 from .investment import InvestmentAgent
 from .reporting import ReportingAgent
+from .debt_strategy import DebtStrategyAgent
+from .reminder_scheduler import ReminderSchedulerAgent
+from .compliance_privacy import CompliancePrivacyAgent
 
 
 orchestrator = Orchestrator()
@@ -24,6 +27,9 @@ _agent_instances = {
     "tax_pension": TaxPensionAgent(),
     "investment": InvestmentAgent(),
     "reporting": ReportingAgent(),
+    "debt_strategy": DebtStrategyAgent(),
+    "reminder_scheduler": ReminderSchedulerAgent(),
+    "compliance_privacy": CompliancePrivacyAgent(),
 }
 
 
