@@ -29,26 +29,40 @@ class ReportingAgent(BaseAgent):
     schema_file = "Report.json"
 
     def handle_message(self, text: str):
-        """Generate charts based on user request and return base64 encoded PNG."""
-        # For now, we'll generate a sample chart. In production, this would
-        # parse the user request and generate appropriate charts based on actual data.
+        """Generate charts based on user request."""
         
-        # Generate sample chart (monthly expenses by category example)
+        lower = text.lower()
         chart_data = self._generate_sample_chart()
-        
-        # Create the payload following the Report schema
+        categories = [
+            "Food & Dining", "Transportation", "Shopping", "Entertainment",
+            "Bills & Utilities", "Healthcare", "Travel", "Other",
+        ]
+        amounts = [1200, 800, 600, 400, 900, 300, 500, 200]
+        if "chart data" in lower:
+            payload = {
+                "report_id": str(uuid.uuid4()),
+                "type": "budget",
+                "generated_at": datetime.now().isoformat(),
+                "source_refs": ["sample_data"],
+                "labels": categories,
+                "values": amounts,
+                "summary_markdown": "## Monthly Expenses by Category\n\nThis chart shows your spending breakdown by category for the selected period.",
+            }
+            self.validate_payload(payload)
+            return Message.CHART, payload
         payload = {
             "report_id": str(uuid.uuid4()),
-            "type": "budget",  # This would be determined by user request
+            "type": "budget",
             "generated_at": datetime.now().isoformat(),
-            "source_refs": ["sample_data"],  # Would reference actual data sources
+            "source_refs": ["sample_data"],
             "chart_url": f"data:image/png;base64,{chart_data}",
-            "summary_markdown": "## Monthly Expenses by Category\n\nThis chart shows your spending breakdown by category for the selected period."
+            "summary_markdown": "## Monthly Expenses by Category\n\nThis chart shows your spending breakdown by category for the selected period.",
         }
-        
+        if "chart image" in lower:
+            self.validate_payload(payload)
+            return Message.IMAGE, payload
         self.validate_payload(payload)
         return Message.CHART, payload
-
     def _generate_sample_chart(self) -> str:
         """Generate a sample monthly expenses by category bar chart."""
         # Sample data - in production, this would come from actual financial data

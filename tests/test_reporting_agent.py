@@ -144,6 +144,19 @@ class TestReportingAgent:
             assert "chart_url" in payload
             assert payload["chart_url"].startswith("data:image/png;base64,")
 
+    def test_chart_image_branch(self):
+        """Agent should return an image payload when text contains 'chart image'."""
+        content_type, payload = self.agent.handle_message("chart image")
+        assert content_type == Message.IMAGE
+        assert "chart_url" in payload
+        assert payload["chart_url"].startswith("data:image/png;base64,")
+
+    def test_chart_data_branch(self):
+        """Agent should return chart data when text contains 'chart data'."""
+        content_type, payload = self.agent.handle_message("chart data")
+        assert content_type == Message.CHART
+        assert "labels" in payload and "values" in payload
+
     def test_future_method_stubs(self):
         """Test that future implementation methods exist but return None."""
         assert self.agent._generate_net_worth_trend([]) is None

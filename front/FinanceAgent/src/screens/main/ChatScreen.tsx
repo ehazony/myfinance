@@ -211,12 +211,14 @@ export default function ChatScreen() {
         </Text>
       )
     } else if (item.content_type === 'image') {
+      const payload = item.payload as any
+      const imageUrl = payload.url ?? payload.chart_url
       content = (
         <View style={styles.imageContainer}>
-          <Image 
-            source={{ uri: (item.payload as any).url }} 
-            style={styles.messageImage} 
-            resizeMode="cover" 
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.messageImage}
+            resizeMode="cover"
           />
         </View>
       )
