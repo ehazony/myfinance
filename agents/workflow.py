@@ -41,7 +41,11 @@ workflow = build_workflow()
 def run_workflow(text: str) -> WorkflowState:
     """Execute the workflow for the given user text."""
     state = WorkflowState(user_input=text)
-    for _ in workflow.stream(state):
+    for update in workflow.stream(state):
+        # `update` is a mapping of node name to a dict representing the state
+        state_dict = list(update.values())[0]
+        for key, value in state_dict.items():
+            setattr(state, key, value)
         if state.done:
             break
     return state

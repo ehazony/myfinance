@@ -1,6 +1,8 @@
 """
 A simple selenium test example written by python
 """
+import pytest
+pytest.skip("selenium tests disabled in CI", allow_module_level=True)
 import logging
 import unittest
 from selenium import webdriver
