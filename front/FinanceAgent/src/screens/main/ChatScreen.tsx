@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { View, StyleSheet, FlatList, TextInput, Image, Dimensions, KeyboardAvoidingView, Platform, TouchableOpacity, Animated } from 'react-native'
 import { Text, Button, useTheme, IconButton, ActivityIndicator } from 'react-native-paper'
-import { LineChart } from 'react-native-chart-kit'
+import ChartCard from '../../components/common/ChartCard'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import { chatService } from '../../services/chatService'
@@ -246,42 +246,17 @@ export default function ChatScreen() {
       if (payload.labels && payload.values) {
         content = (
           <View style={styles.chartContainer}>
-            <LineChart
+            <ChartCard
               data={{
                 labels: payload.labels,
                 datasets: [
                   {
                     data: payload.values,
-                    color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
-                    strokeWidth: 3,
                   },
                 ],
               }}
               width={Math.min(screenWidth * 0.75, 300)}
               height={200}
-              chartConfig={{
-                backgroundColor: 'transparent',
-                backgroundGradientFrom: 'transparent',
-                backgroundGradientTo: 'transparent',
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-                propsForDots: {
-                  r: '6',
-                  strokeWidth: '2',
-                  stroke: '#3B82F6',
-                },
-                propsForBackgroundLines: {
-                  strokeDasharray: '5,5',
-                  stroke: '#E5E7EB',
-                  strokeWidth: 1,
-                },
-              }}
-              style={styles.chart}
-              bezier
             />
           </View>
         )
@@ -562,9 +537,6 @@ const styles = StyleSheet.create({
   chartContainer: {
     alignItems: 'center',
     marginVertical: 8,
-  },
-  chart: {
-    borderRadius: 16,
   },
   typingIndicator: {
     flexDirection: 'row',
