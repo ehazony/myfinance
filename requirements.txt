@@ -39,3 +39,4 @@ boto3
 drf-spectacular
 langchain
 langgraph
+selenium
