@@ -123,3 +123,14 @@ You can use any combination of these parameters. If none are provided, the comma
   ```sh
   python manage.py load_transactions --credential_id 5
   ```
+
+## Running Tests
+
+Install dependencies and run the test suite with pytest:
+
+```sh
+pip install -r requirements.txt
+pytest
+```
+
+The tests rely on `pytest-django` and mock all LLM calls via `litellm`.

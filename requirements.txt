@@ -19,6 +19,7 @@ undetected-chromedriver
 django-filter==22.1
 # python-telegram-bot==20.0a2
 pytest
+pytest-django
 celery
 django-kms-field
 django-celery-results
