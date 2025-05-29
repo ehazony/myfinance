@@ -26,19 +26,25 @@ class Orchestrator:
             "reporting": ReportingAgent(),
         }
 
-    def handle_message(self, text: str) -> Tuple[str, Dict]:
+    def route(self, text: str) -> str:
+        """Return which agent should handle the text."""
         lower = text.lower()
         if "chart" in lower or "graph" in lower:
-            return self.agents["reporting"].handle_message(text)
+            return "reporting"
         elif "goal" in lower:
-            return self.agents["goal_setting"].handle_message(text)
+            return "goal_setting"
         elif "safety" in lower:
-            return self.agents["safety"].handle_message(text)
+            return "safety"
         elif "tax" in lower:
-            return self.agents["tax_pension"].handle_message(text)
+            return "tax_pension"
         elif "invest" in lower:
-            return self.agents["investment"].handle_message(text)
+            return "investment"
         elif "cash" in lower:
-            return self.agents["cash_flow"].handle_message(text)
+            return "cash_flow"
         else:
-            return self.agents["onboarding"].handle_message(text)
+            return "onboarding"
+
+    def handle_message(self, text: str) -> Tuple[str, Dict]:
+        """Route the message and delegate to the appropriate agent."""
+        agent_key = self.route(text)
+        return self.agents[agent_key].handle_message(text)
