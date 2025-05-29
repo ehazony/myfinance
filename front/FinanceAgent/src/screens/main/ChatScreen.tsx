@@ -42,7 +42,7 @@ export default function ChatScreen() {
 
   const theme = useTheme()
   const flatListRef = useRef<FlatList>(null)
-  const typingTimeoutRef = useRef<NodeJS.Timeout>()
+  const typingTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined)
   const fadeAnim = useRef(new Animated.Value(0)).current
   const scaleAnim = useRef(new Animated.Value(1)).current
 
@@ -89,20 +89,6 @@ export default function ChatScreen() {
       useNativeDriver: true,
     }).start()
 
-    // Add test form button to messages on load
-    const demoFormMessage: EnhancedChatMessage = {
-      id: 999999,
-      conversation: 1,
-      sender: 'agent',
-      content_type: 'form',
-      content: JSON.stringify(testFormData),
-      payload: testFormData,
-      timestamp: new Date().toISOString(),
-      status: 'delivered'
-    }
-    
-    setMessages(prev => [...prev, demoFormMessage])
-
     return () => {
       audioService.cleanup()
       if (typingTimeoutRef.current) {
@@ -126,11 +112,38 @@ export default function ChatScreen() {
         ...msg,
         status: 'delivered' as MessageStatus
       }))
-      setMessages(enhancedHistory)
+      
+      // Add demo form message to the history
+      const demoFormMessage: EnhancedChatMessage = {
+        id: 999999,
+        conversation: 1,
+        sender: 'agent',
+        content_type: 'form',
+        content: JSON.stringify(testFormData),
+        payload: testFormData,
+        timestamp: new Date().toISOString(),
+        status: 'delivered'
+      }
+      
+      setMessages([...enhancedHistory, demoFormMessage])
       scrollToBottom()
     } catch (err) {
       console.error('Failed to load history', err)
       audioService.playError()
+      
+      // If loading history fails, just show the demo form
+      const demoFormMessage: EnhancedChatMessage = {
+        id: 999999,
+        conversation: 1,
+        sender: 'agent',
+        content_type: 'form',
+        content: JSON.stringify(testFormData),
+        payload: testFormData,
+        timestamp: new Date().toISOString(),
+        status: 'delivered'
+      }
+      
+      setMessages([demoFormMessage])
     }
   }
 
