@@ -46,38 +46,6 @@ export default function ChatScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current
   const scaleAnim = useRef(new Animated.Value(1)).current
 
-  // Test form data - can be removed later
-  const testFormData = {
-    title: "Financial Assessment",
-    subtitle: "Help us understand your financial situation",
-    icon: "account-cash",
-    fields: [
-      {
-        id: "income",
-        type: "number" as const,
-        label: "Monthly Income",
-        placeholder: "Enter your monthly income",
-        required: true,
-        validation: { min: 0 }
-      },
-      {
-        id: "savings",
-        type: "number" as const,
-        label: "Current Savings",
-        placeholder: "Total savings amount",
-        required: true,
-        validation: { min: 0 }
-      },
-      {
-        id: "goals",
-        type: "dropdown" as const,
-        label: "Financial Goal",
-        required: true,
-        options: ["Emergency Fund", "Home Purchase", "Retirement", "Investment", "Debt Payoff"]
-      }
-    ]
-  }
-
   useEffect(() => {
     initializeAudio()
     loadHistory()
@@ -113,37 +81,14 @@ export default function ChatScreen() {
         status: 'delivered' as MessageStatus
       }))
       
-      // Add demo form message to the history
-      const demoFormMessage: EnhancedChatMessage = {
-        id: 999999,
-        conversation: 1,
-        sender: 'agent',
-        content_type: 'form',
-        content: JSON.stringify(testFormData),
-        payload: testFormData,
-        timestamp: new Date().toISOString(),
-        status: 'delivered'
-      }
-      
-      setMessages([...enhancedHistory, demoFormMessage])
+      setMessages(enhancedHistory)
       scrollToBottom()
     } catch (err) {
       console.error('Failed to load history', err)
       audioService.playError()
       
-      // If loading history fails, just show the demo form
-      const demoFormMessage: EnhancedChatMessage = {
-        id: 999999,
-        conversation: 1,
-        sender: 'agent',
-        content_type: 'form',
-        content: JSON.stringify(testFormData),
-        payload: testFormData,
-        timestamp: new Date().toISOString(),
-        status: 'delivered'
-      }
-      
-      setMessages([demoFormMessage])
+      // If loading history fails, show empty state
+      setMessages([])
     }
   }
 
