@@ -22,3 +22,19 @@ def test_onboarding_then_reporting():
         "onboarding",
         "reporting",
     ]
+
+
+def test_other_routes():
+    data = [
+        ("show me the cash flow", "cash_flow"),
+        ("goal planning", "goal_setting"),
+        ("tell me about taxes", "tax_pension"),
+        ("i want investment advice", "investment"),
+    ]
+    for text, expected in data:
+        state = run_workflow(text)
+        assert state.result["content_type"] == Message.TEXT
+        assert [step["agent"] for step in state.conversation] == [
+            "orchestrator",
+            expected,
+        ]
