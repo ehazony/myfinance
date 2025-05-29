@@ -7,6 +7,6 @@ class GoalSettingAgent(BaseAgent):
     schema_file = "GoalList.json"
 
     def handle_message(self, text: str):
-        payload = {"goals": []}
+        payload = self.generate_payload(text)
         self.validate_payload(payload)
         return Message.TEXT, payload

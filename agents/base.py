@@ -1,8 +1,10 @@
 from typing import Tuple, Dict
 import json
+import os
 from pathlib import Path
 from jsonschema import validate
-
+import litellm
+from jsonschema import validate
 from app.models import Message
 
 
@@ -36,3 +38,19 @@ class BaseAgent:
         schema = self.load_schema()
         if schema:
             validate(instance=payload, schema=schema)
+
+    def generate_payload(self, text: str) -> Dict:
+        """Call the LLM using litellm and return the parsed JSON payload."""
+        messages = [
+            {"role": "system", "content": self.system_prompt()},
+            {"role": "user", "content": text},
+        ]
+        model = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
+        try:
+            response = litellm.completion(model=model, messages=messages)
+            content = response["choices"][0]["message"]["content"]
+            payload = json.loads(content)
+        except Exception:
+            payload = {}
+        return payload
+
