@@ -40,3 +40,4 @@ drf-spectacular
 langchain
 langgraph
 selenium
+jsonschema
