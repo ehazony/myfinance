@@ -3,16 +3,18 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 import { View, StyleSheet, FlatList, TextInput, Image, Dimensions, KeyboardAvoidingView, Platform, TouchableOpacity, Animated } from 'react-native'
 import { Text, Button, useTheme, IconButton, ActivityIndicator } from 'react-native-paper'
 import ChartCard from '../../components/common/ChartCard'
+import MediaItem from '../../components/common/MediaItem'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import { chatService } from '../../services/chatService'
 import { audioService } from '../../services/audioService'
-import ImageModal from '../../components/common/ImageModal'
+import MediaModal from '../../components/common/MediaModal'
 import type { ChatMessage } from '../../types/chat'
 
 const { width: screenWidth } = Dimensions.get('window')
 
 type MessageStatus = 'sending' | 'sent' | 'delivered' | 'failed'
+type MediaType = 'chart' | 'image' | null
 
 interface EnhancedChatMessage extends ChatMessage {
   status: MessageStatus
@@ -26,7 +28,11 @@ export default function ChatScreen() {
   
   // Modal state
   const [modalVisible, setModalVisible] = useState(false)
-  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
+  const [selectedMediaType, setSelectedMediaType] = useState<MediaType>(null)
+  const [selectedMediaData, setSelectedMediaData] = useState<any>(null)
+  const [selectedMediaTitle, setSelectedMediaTitle] = useState<string>('')
+  const [selectedMediaWidth, setSelectedMediaWidth] = useState<number>(300)
+  const [selectedMediaHeight, setSelectedMediaHeight] = useState<number>(160)
   
   const theme = useTheme()
   const flatListRef = useRef<FlatList>(null)
@@ -182,16 +188,34 @@ export default function ChatScreen() {
   }
 
   // Modal functions
-  const openImageModal = (imageUrl: string) => {
-    setSelectedImageUrl(imageUrl)
+  const openMediaModal = (type: MediaType, data: any, title?: string) => {
+    setSelectedMediaType(type)
+    setSelectedMediaData(data)
+    setSelectedMediaTitle(title || '')
     setModalVisible(true)
     audioService.playButtonTap()
   }
 
-  const closeImageModal = () => {
+  const openImageModal = (imageUrl: string) => {
+    openMediaModal('image', imageUrl)
+  }
+
+  const openChartModal = (chartData: any, title?: string, width?: number, height?: number) => {
+    setSelectedMediaType('chart')
+    setSelectedMediaData(chartData)
+    setSelectedMediaTitle(title || '')
+    setSelectedMediaWidth(width || 300)
+    setSelectedMediaHeight(height || 220)
+    setModalVisible(true)
+    audioService.playButtonTap()
+  }
+
+  const closeMediaModal = () => {
     setModalVisible(false)
     setTimeout(() => {
-      setSelectedImageUrl(null)
+      setSelectedMediaType(null)
+      setSelectedMediaData(null)
+      setSelectedMediaTitle('')
     }, 200) // Wait for exit animation
   }
 
@@ -234,17 +258,13 @@ export default function ChatScreen() {
       const payload = item.payload as any
       const imageUrl = payload.url ?? payload.chart_url
       content = (
-        <TouchableOpacity 
-          style={styles.imageContainer}
+        <MediaItem
+          type="image"
+          data={imageUrl}
           onPress={() => openImageModal(imageUrl)}
-          activeOpacity={0.8}
-        >
-          <Image
-            source={{ uri: imageUrl }}
-            style={styles.messageImage}
-            resizeMode="cover"
-          />
-        </TouchableOpacity>
+          width={250}
+          height={180}
+        />
       )
     } else if (item.content_type === 'buttons') {
       content = (
@@ -268,37 +288,63 @@ export default function ChatScreen() {
     } else if (item.content_type === 'chart') {
       const payload = item.payload as any
       if (payload.labels && payload.values) {
-        content = (
-          <View style={styles.chartContainer}>
-            <ChartCard
+        // Render chart outside normal bubble structure
+        return (
+          <Animated.View 
+            style={[
+              styles.messageContainer, 
+              styles.agentContainer,
+              { opacity: fadeAnim }
+            ]}
+          >
+            <View style={styles.avatarContainer}>
+              <LinearGradient
+                colors={[theme.colors.primary, theme.colors.secondary]}
+                style={styles.avatar}
+              >
+                <Text style={styles.avatarText}>AI</Text>
+              </LinearGradient>
+            </View>
+            
+            <MediaItem
+              type="chart"
               data={{
                 labels: payload.labels,
                 datasets: [
                   {
                     data: payload.values,
+                    color: (opacity = 1) => `rgba(39, 83, 167, ${opacity})`,
+                    strokeWidth: 3,
                   },
                 ],
               }}
-              width={Math.min(screenWidth * 0.75, 300)}
-              height={200}
+              onPress={() => openChartModal({
+                labels: payload.labels,
+                datasets: [
+                  {
+                    data: payload.values,
+                    color: (opacity = 1) => `rgba(39, 83, 167, ${opacity})`,
+                    strokeWidth: 3,
+                  },
+                ],
+              }, "Chart", 300, 220)}
+              width={300}
+              height={220}
+              title="Chart"
             />
-          </View>
+          </Animated.View>
         )
       } else if (payload.url || payload.chart_url) {
         // Fallback for chart images returned by the backend
         const imageUrl = payload.url ?? payload.chart_url
         content = (
-          <TouchableOpacity 
-            style={styles.imageContainer}
+          <MediaItem
+            type="image"
+            data={imageUrl}
             onPress={() => openImageModal(imageUrl)}
-            activeOpacity={0.8}
-          >
-            <Image
-              source={{ uri: imageUrl }}
-              style={styles.messageImage}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
+            width={250}
+            height={180}
+          />
         )
       }
     }
@@ -454,11 +500,15 @@ export default function ChatScreen() {
         </KeyboardAvoidingView>
       </SafeAreaView>
       
-      {/* Image Modal */}
-      <ImageModal
+      {/* Media Modal */}
+      <MediaModal
         visible={modalVisible}
-        imageUrl={selectedImageUrl}
-        onClose={closeImageModal}
+        type={selectedMediaType}
+        data={selectedMediaData}
+        title={selectedMediaTitle}
+        originalWidth={selectedMediaWidth}
+        originalHeight={selectedMediaHeight}
+        onClose={closeMediaModal}
       />
     </LinearGradient>
   )

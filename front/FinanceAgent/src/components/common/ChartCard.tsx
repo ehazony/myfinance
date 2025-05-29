@@ -1,7 +1,9 @@
 import React from 'react'
-import { Dimensions, StyleSheet } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 import { Card, useTheme, Text } from 'react-native-paper'
 import { LineChart, PieChart, BarChart } from 'react-native-chart-kit'
+
+const screenWidth = Dimensions.get("window").width
 
 interface ChartCardProps {
   type?: 'line' | 'bar' | 'pie'
@@ -10,15 +12,17 @@ interface ChartCardProps {
   width?: number
   height?: number
   chartProps?: any
+  showCard?: boolean
 }
 
 export default function ChartCard({
   type = 'line',
   data,
   title,
-  width = Dimensions.get('window').width - 80,
+  width = screenWidth - 80,
   height = 200,
   chartProps,
+  showCard = true,
 }: ChartCardProps) {
   const theme = useTheme()
 
@@ -29,47 +33,74 @@ export default function ChartCard({
     decimalPlaces: 0,
     color: (opacity = 1) => `rgba(39, 83, 167, ${opacity})`,
     labelColor: (opacity = 1) => theme.colors.onSurface,
-    style: { borderRadius: 16 },
-    propsForDots: { r: '6', strokeWidth: '2', stroke: '#2753a7' },
-    propsForBackgroundLines: {
-      strokeDasharray: '5,5',
-      stroke: '#E5E7EB',
-      strokeWidth: 1,
+    style: {
+      borderRadius: 16,
+    },
+    propsForDots: {
+      r: "6",
+      strokeWidth: "2",
+      stroke: "#2753a7",
     },
   }
 
   const ChartComponent =
     type === 'pie' ? PieChart : type === 'bar' ? BarChart : LineChart
 
+  const lineChartProps = type === 'line' ? { 
+    bezier: true,
+    formatXLabel: (value: string) => value
+  } : {}
+
+  const chartContent = (
+    <>
+      {title ? (
+        <Text variant="titleLarge" style={[styles.chartTitle, { color: theme.colors.onSurface }]}>
+          {title}
+        </Text>
+      ) : null}
+      <ChartComponent
+        data={data}
+        width={width}
+        height={height}
+        chartConfig={chartConfig}
+        style={styles.chart}
+        {...lineChartProps}
+        {...chartProps}
+      />
+    </>
+  )
+
+  if (!showCard) {
+    return (
+      <View style={styles.chartOnly}>
+        {chartContent}
+      </View>
+    )
+  }
+
   return (
-    <Card style={styles.card} elevation={4}>
+    <Card style={[styles.chartCard, { backgroundColor: theme.colors.surface }]} elevation={4}>
       <Card.Content>
-        {title ? (
-          <Text variant="titleLarge" style={[styles.title, { color: theme.colors.onSurface }]}>{title}</Text>
-        ) : null}
-        <ChartComponent
-          data={data}
-          width={width}
-          height={height}
-          chartConfig={chartConfig}
-          style={styles.chart}
-          {...chartProps}
-        />
+        {chartContent}
       </Card.Content>
     </Card>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 16,
+  chartCard: {
     marginBottom: 24,
+    borderRadius: 16,
   },
-  title: {
+  chartTitle: {
     fontWeight: 'bold',
     marginBottom: 16,
   },
   chart: {
     borderRadius: 16,
+  },
+  chartOnly: {
+    alignItems: 'center',
+    marginVertical: 8,
   },
 })
