@@ -64,3 +64,7 @@ The new FinanceAgent app is a modern, unified codebase for both web and mobile f
 - The `agents/` package relies on `langchain`, `langgraph`, and `litellm`; ensure these packages are listed in `requirements.txt`.
 - Ensure new code includes tests where possible.
 
+## Setup Troubleshooting & Recommendations
+
+If you encounter any problems during setup or configuration, please document the issue in the `AGENT_SETUP_RECOMMENDATIONS.md` file at the project root. Clearly describe what is missing or problematic, and provide your recommended solution or fix. This helps future users and agents resolve setup issues more efficiently.
+
