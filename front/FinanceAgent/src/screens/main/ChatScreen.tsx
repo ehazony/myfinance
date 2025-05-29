@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import { chatService } from '../../services/chatService'
 import { audioService } from '../../services/audioService'
+import ImageModal from '../../components/common/ImageModal'
 import type { ChatMessage } from '../../types/chat'
 
 const { width: screenWidth } = Dimensions.get('window')
@@ -22,6 +23,11 @@ export default function ChatScreen() {
   const [text, setText] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  
+  // Modal state
+  const [modalVisible, setModalVisible] = useState(false)
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null)
+  
   const theme = useTheme()
   const flatListRef = useRef<FlatList>(null)
   const typingTimeoutRef = useRef<NodeJS.Timeout>()
@@ -175,6 +181,20 @@ export default function ChatScreen() {
     }
   }
 
+  // Modal functions
+  const openImageModal = (imageUrl: string) => {
+    setSelectedImageUrl(imageUrl)
+    setModalVisible(true)
+    audioService.playButtonTap()
+  }
+
+  const closeImageModal = () => {
+    setModalVisible(false)
+    setTimeout(() => {
+      setSelectedImageUrl(null)
+    }, 200) // Wait for exit animation
+  }
+
   const renderMessageStatus = (status: MessageStatus) => {
     switch (status) {
       case 'sending':
@@ -214,13 +234,17 @@ export default function ChatScreen() {
       const payload = item.payload as any
       const imageUrl = payload.url ?? payload.chart_url
       content = (
-        <View style={styles.imageContainer}>
+        <TouchableOpacity 
+          style={styles.imageContainer}
+          onPress={() => openImageModal(imageUrl)}
+          activeOpacity={0.8}
+        >
           <Image
             source={{ uri: imageUrl }}
             style={styles.messageImage}
             resizeMode="cover"
           />
-        </View>
+        </TouchableOpacity>
       )
     } else if (item.content_type === 'buttons') {
       content = (
@@ -289,13 +313,17 @@ export default function ChatScreen() {
         // Fallback for chart images returned by the backend
         const imageUrl = payload.url ?? payload.chart_url
         content = (
-          <View style={styles.imageContainer}>
+          <TouchableOpacity 
+            style={styles.imageContainer}
+            onPress={() => openImageModal(imageUrl)}
+            activeOpacity={0.8}
+          >
             <Image
               source={{ uri: imageUrl }}
               style={styles.messageImage}
               resizeMode="cover"
             />
-          </View>
+          </TouchableOpacity>
         )
       }
     }
@@ -450,6 +478,13 @@ export default function ChatScreen() {
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
+      
+      {/* Image Modal */}
+      <ImageModal
+        visible={modalVisible}
+        imageUrl={selectedImageUrl}
+        onClose={closeImageModal}
+      />
     </LinearGradient>
   )
 }
