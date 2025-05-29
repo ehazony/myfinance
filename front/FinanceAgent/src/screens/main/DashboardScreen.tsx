@@ -3,8 +3,8 @@ import { View, StyleSheet, ScrollView, Dimensions } from "react-native"
 import { Text, Card, useTheme, IconButton, Button } from "react-native-paper"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { LinearGradient } from "expo-linear-gradient"
-import { LineChart, PieChart } from "react-native-chart-kit"
 import GradientCard from "../../components/common/GradientCard"
+import ChartCard from "../../components/common/ChartCard"
 import { useTheme as useCustomTheme } from "../../context/ThemeContext"
 
 const screenWidth = Dimensions.get("window").width
@@ -145,57 +145,15 @@ export default function DashboardScreen() {
           </View>
 
           {/* Balance Trend Chart */}
-          <Card style={[styles.chartCard, { backgroundColor: theme.colors.surface }]} elevation={4}>
-            <Card.Content>
-              <Text variant="titleLarge" style={[styles.chartTitle, { color: theme.colors.onSurface }]}>
-                Balance Trend
-              </Text>
-              <LineChart
-                data={balanceData}
-                width={screenWidth - 80}
-                height={200}
-                chartConfig={{
-                  backgroundColor: theme.colors.surface,
-                  backgroundGradientFrom: theme.colors.surface,
-                  backgroundGradientTo: theme.colors.surface,
-                  decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(39, 83, 167, ${opacity})`,
-                  labelColor: (opacity = 1) => theme.colors.onSurface,
-                  style: {
-                    borderRadius: 16,
-                  },
-                  propsForDots: {
-                    r: "6",
-                    strokeWidth: "2",
-                    stroke: "#2753a7",
-                  },
-                }}
-                bezier
-                style={styles.chart}
-              />
-            </Card.Content>
-          </Card>
+          <ChartCard type="line" data={balanceData} title="Balance Trend" />
 
           {/* Expense Breakdown */}
-          <Card style={[styles.chartCard, { backgroundColor: theme.colors.surface }]} elevation={4}>
-            <Card.Content>
-              <Text variant="titleLarge" style={[styles.chartTitle, { color: theme.colors.onSurface }]}>
-                Expense Breakdown
-              </Text>
-              <PieChart
-                data={expenseData}
-                width={screenWidth - 80}
-                height={200}
-                chartConfig={{
-                  color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                }}
-                accessor="population"
-                backgroundColor="transparent"
-                paddingLeft="15"
-                absolute
-              />
-            </Card.Content>
-          </Card>
+          <ChartCard
+            type="pie"
+            data={expenseData}
+            title="Expense Breakdown"
+            chartProps={{ accessor: "population", backgroundColor: "transparent", paddingLeft: "15", absolute: true }}
+          />
 
           {/* Recent Transactions */}
           <Card style={[styles.transactionsCard, { backgroundColor: theme.colors.surface }]} elevation={4}>
