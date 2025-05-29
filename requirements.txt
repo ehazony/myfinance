@@ -41,3 +41,4 @@ langchain
 langgraph
 jsonschema
 litellm
+selenium
