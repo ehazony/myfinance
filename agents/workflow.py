@@ -1,4 +1,4 @@
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, END, START
 
 from .workflow_state import WorkflowState
 from .graph_nodes import orchestrator_node, AGENT_NODES
@@ -11,6 +11,9 @@ def build_workflow():
     graph.add_node("orchestrator", orchestrator_node)
     for name, node in AGENT_NODES.items():
         graph.add_node(name, node)
+
+    # Add entrypoint edge
+    graph.add_edge(START, "orchestrator")
 
     # Route from orchestrator based on detected intent
     graph.add_conditional_edges(
