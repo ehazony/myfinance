@@ -5,6 +5,7 @@ django-graphos
 django-extensions
 python-dateutil
 plotly
+kaleido
 django-bootstrap-modal-forms
 django-bstrap-modals
 pyppeteer
