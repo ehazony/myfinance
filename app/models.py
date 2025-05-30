@@ -57,3 +57,15 @@ class Message(models.Model):
         return f"{self.sender} - {self.payload}"
 
 
+class OrchestratorIntent(models.Model):
+    """Mapping from intent key to agent name."""
+
+    key = models.CharField(max_length=64, unique=True)
+    agent = models.CharField(max_length=64)
+    description = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.key
+
+

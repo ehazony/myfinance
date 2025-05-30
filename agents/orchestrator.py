@@ -1,7 +1,9 @@
 import json
 from typing import Tuple, Dict
 
-from app.models import Message
+from pathlib import Path
+from django.db.models import QuerySet
+from app.models import Message, OrchestratorIntent
 
 from .base import BaseAgent
 from .onboarding import OnboardingAgent
@@ -47,6 +49,24 @@ class Orchestrator(BaseAgent):
             "Review & Reminder Scheduler": "reminder_scheduler",
             "Compliance & Privacy": "compliance_privacy",
         }
+        self.intent_map = self._load_intents()
+
+    def _load_intents(self) -> Dict[str, str]:
+        """Load intent→agent mapping from DB or fallback JSON."""
+        try:
+            qs: QuerySet = OrchestratorIntent.objects.all()
+            if qs.exists():
+                return {obj.key: self.agent_name_map.get(obj.agent, obj.agent) for obj in qs}
+        except Exception:
+            pass
+
+        path = Path(__file__).parent / "prompt" / "system_prompt" / "intents.json"
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            return {k: self.agent_name_map.get(v["agent"], v["agent"]) for k, v in data.items()}
+        except Exception:
+            return {}
 
     def _heuristic_route(self, text: str) -> str:
         """Fallback routing logic when LLM output is missing."""
@@ -75,13 +95,13 @@ class Orchestrator(BaseAgent):
         """Return which agent should handle the text via the LLM."""
         if payload is None:
             payload = self.generate_payload(text)
-
-        agent_name = payload.get("agent")
-        agent_key = self.agent_name_map.get(agent_name)
-
+        intent = payload.get("intent")
+        agent_key = self.intent_map.get(intent)
+        if not agent_key:
+            agent_name = payload.get("agent")
+            agent_key = self.agent_name_map.get(agent_name)
         if not agent_key:
             agent_key = self._heuristic_route(text)
-
         return agent_key
 
     def handle_message(self, text: str) -> Tuple[str, Dict]:
@@ -92,7 +112,9 @@ class Orchestrator(BaseAgent):
         intent = payload.get("intent")
         params = payload.get("params", {})
 
-        agent_key = self.agent_name_map.get(agent_name)
+        agent_key = self.intent_map.get(intent)
+        if not agent_key:
+            agent_key = self.agent_name_map.get(agent_name)
 
         # If the LLM determines the orchestrator should respond directly
         if agent_key is None and agent_name == "Orchestrator":
