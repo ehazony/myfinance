@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Tuple, Dict
 
 from app.models import Message
@@ -14,6 +15,8 @@ from .reporting import ReportingAgent
 from .debt_strategy import DebtStrategyAgent
 from .reminder_scheduler import ReminderSchedulerAgent
 from .compliance_privacy import CompliancePrivacyAgent
+
+logger = logging.getLogger(__name__)
 
 
 class Orchestrator(BaseAgent):
@@ -50,6 +53,7 @@ class Orchestrator(BaseAgent):
 
     def _heuristic_route(self, text: str) -> str:
         """Fallback routing logic when LLM output is missing."""
+        logger.debug("Heuristic routing for text: %s", text)
         lower = text.lower()
         if "chart" in lower or "graph" in lower:
             return "reporting"
@@ -75,18 +79,22 @@ class Orchestrator(BaseAgent):
         """Return which agent should handle the text via the LLM."""
         if payload is None:
             payload = self.generate_payload(text)
+        logger.debug("Routing message: '%s' with payload: %s", text, payload)
 
         agent_name = payload.get("agent")
         agent_key = self.agent_name_map.get(agent_name)
 
         if not agent_key:
             agent_key = self._heuristic_route(text)
+            logger.debug("Heuristic selected agent: %s", agent_key)
 
+        logger.debug("Final routed agent: %s", agent_key)
         return agent_key
 
     def handle_message(self, text: str, **context) -> Tuple[str, Dict]:
         """Route the message and delegate to the appropriate agent."""
         payload = self.generate_payload(text)
+        logger.debug("Orchestrator payload: %s", payload)
 
         agent_name = payload.get("agent")
         intent = payload.get("intent")
@@ -98,13 +106,16 @@ class Orchestrator(BaseAgent):
         if agent_key is None and agent_name == "Orchestrator":
             if intent == "clarify":
                 question = params.get("question", "Could you clarify?")
+                logger.debug("Orchestrator clarification question: %s", question)
                 return Message.TEXT, {"text": question}
             if intent == "fallback":
                 message = params.get("message", text)
+                logger.debug("Orchestrator fallback message: %s", message)
                 return Message.TEXT, {"text": message}
 
         if not agent_key:
             agent_key = self._heuristic_route(text)
+        logger.debug("Delegating to agent: %s", agent_key)
 
         kwargs = {}
 
@@ -120,4 +131,6 @@ class Orchestrator(BaseAgent):
             # Other agents currently ignore intent
             pass
 
-        return self.agents[agent_key].handle_message(text, **kwargs)
+        result = self.agents[agent_key].handle_message(text, **kwargs)
+        logger.debug("Agent %s returned %s", agent_key, result[0])
+        return result

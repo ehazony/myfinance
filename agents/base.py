@@ -62,7 +62,7 @@ class BaseAgent:
             payload = json.loads(content)
             logger.debug(f"[LLM DEBUG] Parsed payload: {payload}")
         except Exception as e:
-            logger.error(f"[LLM DEBUG] Exception during LLM call or parsing: {e}")
+            logger.exception("LLM call failed")
             payload = {}
         return payload
 
