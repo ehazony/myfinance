@@ -5,7 +5,7 @@ import json
 import pytest
 
 # ensure required settings for Django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance.test_settings")
 for var in [
     "GRID_ENDPOINT",
     "FRONT_ENDPOINT",

@@ -509,14 +509,18 @@ def reformat_figs(data):
     return data
 
 
+from app.services.chat_service import ChatService
+
+chat_service = ChatService()
+
+
 class ChatHistoryView(APIView):
     """Return conversation history for the authenticated user."""
 
     serializer_class = MessageSerializer
 
     def get(self, request):
-        conversation, _ = Conversation.objects.get_or_create(user=request.user)
-        messages = conversation.messages.all()
+        messages = chat_service.history(request.user)
         return Response(MessageSerializer(messages, many=True).data)
 
 
@@ -537,23 +541,8 @@ class ChatSendView(APIView):
         ),
     )
     def post(self, request):
-        conversation, _ = Conversation.objects.get_or_create(user=request.user)
         text = request.data.get("text", "")
-        Message.objects.create(
-            conversation=conversation,
-            sender=Message.USER,
-            content_type=Message.TEXT,
-            payload={"text": text},
-        )
-
-        orchestrator = Orchestrator()
-        content_type, payload = orchestrator.handle_message(text)
-        agent_msg = Message.objects.create(
-            conversation=conversation,
-            sender=Message.AGENT,
-            content_type=content_type,
-            payload=payload,
-        )
+        agent_msg = chat_service.send_message(request.user, text)
         return Response(MessageSerializer(agent_msg).data)
 
 

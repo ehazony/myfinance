@@ -147,16 +147,24 @@ WSGI_APPLICATION = 'finance.wsgi.application'
 # 	}
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        "NAME": config("DB_NAME", default="test"),
-        "USER": config("DB_USER", default="test"),
-        "PASSWORD": config("DB_PASSWORD", default="test"),
-        'HOST': config("HOST", default="test"),
-        'PORT': '5432',
+if os.environ.get("USE_SQLITE_FOR_TESTS") == "1":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            "NAME": config("DB_NAME", default="test"),
+            "USER": config("DB_USER", default="test"),
+            "PASSWORD": config("DB_PASSWORD", default="test"),
+            'HOST': config("HOST", default="test"),
+            'PORT': '5432',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
