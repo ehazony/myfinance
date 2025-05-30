@@ -84,7 +84,7 @@ class Orchestrator(BaseAgent):
 
         return agent_key
 
-    def handle_message(self, text: str) -> Tuple[str, Dict]:
+    def handle_message(self, text: str, **context) -> Tuple[str, Dict]:
         """Route the message and delegate to the appropriate agent."""
         payload = self.generate_payload(text)
 
@@ -106,4 +106,18 @@ class Orchestrator(BaseAgent):
         if not agent_key:
             agent_key = self._heuristic_route(text)
 
-        return self.agents[agent_key].handle_message(text)
+        kwargs = {}
+
+        if agent_key == "cash_flow":
+            if intent:
+                kwargs["intent"] = intent
+            kwargs.update(
+                transactions=context.get("transactions"),
+                category_map=context.get("category_map"),
+                budget_targets=context.get("budget_targets"),
+            )
+        elif intent:
+            # Other agents currently ignore intent
+            pass
+
+        return self.agents[agent_key].handle_message(text, **kwargs)
