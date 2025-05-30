@@ -280,6 +280,9 @@ LOGGING = {
         },
         # Logger for 3rd party library to restrict unnecessary log statments by the library
         "azure": {"level": "ERROR", "handlers": ["console"], "propogate": False},
+        # Detailed logs for the agents package
+        "agents": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "app.services.chat_service": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
     },
 }
 logging.config.dictConfig(LOGGING)  # Finally replace our config in python logging

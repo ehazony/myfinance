@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime
+import logging
 from typing import Iterable, List, Dict, Optional
 
 from django.contrib.auth import get_user_model
@@ -10,6 +11,8 @@ from django.contrib.auth import get_user_model
 from app.models import Conversation, Message
 from myFinance.models import Transaction, TransactionNameTag, TagGoal
 from agents.orchestrator import Orchestrator
+
+logger = logging.getLogger(__name__)
 
 
 class ChatService:
@@ -20,7 +23,11 @@ class ChatService:
 
     def get_conversation(self, user: get_user_model()) -> Conversation:
         """Return existing conversation for user or create one."""
-        conversation, _ = Conversation.objects.get_or_create(user=user)
+        conversation, created = Conversation.objects.get_or_create(user=user)
+        if created:
+            logger.debug("Created new conversation for user %s", user)
+        else:
+            logger.debug("Loaded conversation %s for user %s", conversation.pk, user)
         return conversation
 
     def history(self, user: get_user_model()) -> Iterable[Message]:
@@ -87,6 +94,7 @@ class ChatService:
         txns = self.serialize_transactions(self.get_transactions(user))
         category_map = self.get_category_map(user)
         budget_targets = self.get_budget_targets(user)
+        logger.debug("Built financial context for user %s", user)
         return txns, category_map, budget_targets
 
     def send_message(self, user: get_user_model(), text: str) -> Message:
@@ -101,12 +109,14 @@ class ChatService:
 
         txns, category_map, budget_targets = self.build_financial_context(user)
 
+        logger.debug("Sending message to orchestrator: '%s'", text)
         content_type, payload = self.orchestrator.handle_message(
             text,
             transactions=txns,
             category_map=category_map,
             budget_targets=budget_targets,
         )
+        logger.debug("Orchestrator returned content_type=%s", content_type)
         agent_msg = Message.objects.create(
             conversation=conversation,
             sender=Message.AGENT,
