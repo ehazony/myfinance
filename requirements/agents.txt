@@ -1,0 +1,4 @@
+# Dependencies required for the langchain-based agents
+langchain
+langgraph
+litellm

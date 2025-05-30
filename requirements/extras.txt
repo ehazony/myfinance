@@ -1,0 +1,11 @@
+# Optional tools and scraping utilities
+pyppeteer
+pyppeteer_stealth
+undetected-chromedriver
+selenium-stealth
+chromedriver_autoinstaller
+selenium-wire
+selenium
+gspread
+watchdog
+unittest2

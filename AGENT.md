@@ -61,9 +61,11 @@ The new FinanceAgent app is a modern, unified codebase for both web and mobile f
 ## Important notes
 - Keep sensitive information such as credentials out of commits. Environment variables are stored in `.env.prod`.
 - If you add or change setup steps, test commands, or repository structure, update both this `AGENT.md` file and the root `README.md` accordingly. If you change the FinanceAgent app setup, update its README as well.
-- The `agents/` package relies on `langchain`, `langgraph`, and `litellm`; ensure these packages are listed in `requirements.txt`.
+- The `agents/` package relies on `langchain`, `langgraph`, and `litellm`. These
+  live in `requirements/agents.txt`.
 - Ensure new code includes tests where possible.
-- If you encounter missing libraries during setup or while running code or tests, add them to `requirements.txt`.
+- If you encounter missing libraries during setup or while running code or tests,
+  add them to the appropriate file under `requirements/`.
 
 ## Setup Troubleshooting & Recommendations
 

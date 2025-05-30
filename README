@@ -10,12 +10,12 @@
 
 2. **Install backend dependencies:**
    ```sh
-   pip install --index-url https://pypi.org/simple -r requirements.txt
+   # Base packages
+   pip install --index-url https://pypi.org/simple -r requirements/base.txt
    ```
-   This project uses LangChain to coordinate multiple finance agents located in
-   the new `agents/` package. It now relies on `litellm` to interface with
-   multiple LLM providers. Be sure your environment has all dependencies from
-   `requirements.txt` installed.
+   Additional requirement files live in the new `requirements/` directory. Install
+   `agents.txt`, `extras.txt` or `test.txt` as needed, or use `all.txt` to install
+   everything.
 
 3. **Configure environment variables:**
    - Copy `.env` or `.env.prod` to the project root and set your database and other secrets as needed.
@@ -129,7 +129,7 @@ You can use any combination of these parameters. If none are provided, the comma
 Install dependencies and run the test suite with pytest:
 
 ```sh
-pip install -r requirements.txt
+pip install -r requirements/all.txt
 pytest
 ```
 
