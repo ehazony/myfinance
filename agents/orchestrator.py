@@ -1,4 +1,3 @@
-import json
 import logging
 from typing import Tuple, Dict
 
@@ -16,6 +15,7 @@ from .conversation import ConversationAgent
 from .debt_strategy import DebtStrategyAgent
 from .reminder_scheduler import ReminderSchedulerAgent
 from .compliance_privacy import CompliancePrivacyAgent
+from .manifest import load_manifest
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +25,10 @@ class Orchestrator(BaseAgent):
 
     name = "orchestrator"
 
-    def __init__(self):
+    def __init__(self, manifest_path: str | None = None):
+        self.manifest = load_manifest(manifest_path)
         self.agents = {
-            "conversation": ConversationAgent(),
+            "conversation": ConversationAgent(manifest_path),
             "onboarding": OnboardingAgent(),
             "cash_flow": CashFlowAgent(),
             "goal_setting": GoalSettingAgent(),
@@ -39,19 +40,9 @@ class Orchestrator(BaseAgent):
             "reminder_scheduler": ReminderSchedulerAgent(),
             "compliance_privacy": CompliancePrivacyAgent(),
         }
-        # Map human-readable agent names from the system prompt to keys
+        # Map human-readable agent names from the manifest to keys
         self.agent_name_map = {
-            "Onboarding & Baseline": "onboarding",
-            "Cash-Flow & Budget": "cash_flow",
-            "Goal-Setting": "goal_setting",
-            "Safety-Layer": "safety",
-            "Tax & Pension Optimiser": "tax_pension",
-            "Investment Architect": "investment",
-            "Reporting & Visualisation": "reporting",
-            "Debt-Strategy": "debt_strategy",
-            "Review & Reminder Scheduler": "reminder_scheduler",
-            "Compliance & Privacy": "compliance_privacy",
-            "Conversation": "conversation",
+            entry["name"]: entry["key"] for entry in self.manifest.get("agents", [])
         }
 
     def _heuristic_route(self, text: str) -> str:

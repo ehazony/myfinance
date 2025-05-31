@@ -1,0 +1,93 @@
+{
+  "capability_version": 1,
+  "agents": [
+    {
+      "key": "onboarding",
+      "name": "Onboarding & Baseline",
+      "intents": [
+        "upload_documents",
+        "update_accounts"
+      ],
+      "user_friendly": "Connect accounts, parse bank/credit statements, and build your first net-worth snapshot."
+    },
+    {
+      "key": "cash_flow",
+      "name": "Cash-Flow & Budget",
+      "intents": [
+        "categorize_txns"
+      ],
+      "user_friendly": "Categorise your transactions and build a personalised budget."
+    },
+    {
+      "key": "goal_setting",
+      "name": "Goal-Setting",
+      "intents": [
+        "set_goal",
+        "list_goals"
+      ],
+      "user_friendly": "Create and track SMART savings or investment goals."
+    },
+    {
+      "key": "safety",
+      "name": "Safety-Layer",
+      "intents": [
+        "assess_safety"
+      ],
+      "user_friendly": "Flag suspicious activity and ensure account security."
+    },
+    {
+      "key": "tax_pension",
+      "name": "Tax & Pension Optimiser",
+      "intents": [
+        "tax_optimiser"
+      ],
+      "user_friendly": "Recommend tax strategies and pension options."
+    },
+    {
+      "key": "investment",
+      "name": "Investment Architect",
+      "intents": [
+        "plan_investment"
+      ],
+      "user_friendly": "Plan your investment portfolio."
+    },
+    {
+      "key": "reporting",
+      "name": "Reporting & Visualisation",
+      "intents": [
+        "show_net_worth",
+        "show_budget",
+        "create_report"
+      ],
+      "user_friendly": "Create charts and reports from your finances."
+    },
+    {
+      "key": "debt_strategy",
+      "name": "Debt-Strategy",
+      "intents": [
+        "debt_strategy"
+      ],
+      "user_friendly": "Optimise debt repayments or consolidation."
+    },
+    {
+      "key": "reminder_scheduler",
+      "name": "Review & Reminder Scheduler",
+      "intents": [
+        "schedule_review"
+      ],
+      "user_friendly": "Schedule periodic reviews and reminders."
+    },
+    {
+      "key": "compliance_privacy",
+      "name": "Compliance & Privacy",
+      "intents": [],
+      "user_friendly": "Manage privacy requests and data compliance."
+    },
+    {
+      "key": "conversation",
+      "name": "Conversation",
+      "intents": [],
+      "user_friendly": "General conversation and user guidance."
+    }
+  ]
+}
