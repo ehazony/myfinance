@@ -16,6 +16,10 @@
       "category_map":{
         "type":"object",
         "description":"user-defined overrides, key=merchant|description regex, value=category"
+      },
+      "missing_info":{
+        "type":"array",
+        "items":{"type":"string"}
       }
     },
   

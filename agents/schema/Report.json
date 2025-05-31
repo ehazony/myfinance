@@ -9,6 +9,10 @@
       "generated_at":{"type":"string","format":"date-time"},
       "source_refs":{"type":"array","items":{"type":"string"}},
       "chart_url":{"type":"string","format":"uri"},
-      "summary_markdown":{"type":"string"}
+      "summary_markdown":{"type":"string"},
+      "missing_info":{
+        "type":"array",
+        "items":{"type":"string"}
+      }
     }
   }

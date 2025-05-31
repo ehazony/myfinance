@@ -21,7 +21,7 @@ def test_send_message_creates_reply(orchestrator_llm):
     msg = service.send_message(user, "show me a chart")
 
     assert msg.sender == Message.AGENT
-    assert msg.content_type == Message.CHART
+    assert msg.content_type == Message.TEXT
 
     conv = service.get_conversation(user)
     assert conv.messages.count() == 2

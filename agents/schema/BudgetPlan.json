@@ -22,6 +22,10 @@
         }
       },
       "savings_rate_target":{"type":"number","minimum":0,"maximum":1},
-      "notes":{"type":"string"}
+      "notes":{"type":"string"},
+      "missing_info":{
+        "type":"array",
+        "items":{"type":"string"}
+      }
     }
   }

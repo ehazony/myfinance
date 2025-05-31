@@ -18,6 +18,10 @@
       "estate_documents":{
         "type":"array",
         "items":{"$ref":"EstateDoc"}
+      },
+      "missing_info":{
+        "type":"array",
+        "items":{"type":"string"}
       }
     },
   

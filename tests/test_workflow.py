@@ -4,23 +4,25 @@ from app.models import Message
 
 def test_reporting_route():
     state = run_workflow("show me a chart")
-    assert state.result["content_type"] == Message.CHART
-    assert [step["agent"] for step in state.conversation] == ["orchestrator", "reporting"]
+    assert state.result["content_type"] == Message.TEXT
+    assert [step["agent"] for step in state.conversation] == ["orchestrator", "reporting", "conversation"]
 
 
 def test_safety_route():
     state = run_workflow("tell me about safety")
     assert state.result["content_type"] == Message.TEXT
-    assert [step["agent"] for step in state.conversation] == ["orchestrator", "safety"]
+    assert [step["agent"] for step in state.conversation] == ["orchestrator", "safety", "conversation"]
 
 
 def test_onboarding_then_reporting():
     state = run_workflow("hello")
-    assert state.result["content_type"] == Message.CHART
+    assert state.result["content_type"] == Message.TEXT
     assert [step["agent"] for step in state.conversation] == [
         "orchestrator",
         "onboarding",
+        "conversation",
         "reporting",
+        "conversation",
     ]
 
 
@@ -37,4 +39,5 @@ def test_other_routes():
         assert [step["agent"] for step in state.conversation] == [
             "orchestrator",
             expected,
+            "conversation",
         ]

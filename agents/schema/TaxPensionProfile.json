@@ -18,6 +18,10 @@
       "recommendations":{
         "type":"array",
         "items":{"type":"string"}
+      },
+      "missing_info":{
+        "type":"array",
+        "items":{"type":"string"}
       }
     },
   
