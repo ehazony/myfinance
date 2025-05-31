@@ -58,9 +58,9 @@ class BaseAgent:
         try:
             response = litellm.completion(model=model, messages=messages)
             content = response["choices"][0]["message"]["content"]
-            logger.debug(f"[LLM DEBUG] Raw LLM output: {content}")
+            logger.debug(f"[AGENT: {self.name}] [LLM DEBUG] Raw LLM output: {content}")
             payload = json.loads(content)
-            logger.debug(f"[LLM DEBUG] Parsed payload: {payload}")
+            logger.debug(f"[AGENT: {self.name}] [LLM DEBUG] Parsed payload: {payload}")
         except Exception as e:
             logger.exception("LLM call failed")
             payload = {}
