@@ -9,6 +9,10 @@
       "action":{"type":"string","enum":["scrub","delete","redact","access"]},
       "actor":{"type":"string"},
       "object_id":{"type":"string"},
-      "details":{"type":"string"}
+      "details":{"type":"string"},
+      "missing_info":{
+        "type":"array",
+        "items":{"type":"string"}
+      }
     }
   }

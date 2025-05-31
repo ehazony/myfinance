@@ -16,6 +16,10 @@
       "payoff_schedule":{
         "type":"array",
         "items":{"$ref":"ScheduleEntry"}
+      },
+      "missing_info":{
+        "type":"array",
+        "items":{"type":"string"}
       }
     },
   

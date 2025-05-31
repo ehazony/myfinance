@@ -6,6 +6,7 @@ from .safety import SafetyAgent
 from .tax_pension import TaxPensionAgent
 from .investment import InvestmentAgent
 from .reporting import ReportingAgent
+from .conversation import ConversationAgent
 from .workflow import run_workflow, workflow
 
 __all__ = [
@@ -17,6 +18,7 @@ __all__ = [
     "TaxPensionAgent",
     "InvestmentAgent",
     "ReportingAgent",
+    "ConversationAgent",
     "workflow",
     "run_workflow",
 ]

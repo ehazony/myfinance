@@ -11,6 +11,7 @@ from .safety import SafetyAgent
 from .tax_pension import TaxPensionAgent
 from .investment import InvestmentAgent
 from .reporting import ReportingAgent
+from .conversation import ConversationAgent
 from .debt_strategy import DebtStrategyAgent
 from .reminder_scheduler import ReminderSchedulerAgent
 from .compliance_privacy import CompliancePrivacyAgent
@@ -20,6 +21,7 @@ orchestrator = Orchestrator()
 
 # Instantiate agents
 _agent_instances = {
+    "conversation": ConversationAgent(),
     "onboarding": OnboardingAgent(),
     "cash_flow": CashFlowAgent(),
     "goal_setting": GoalSettingAgent(),
@@ -48,8 +50,19 @@ def make_agent_node(name: str) -> Callable[[WorkflowState], WorkflowState]:
         state.conversation.append(
             {"agent": name, "content_type": content_type, "payload": payload}
         )
-        state.result = {"content_type": content_type, "payload": payload}
-        # After onboarding we demonstrate moving to the reporting agent.
+
+        # Pass through the conversation agent
+        conv_type, conv_payload = _agent_instances["conversation"].handle_message(
+            state.user_input,
+            source="Data",
+            agent=name,
+            payload=payload,
+        )
+        state.conversation.append(
+            {"agent": "conversation", "content_type": conv_type, "payload": conv_payload}
+        )
+        state.result = {"content_type": conv_type, "payload": conv_payload}
+
         if name == "onboarding" and content_type != Message.CHART:
             state.next_agent = "reporting"
         else:
@@ -60,5 +73,5 @@ def make_agent_node(name: str) -> Callable[[WorkflowState], WorkflowState]:
 
 
 AGENT_NODES: Dict[str, Callable[[WorkflowState], WorkflowState]] = {
-    name: make_agent_node(name) for name in _agent_instances
+    name: make_agent_node(name) for name in _agent_instances if name != "conversation"
 }

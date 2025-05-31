@@ -24,6 +24,10 @@
       "recommended_trades":{
         "type":"array",
         "items":{"$ref":"Trade"}
+      },
+      "missing_info":{
+        "type":"array",
+        "items":{"type":"string"}
       }
     },
   
@@ -54,3 +58,4 @@
       }
     }
   }
+

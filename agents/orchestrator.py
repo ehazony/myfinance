@@ -12,6 +12,7 @@ from .safety import SafetyAgent
 from .tax_pension import TaxPensionAgent
 from .investment import InvestmentAgent
 from .reporting import ReportingAgent
+from .conversation import ConversationAgent
 from .debt_strategy import DebtStrategyAgent
 from .reminder_scheduler import ReminderSchedulerAgent
 from .compliance_privacy import CompliancePrivacyAgent
@@ -26,6 +27,7 @@ class Orchestrator(BaseAgent):
 
     def __init__(self):
         self.agents = {
+            "conversation": ConversationAgent(),
             "onboarding": OnboardingAgent(),
             "cash_flow": CashFlowAgent(),
             "goal_setting": GoalSettingAgent(),
@@ -49,6 +51,7 @@ class Orchestrator(BaseAgent):
             "Debt-Strategy": "debt_strategy",
             "Review & Reminder Scheduler": "reminder_scheduler",
             "Compliance & Privacy": "compliance_privacy",
+            "Conversation": "conversation",
         }
 
     def _heuristic_route(self, text: str) -> str:
@@ -131,6 +134,12 @@ class Orchestrator(BaseAgent):
             # Other agents currently ignore intent
             pass
 
-        result = self.agents[agent_key].handle_message(text, **kwargs)
-        logger.debug("Agent %s returned %s", agent_key, result[0])
-        return result
+        content_type, payload = self.agents[agent_key].handle_message(text, **kwargs)
+        logger.debug("Agent %s returned %s", agent_key, content_type)
+
+        if agent_key != "conversation":
+            content_type, payload = self.agents["conversation"].handle_message(
+                text, source="Data", agent=agent_key, payload=payload
+            )
+
+        return content_type, payload
