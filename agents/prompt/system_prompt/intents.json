@@ -11,5 +11,10 @@
     "debt_strategy":          { "agent": "Debt-Strategy" },
     "tax_optimiser":          { "agent": "Tax & Pension Optimiser" },
     "plan_investment":        { "agent": "Investment Architect" },
-    "schedule_review":        { "agent": "Review & Reminder Scheduler" }
-  }
+    "schedule_review":        { "agent": "Review & Reminder Scheduler" },
+    "clarify":                { "agent": "Conversation" },
+    "fallback":               { "agent": "Conversation" },
+    "greet":                  { "agent": "Conversation" },
+    "help":                   { "agent": "Conversation" },
+    "explain_snapshot":       { "agent": "Conversation" }
+}

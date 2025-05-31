@@ -86,7 +86,13 @@
     {
       "key": "conversation",
       "name": "Conversation",
-      "intents": [],
+      "intents": [
+        "clarify",
+        "fallback",
+        "greet",
+        "help",
+        "explain_snapshot"
+      ],
       "user_friendly": "General conversation and user guidance."
     }
   ]

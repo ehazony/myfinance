@@ -54,11 +54,24 @@ class BaseAgent:
             {"role": "system", "content": self.system_prompt()},
             {"role": "user", "content": text},
         ]
-        model = os.getenv("LLM_MODEL", "gpt-3.5-turbo")
+        model = os.getenv("LLM_MODEL", "gpt-4o-mini")
         try:
             response = litellm.completion(model=model, messages=messages)
             content = response["choices"][0]["message"]["content"]
             logger.debug(f"[AGENT: {self.name}] [LLM DEBUG] Raw LLM output: {content}")
+            
+            # Handle JSON wrapped in markdown code fences (common with newer models)
+            if content.strip().startswith("```") and content.strip().endswith("```"):
+                # Extract JSON from markdown code block
+                lines = content.strip().split('\n')
+                # Remove first and last lines (the ``` lines)
+                json_content = '\n'.join(lines[1:-1])
+                # If first line after ``` is a language identifier, remove it
+                if json_content.strip().startswith('json'):
+                    json_content = '\n'.join(json_content.split('\n')[1:])
+                content = json_content.strip()
+                logger.debug(f"[AGENT: {self.name}] [LLM DEBUG] Extracted JSON from markdown: {content}")
+            
             payload = json.loads(content)
             logger.debug(f"[AGENT: {self.name}] [LLM DEBUG] Parsed payload: {payload}")
         except Exception as e:
