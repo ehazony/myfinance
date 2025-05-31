@@ -86,6 +86,8 @@ dependencies listed in `docs/react_native_migration.md`.
 - The backend and frontend can be started independently.
 - For production, additional configuration may be required.
 - The new FinanceAgent app (web/mobile) lives in `front/FinanceAgent`. See its README for details.
+- `scripts/generate_manifest.py` builds `capability_manifest.json` from the
+  agent prompts. Run it whenever you update intents or descriptions.
 
 ---
 
