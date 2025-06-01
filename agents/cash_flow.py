@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 from .base import BaseAgent
 from app.models import Message
@@ -32,6 +32,7 @@ class CashFlowAgent(BaseAgent):
         transactions: Optional[List[Dict]] = None,
         category_map: Optional[Dict[str, str]] = None,
         budget_targets: Optional[Dict[str, float]] = None,
+        budget_info: Optional[Dict[str, Any]] = None,
     ) -> tuple[str, Dict]:
         """Call the LLM with structured parameters and return its response."""
 
@@ -48,6 +49,22 @@ class CashFlowAgent(BaseAgent):
             params["category_map"] = category_map
         if budget_targets:
             params["budget_targets"] = budget_targets
+
+        if intent == "create_budget":
+            required = [
+                "net_income",
+                "fixed_essentials",
+                "variable_costs",
+                "infrequent_costs",
+                "savings_investing",
+                "balances_today",
+                "goals_preferences",
+                "logistics",
+            ]
+            missing = [key for key in required if not budget_info or not budget_info.get(key)]
+            if missing:
+                return Message.TEXT, {"missing_info": missing}
+            params["budget_info"] = budget_info or {}
 
         # Embed parameters as JSON after the user text so the LLM can parse them
         llm_input = f"{text}\n\n{json.dumps(params)}"

@@ -146,6 +146,7 @@ class Orchestrator(BaseAgent):
                 transactions=context.get("transactions"),
                 category_map=context.get("category_map"),
                 budget_targets=context.get("budget_targets"),
+                budget_info=context.get("budget_info"),
             )
         elif agent_key == "conversation":
             # Pass intent and params to conversation agent for direct user interactions
