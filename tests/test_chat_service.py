@@ -67,4 +67,24 @@ def test_send_message_passes_context(monkeypatch):
     assert "transactions" in captured
     assert "category_map" in captured
     assert "budget_targets" in captured
+    assert "budget_info" in captured
+
+
+@pytest.mark.django_db
+def test_get_budget_inputs_returns_mock():
+    user = get_user_model().objects.create_user(username="budget", password="pass")
+    service = ChatService()
+    data = service.get_budget_inputs(user)
+    required = [
+        "net_income",
+        "fixed_essentials",
+        "variable_costs",
+        "infrequent_costs",
+        "savings_investing",
+        "balances_today",
+        "goals_preferences",
+        "logistics",
+    ]
+    for field in required:
+        assert field in data
 

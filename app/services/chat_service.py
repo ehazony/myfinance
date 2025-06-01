@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import datetime
 import logging
-from typing import Iterable, List, Dict, Optional
+from typing import Iterable, List, Dict, Optional, Any
 
 from django.contrib.auth import get_user_model
 
@@ -97,6 +97,62 @@ class ChatService:
         logger.debug("Built financial context for user %s", user)
         return txns, category_map, budget_targets
 
+    # ------------------------------------------------------------------
+    # Budget input placeholders
+    # ------------------------------------------------------------------
+
+    def get_budget_inputs(self, user: get_user_model()) -> Dict[str, Any]:
+        """Return additional budget information for the CashFlow agent.
+
+        This placeholder implementation returns hard-coded values so the
+        cash-flow agent can produce a budget without prompting the user
+        for every field.  Real deployments would fetch these details
+        from the user's profile or recently submitted forms.
+        """
+
+        logger.debug("Retrieving budget inputs for user %s", user)
+
+        return {
+            "net_income": {"monthly": 5000, "bonuses": 1000},
+            "fixed_essentials": {
+                "housing": 1500,
+                "debt_payments": 300,
+                "utilities": 200,
+                "insurance_premiums": 100,
+            },
+            "variable_costs": {
+                "food": 400,
+                "transport": 100,
+                "personal": 200,
+            },
+            "infrequent_costs": {
+                "car_maintenance": 50,
+                "holidays": 100,
+                "home_repairs": 50,
+            },
+            "savings_investing": {
+                "pension_plans": 200,
+                "brokerage_transfers": 100,
+                "emergency_fund": 100,
+            },
+            "balances_today": {
+                "cash": 10000,
+                "investments": 5000,
+                "loans": 2000,
+                "credit_card_balances": 1000,
+            },
+            "goals_preferences": {
+                "timelines": "1yr",
+                "risk_tolerance": "medium",
+                "lifestyle_priorities": "save for house",
+            },
+            "logistics": {
+                "preferred_currency": "USD",
+                "apps": ["excel"],
+                "budget_delivery": "email",
+            },
+        }
+
     def send_message(self, user: get_user_model(), text: str) -> Message:
         """Persist the user text, run the agent flow and store the reply."""
         conversation = self.get_conversation(user)
@@ -108,6 +164,7 @@ class ChatService:
         )
 
         txns, category_map, budget_targets = self.build_financial_context(user)
+        budget_info = self.get_budget_inputs(user)
 
         logger.debug("Sending message to orchestrator: '%s'", text)
         content_type, payload = self.orchestrator.handle_message(
@@ -115,6 +172,7 @@ class ChatService:
             transactions=txns,
             category_map=category_map,
             budget_targets=budget_targets,
+            budget_info=budget_info,
         )
         logger.debug("Orchestrator returned content_type=%s", content_type)
         agent_msg = Message.objects.create(
