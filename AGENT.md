@@ -58,6 +58,24 @@ The new FinanceAgent app is a modern, unified codebase for both web and mobile f
   - Use Expo Go app or an emulator to preview on your device.
 - **See** `front/FinanceAgent/README.md` **for more details and advanced usage.**
 
+## Reference Materials
+
+The `docs/references/` directory contains external documentation and code references for agent development:
+
+### Google ADK Python Reference
+- **File:** `docs/references/google-adk-python-complete-reference.md`
+- **Content:** Complete codebase analysis of Google's Agent Development Kit (ADK) Python toolkit
+- **Source:** Generated from https://github.com/google/adk-python (468 files, ~5.5M tokens)
+- **Usage:** Reference for integrating Google ADK patterns, tools, and multi-agent architectures
+- **Key Areas:**
+  - Multi-agent system orchestration patterns
+  - Google ecosystem tool integrations (BigQuery, Search, etc.)
+  - Code-first agent development approaches
+  - Advanced agent architectures and workflows
+  - Sample implementations and best practices
+
+**For Agents:** This reference provides comprehensive examples of how to build sophisticated agent systems using Google's ADK framework. Use it to understand modern agent patterns, tool integrations, and architectural approaches that could enhance the existing finance agent system.
+
 ## Important notes
 - Keep sensitive information such as credentials out of commits. Environment variables are stored in `.env.prod`.
 - If you add or change setup steps, test commands, or repository structure, update both this `AGENT.md` file and the root `README.md` accordingly. If you change the FinanceAgent app setup, update its README as well.
