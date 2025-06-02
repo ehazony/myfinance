@@ -255,13 +255,22 @@ def test_django_integration():
 async def test_agent_interaction():
     """Test basic agent interaction (requires API key)."""
     print("\nTesting agent interaction...")
-    
     try:
         from agents_adk.agent import root_agent
-        
-        # This would require proper API key setup
-        response = await root_agent.run("Hello, I need help with my finances")
-        print(f"✅ Agent responded: {response[:100]}...")
+        from google.adk.runners import Runner
+        from google.adk.sessions import InMemorySessionService
+        from google.genai import types
+        user_id = "test_user"
+        prompt = "Hello, I need help with my finances"
+        session_service = InMemorySessionService()
+        session_id = f"session_{user_id}_{hash(prompt) % 10000}"
+        session = await session_service.create_session(app_name="TestADK", user_id=user_id, session_id=session_id)
+        runner = Runner(agent=root_agent, app_name="TestADK", session_service=session_service)
+        user_message = types.Content(role='user', parts=[types.Part(text=prompt)])
+        events = runner.run(user_id=user_id, session_id=session_id, new_message=user_message)
+        for event in events:
+            if event.is_final_response():
+                print(f"✅ Agent responded: {event.content.parts[0].text[:100]}...")
     except Exception as e:
         print(f"⚠️  Agent interaction test skipped (API key needed): {e}")
 

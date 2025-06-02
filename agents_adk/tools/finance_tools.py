@@ -24,8 +24,8 @@ from django.db.models import Sum, Q, Avg
 from django.utils import timezone
 
 
-def get_user_transactions(user_id: str, date_range: str = None, 
-                         category: str = None, limit: int = 100) -> str:
+def get_user_transactions(user_id: str, date_range: Optional[str] = None, 
+                         category: Optional[str] = None, limit: int = 100) -> str:
     """Get user transactions with filtering options.
     
     Args:
@@ -292,7 +292,7 @@ def get_spending_analysis(user_id: str, period: str = "month") -> str:
 
 
 def create_financial_goal(user_id: str, goal_name: str, target_amount: float,
-                         category: str = None, deadline: str = None,
+                         category: Optional[str] = None, deadline: Optional[str] = None,
                          goal_type: str = "savings") -> str:
     """Create a financial goal with progress tracking.
     
