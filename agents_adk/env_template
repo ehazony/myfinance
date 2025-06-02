@@ -1,0 +1,25 @@
+# ADK Environment Configuration
+# Copy this file to .env and fill in your values
+
+# Google AI Configuration (choose one backend)
+# Option 1: Google AI Studio (simpler setup)
+GOOGLE_GENAI_USE_VERTEXAI=0
+GOOGLE_API_KEY=your_google_ai_api_key_here
+
+# Option 2: Google Cloud Vertex AI (production recommended)
+# GOOGLE_GENAI_USE_VERTEXAI=1
+# GOOGLE_CLOUD_PROJECT=your_gcp_project_id
+# GOOGLE_CLOUD_LOCATION=us-central1
+
+# Django Integration
+DJANGO_SETTINGS_MODULE=finance.settings
+
+# Optional: Logging configuration
+ADK_LOG_LEVEL=INFO
+
+# Instructions:
+# 1. Get Google AI API key from: https://aistudio.google.com/apikey
+# 2. OR set up Google Cloud Project for Vertex AI
+# 3. Copy this file to .env
+# 4. Fill in your API key or GCP details
+# 5. Test with: python test_adk.py 

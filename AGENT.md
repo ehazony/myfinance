@@ -76,6 +76,53 @@ The `docs/references/` directory contains external documentation and code refere
 
 **For Agents:** This reference provides comprehensive examples of how to build sophisticated agent systems using Google's ADK framework. Use it to understand modern agent patterns, tool integrations, and architectural approaches that could enhance the existing finance agent system.
 
+## ADK-Based Agent System (Next Generation)
+
+The `agents_adk/` directory contains a modern, ADK-based agent system that replaces the current `agents/` implementation:
+
+### Overview
+- **Location:** `agents_adk/`
+- **Framework:** Google Agent Development Kit (ADK)
+- **Purpose:** Production-ready multi-agent finance system with enhanced capabilities
+- **Status:** ✅ Implemented and ready for migration
+
+### Key Features
+- **Native Multi-Agent Architecture:** Built-in sub_agents coordination
+- **Rich Development UI:** Web interface for testing and debugging
+- **Google Ecosystem Integration:** Native tools for Search, BigQuery, etc.
+- **Production Deployment:** Built-in Cloud Run and Vertex AI Agent Engine support
+- **Evaluation Framework:** Built-in testing and performance evaluation
+- **Session Management:** Persistent conversations and memory
+
+### Quick Start
+```bash
+# Set up environment
+cp agents_adk/env_template agents_adk/.env
+# Add your Google API key to .env
+
+# Test the system
+cd agents_adk && python test_adk.py
+
+# Interactive CLI
+adk run agents_adk
+
+# Web development UI
+adk web agents_adk
+```
+
+### Architecture
+- **Root Agent:** `root_agent` - Main orchestrator
+- **Specialist Agents:** Onboarding, Cash Flow, Goal Setting, Reporting, Investment
+- **Django Integration:** `django_integration.py` - Centralized database access
+- **Tools:** Real-time data access to transactions, accounts, goals, reports
+
+### Migration
+- **Current Status:** Phase 1 - Parallel implementation complete
+- **Migration Guide:** See `agents_adk/MIGRATION_GUIDE.md` for detailed transition plan
+- **Compatibility:** Designed to replace current `agents/` system with minimal frontend changes
+
+**For Developers:** The ADK system offers significant improvements in development experience, production readiness, and feature capabilities. See the migration guide for detailed comparison and transition steps.
+
 ## Important notes
 - Keep sensitive information such as credentials out of commits. Environment variables are stored in `.env.prod`.
 - If you add or change setup steps, test commands, or repository structure, update both this `AGENT.md` file and the root `README.md` accordingly. If you change the FinanceAgent app setup, update its README as well.
