@@ -29,3 +29,4 @@ drf-spectacular
 jsonschema
 python-dotenv
 numpy
+python-adk
