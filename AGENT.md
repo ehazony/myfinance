@@ -100,6 +100,9 @@ The `agents_adk/` directory contains a modern, ADK-based agent system that repla
 cp agents_adk/env_template agents_adk/.env
 # Add your Google API key to .env
 
+# Install minimal dependencies for the ADK agent system
+pip install -r requirements/adk.txt
+
 # Test the system
 cd agents_adk && python test_adk.py
 
