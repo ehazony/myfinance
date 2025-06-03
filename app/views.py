@@ -5,6 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 import calendar
 import datetime
+import logging
 
 from bootstrap_modal_forms.generic import BSModalFormView
 from dateutil.relativedelta import relativedelta
@@ -509,9 +510,14 @@ def reformat_figs(data):
     return data
 
 
-from app.services.chat_service import ChatService
+from app.services.adk_chat_service import ADKChatService
 
-chat_service = ChatService()
+try:
+    chat_service = ADKChatService()
+except ImportError as e:
+    logger.warning("ADKChatService not available, falling back to ChatService: %s", e)
+    from app.services.chat_service import ChatService
+    chat_service = ChatService()
 
 
 class ChatHistoryView(APIView):
