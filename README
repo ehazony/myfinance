@@ -12,8 +12,11 @@
    ```sh
    # Base packages
    pip install --index-url https://pypi.org/simple -r requirements/base.txt
+
+   # Only the ADK agent system (minimal Django + ADK deps)
+   pip install --index-url https://pypi.org/simple -r requirements/adk.txt
    ```
-   Additional requirement files live in the new `requirements/` directory. Install
+   Additional requirement files live in the `requirements/` directory. Install
    `agents.txt`, `extras.txt` or `test.txt` as needed, or use `all.txt` to install
    everything.
 
