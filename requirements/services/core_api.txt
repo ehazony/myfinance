@@ -1,4 +1,4 @@
-# Base runtime dependencies for Django backend
+# Requirements for the Django Core API service
 Django==3.2.14
 django-graphos
 django-extensions
@@ -29,5 +29,4 @@ drf-spectacular
 jsonschema
 python-dotenv
 numpy
-google-adk
 SQLAlchemy>=1.4

@@ -1,0 +1,8 @@
+# Requirements for the standalone agent service
+langchain
+langgraph
+litellm
+google-adk
+SQLAlchemy>=1.4
+python-dotenv
+requests

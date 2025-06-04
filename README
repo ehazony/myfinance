@@ -18,7 +18,9 @@
    ```
    Additional requirement files live in the `requirements/` directory. Install
    `agents.txt`, `extras.txt` or `test.txt` as needed, or use `all.txt` to install
-   everything.
+   everything.  The new `requirements/services/` directory contains per service
+   requirement files (e.g. `core_api.txt`, `agent_service.txt`, etc.) which list
+   only the packages needed for that service.
 
 3. **Configure environment variables:**
    - Copy `.env` or `.env.prod` to the project root and set your database and other secrets as needed.
@@ -33,6 +35,18 @@
    python manage.py runserver
    ```
    - The backend will be available at: http://127.0.0.1:8000/
+
+### Modular Services
+
+The repository is being refactored into smaller services located under the
+`services/` directory. Each service has its own README and requirement file in
+`requirements/services/`.  During migration you can still run the full project
+from the root, but new deployments should install dependencies per service.
+
+A shared package `finance_common` now includes SQLAlchemy versions of all core
+Django models together with the `SessionLocal` factory for direct database
+access. Services import these models to avoid duplicating ORM code during the
+migration to a modular architecture.
 
 ---
 

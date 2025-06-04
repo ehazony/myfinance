@@ -1,0 +1,13 @@
+# Requirements for the scraper service
+selenium
+selenium-wire
+chromedriver_autoinstaller
+selenium-stealth
+undetected-chromedriver
+pyppeteer
+pyppeteer_stealth
+gspread
+watchdog
+unittest2
+python-dateutil
+requests

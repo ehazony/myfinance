@@ -8,6 +8,7 @@ This repository contains a Django backend and a React frontend. The backend live
 - `finance/` – main Django project settings and Celery configuration.
 - `core/` – additional Django project used by templates.
 - `app/` – domain models and business logic.
+- `finance_common/` – shared SQLAlchemy models and DB utilities.
 - `agents/` – LangChain-based finance agents and orchestrator logic.
 - `telegram_bot/` – code for interacting with Telegram.
 - `front/dashboard/` – Legacy React dashboard application.
@@ -17,6 +18,9 @@ This repository contains a Django backend and a React frontend. The backend live
 - `.env.prod` – environment variables used by docker-compose.
 
 ## Running the application
+Use Docker Compose for development. Each service has its own folder under
+`services/` with a dedicated requirements file.
+
 Use Docker Compose for development:
 
 ```bash
@@ -125,6 +129,12 @@ adk web agents_adk
 - **Compatibility:** Designed to replace current `agents/` system with minimal frontend changes
 
 **For Developers:** The ADK system offers significant improvements in development experience, production readiness, and feature capabilities. See the migration guide for detailed comparison and transition steps.
+
+## Modular Services
+
+The repository is being split into smaller services under the `services/` directory.
+Each service contains its own README and `requirements` file. Refer to
+`docs/design.md` for the migration checklist and progress.
 
 ## Important notes
 - Keep sensitive information such as credentials out of commits. Environment variables are stored in `.env.prod`.
