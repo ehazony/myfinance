@@ -23,4 +23,5 @@ Before running any tests that use the Gemini API, always consider cost efficienc
 For detailed technical documentation and API references, see:
 - [Google ADK Python Complete Reference](docs/references/google-adk-python-complete-reference.md)
 
-This document provides in-depth information about the system's integration with Google ADK and related APIs. 
+This document provides in-depth information about the system's integration with Google ADK and related APIs.
+A shared `finance_common` package now provides SQLAlchemy implementations of the main Django models so services can access the database without duplicating code.

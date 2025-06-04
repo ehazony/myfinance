@@ -1,0 +1,4 @@
+# Requirements for the Telegram bot service
+python-telegram-bot
+python-dateutil
+requests

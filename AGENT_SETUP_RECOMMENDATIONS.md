@@ -16,3 +16,10 @@ The Django settings import the reporting agent which depends on `plotly`. Tests 
 ## Missing `langgraph` Package
 
 Workflow code imports `langgraph.graph` for building conversation graphs. Without the package, tests raise `ModuleNotFoundError: No module named 'langgraph'`. Install `langgraph` or include a minimal stub so workflows can be loaded during testing.
+
+## Missing `selenium` Package
+
+Running the tests fails with `ModuleNotFoundError: No module named "selenium"`. Some bank scraping modules depend on Selenium, but the package is not installed in the offline test environment.
+
+**Recommendation:** include `selenium` in the default requirements or provide a minimal stub package for testing without network access.
+
