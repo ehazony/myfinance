@@ -1,0 +1,8 @@
+# Development requirements - includes editable finance_common
+# Use this for local development when you need to modify finance_common
+
+# Include all standard requirements
+-r requirements.txt
+
+# Local shared library for development (editable)
+-e ../../finance_common 

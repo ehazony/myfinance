@@ -8,5 +8,5 @@ google-adk
 google-genai
 python-dotenv
 
-# Local shared library  
--e ../../finance_common
+# Note: finance_common is installed separately via setup script
+# Local shared library handled by setup script
