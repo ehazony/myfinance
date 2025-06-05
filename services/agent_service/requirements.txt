@@ -9,4 +9,4 @@ google-genai
 python-dotenv
 
 # Local shared library  
--e ../finance_common
+-e ../../finance_common
