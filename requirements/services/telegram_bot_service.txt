@@ -2,3 +2,6 @@
 python-telegram-bot
 python-dateutil
 requests
+
+# Local shared library
+-e ../finance_common

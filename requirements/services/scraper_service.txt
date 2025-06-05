@@ -1,13 +1,15 @@
-# Requirements for the scraper service
+# Requirements for the Bank Scraper service
 selenium
-selenium-wire
-chromedriver_autoinstaller
-selenium-stealth
-undetected-chromedriver
-pyppeteer
-pyppeteer_stealth
-gspread
-watchdog
-unittest2
-python-dateutil
+chromedriver-autoinstaller
+python-decouple==3.6
 requests
+beautifulsoup4
+pyppeteer
+pyppeteer-stealth
+selenium-stealth
+seleniumwire
+kaitaistruct
+SQLAlchemy>=1.4
+
+# Local shared library
+-e ../finance_common

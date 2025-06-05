@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: finance
+      POSTGRES_USER: finance_user
+      POSTGRES_PASSWORD: finance_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finance_user -d finance"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  core_api:
+    build:
+      context: .
+      dockerfile: services/core_api/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://finance_user:finance_password@postgres:5432/finance
+      - DEBUG=True
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./services/core_api:/app
+      - ./finance_common:/app/finance_common
+
+  agent_service:
+    build:
+      context: .
+      dockerfile: services/agent_service/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://finance_user:finance_password@postgres:5432/finance
+      - CORE_API_URL=http://core_api:8000
+    depends_on:
+      - postgres
+      - core_api
+    volumes:
+      - ./services/agent_service:/app
+      - ./finance_common:/app/finance_common
+
+  scraper_service:
+    build:
+      context: .
+      dockerfile: services/scraper_service/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - DATABASE_URL=postgresql://finance_user:finance_password@postgres:5432/finance
+      - CORE_API_URL=http://core_api:8000
+    depends_on:
+      - postgres
+      - core_api
+    volumes:
+      - ./services/scraper_service:/app
+      - ./finance_common:/app/finance_common
+
+  telegram_bot_service:
+    build:
+      context: .
+      dockerfile: services/telegram_bot_service/Dockerfile
+    environment:
+      - DATABASE_URL=postgresql://finance_user:finance_password@postgres:5432/finance
+      - CORE_API_URL=http://core_api:8000
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      - postgres
+      - core_api
+    volumes:
+      - ./services/telegram_bot_service:/app
+      - ./finance_common:/app/finance_common
+
+volumes:
+  postgres_data: 

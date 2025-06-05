@@ -30,3 +30,6 @@ jsonschema
 python-dotenv
 numpy
 SQLAlchemy>=1.4
+
+# Local shared library
+-e ../finance_common

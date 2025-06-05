@@ -36,12 +36,14 @@ class AuthService {
   }
 
   async setAuthToken(token: string) {
+    console.log('AuthService: Setting auth token:', token.substring(0, 10) + '...')
     // Set the token for future requests
     this.apiClient.axios.defaults.headers.common['Authorization'] = `Token ${token}`;
     await secureStorage.setToken(token);
   }
 
   async removeAuthToken() {
+    console.log('AuthService: Removing auth token')
     delete this.apiClient.axios.defaults.headers.common['Authorization'];
     await secureStorage.removeToken();
   }
@@ -49,7 +51,10 @@ class AuthService {
   async restoreAuthToken(): Promise<string | null> {
     const token = await secureStorage.getToken();
     if (token) {
+      console.log('AuthService: Restoring auth token:', token.substring(0, 10) + '...')
       this.apiClient.axios.defaults.headers.common['Authorization'] = `Token ${token}`;
+    } else {
+      console.log('AuthService: No token found to restore')
     }
     return token;
   }

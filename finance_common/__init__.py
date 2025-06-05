@@ -1,8 +1,13 @@
-"""Shared SQLAlchemy database layer used by multiple services."""
+"""
+Finance Common Library
 
-from .db import Base, SessionLocal
+Shared models, utilities, and database connections for finance services.
+"""
+
+from .db import SessionLocal, engine, Base
 from . import models
+from . import utils
 
 from .models import *  # noqa: F401,F403
 
-__all__ = ["Base", "SessionLocal"] + models.__all__
+__all__ = ["SessionLocal", "engine", "Base", "models", "utils"]

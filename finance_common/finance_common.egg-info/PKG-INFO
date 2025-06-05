@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: finance-common
+Version: 0.1.0
+Summary: Shared models, utilities, and database connections for finance services
+Author: Finance Team
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.8

@@ -138,6 +138,8 @@ export default function ChatScreen() {
     setIsSending(true)
     setIsTyping(true)
     
+    console.log('ChatScreen: Starting to send message:', messageText)
+    
     // Play send sound and haptic feedback
     audioService.playSend()
     animateSendButton()
@@ -153,6 +155,7 @@ export default function ChatScreen() {
         status: 'sending'
       }
       
+      console.log('ChatScreen: Created user message:', userMessage)
       setMessages(prev => [...prev, userMessage])
       scrollToBottom()
       
@@ -163,11 +166,16 @@ export default function ChatScreen() {
         ))
       }, 500)
       
+      console.log('ChatScreen: Calling chatService.sendMessage...')
       const reply = await chatService.sendMessage(messageText)
+      console.log('ChatScreen: Received reply from service:', reply)
+      
       const enhancedReply: EnhancedChatMessage = {
         ...reply,
         status: 'delivered'
       }
+      
+      console.log('ChatScreen: Created enhanced reply:', enhancedReply)
       
       // Update user message to delivered
       setMessages(prev => prev.map(msg => 
@@ -176,6 +184,7 @@ export default function ChatScreen() {
       
       // Add AI reply with animation
       setTimeout(() => {
+        console.log('ChatScreen: Adding AI reply to messages')
         setMessages(prev => [...prev, enhancedReply])
         audioService.playReceive()
         scrollToBottom()
@@ -184,7 +193,7 @@ export default function ChatScreen() {
       audioService.playSuccess()
       
     } catch (err) {
-      console.error('Send failed', err)
+      console.error('ChatScreen: Send failed', err)
       audioService.playError()
       
       // Update message status to failed
@@ -273,12 +282,14 @@ export default function ChatScreen() {
 
     let content
     if (item.content_type === 'text') {
+      // Handle both user messages (payload.text) and agent messages (payload.message)
+      const textContent = (item.payload as any).text || (item.payload as any).message || 'No message content';
       content = (
         <Text style={[
           styles.messageText,
           { color: isUser ? '#FFFFFF' : theme.colors.onSurface }
         ]}>
-          {(item.payload as any).text}
+          {textContent}
         </Text>
       )
     } else if (item.content_type === 'image') {

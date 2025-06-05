@@ -6,3 +6,6 @@ google-adk
 SQLAlchemy>=1.4
 python-dotenv
 requests
+
+# Local shared library  
+-e ../finance_common

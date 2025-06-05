@@ -1,0 +1,2186 @@
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /api/agent/account-summary/:
+    get:
+      operationId: api_agent_account_summary_list
+      description: Retrieve account balances and transaction counts for agent insights.
+      summary: Get Account Summary
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountSummary'
+          description: ''
+  /api/agent/budget-analysis/:
+    get:
+      operationId: api_agent_budget_analysis_list
+      description: Retrieve budget vs actual spending analysis for agent insights.
+      summary: Get Budget Analysis
+      parameters:
+      - in: query
+        name: period
+        schema:
+          type: string
+          default: current_month
+        description: 'Analysis period: ''current_month'', ''last_month'', ''ytd'''
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BudgetTarget'
+          description: ''
+  /api/agent/conversation-context/:
+    get:
+      operationId: api_agent_conversation_context_retrieve
+      description: Retrieve conversation history and context for agent memory.
+      summary: Get Conversation Context
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationContext'
+          description: ''
+  /api/agent/financial-context/:
+    get:
+      operationId: api_agent_financial_context_retrieve
+      description: Retrieve complete financial context for agent processing including
+        transactions, budgets, and goals.
+      summary: Get Financial Context
+      parameters:
+      - in: query
+        name: include_future_goals
+        schema:
+          type: boolean
+          default: true
+        description: 'Include future financial goals (default: true)'
+      - in: query
+        name: limit_transactions
+        schema:
+          type: integer
+          default: 100
+        description: 'Limit number of recent transactions (default: 100)'
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FinancialContext'
+          description: ''
+  /api/agent/transactions/:
+    get:
+      operationId: api_agent_transactions_list
+      description: Retrieve transactions with filtering options for agent analysis.
+      summary: Get Filtered Transactions
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+      - in: query
+        name: end_date
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 100
+      - in: query
+        name: max_amount
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: min_amount
+        schema:
+          type: number
+          format: float
+      - in: query
+        name: start_date
+        schema:
+          type: string
+          format: date
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/chat/history/:
+    get:
+      operationId: api_chat_history_retrieve
+      description: Return conversation history for the authenticated user.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: ''
+  /api/chat/send/:
+    post:
+      operationId: api_chat_send_create
+      description: Accept a user message and return the agent response.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatSendRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatSendRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChatSendRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSendResponse'
+          description: ''
+  /api/month-tracking:
+    get:
+      operationId: api_month_tracking_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthTracking'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: api_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/user_credentials/:
+    get:
+      operationId: api_user_credentials_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialTypes'
+          description: ''
+    post:
+      operationId: api_user_credentials_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CredentialTypes'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CredentialTypes'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CredentialTypes'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CredentialTypes'
+          description: ''
+  /api/user_goals/:
+    post:
+      operationId: api_user_goals_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagGoal'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TagGoal'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TagGoal'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagGoal'
+          description: ''
+  /api/users/:
+    get:
+      operationId: api_users_retrieve
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /bank_info.*:
+    get:
+      operationId: bank_info.*_retrieve
+      tags:
+      - bank_info.*
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankInfo'
+          description: ''
+  /dj-rest-auth/login/:
+    post:
+      operationId: dj_rest_auth_login_create
+      description: |-
+        Check the credentials and return the REST Token
+        if the credentials are valid and authenticated.
+        Calls Django Auth login method to register User ID
+        in Django session framework
+
+        Accept the following POST parameters: username, password
+        Return the REST Framework Token Object's key.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: ''
+  /dj-rest-auth/logout/:
+    post:
+      operationId: dj_rest_auth_logout_create
+      description: |-
+        Calls Django logout method and delete the Token object
+        assigned to the current User object.
+
+        Accepts/Returns nothing.
+      tags:
+      - dj-rest-auth
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /dj-rest-auth/password/change/:
+    post:
+      operationId: dj_rest_auth_password_change_create
+      description: |-
+        Calls Django Auth SetPasswordForm save method.
+
+        Accepts the following POST parameters: new_password1, new_password2
+        Returns the success/fail message.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordChange'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /dj-rest-auth/password/reset/:
+    post:
+      operationId: dj_rest_auth_password_reset_create
+      description: |-
+        Calls Django Auth PasswordResetForm save method.
+
+        Accepts the following POST parameters: email
+        Returns the success/fail message.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordReset'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /dj-rest-auth/password/reset/confirm/:
+    post:
+      operationId: dj_rest_auth_password_reset_confirm_create
+      description: |-
+        Password reset e-mail link is confirmed, therefore
+        this resets the user's password.
+
+        Accepts the following POST parameters: token, uid,
+            new_password1, new_password2
+        Returns the success/fail message.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /dj-rest-auth/registration/:
+    post:
+      operationId: dj_rest_auth_registration_create
+      description: |-
+        Registers a new user.
+
+        Accepts the following POST parameters: username, email, password1, password2.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+          description: ''
+  /dj-rest-auth/registration/resend-email/:
+    post:
+      operationId: dj_rest_auth_registration_resend_email_create
+      description: |-
+        Resends another email to an unverified email.
+
+        Accepts the following POST parameter: email.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendEmailVerification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendEmailVerification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendEmailVerification'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /dj-rest-auth/registration/verify-email/:
+    post:
+      operationId: dj_rest_auth_registration_verify_email_create
+      description: |-
+        Verifies the email associated with the provided key.
+
+        Accepts the following POST parameter: key.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+        required: true
+      security:
+      - tokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RestAuthDetail'
+          description: ''
+  /dj-rest-auth/user/:
+    get:
+      operationId: dj_rest_auth_user_retrieve
+      description: |-
+        Reads and updates UserModel fields
+        Accepts GET, PUT, PATCH methods.
+
+        Default accepted fields: username, first_name, last_name
+        Default display fields: pk, username, email, first_name, last_name
+        Read-only fields: pk, email
+
+        Returns UserModel fields.
+      tags:
+      - dj-rest-auth
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+          description: ''
+    put:
+      operationId: dj_rest_auth_user_update
+      description: |-
+        Reads and updates UserModel fields
+        Accepts GET, PUT, PATCH methods.
+
+        Default accepted fields: username, first_name, last_name
+        Default display fields: pk, username, email, first_name, last_name
+        Read-only fields: pk, email
+
+        Returns UserModel fields.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDetails'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserDetails'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserDetails'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+          description: ''
+    patch:
+      operationId: dj_rest_auth_user_partial_update
+      description: |-
+        Reads and updates UserModel fields
+        Accepts GET, PUT, PATCH methods.
+
+        Default accepted fields: username, first_name, last_name
+        Default display fields: pk, username, email, first_name, last_name
+        Read-only fields: pk, email
+
+        Returns UserModel fields.
+      tags:
+      - dj-rest-auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetails'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetails'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserDetails'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+          description: ''
+  /month_category.*:
+    get:
+      operationId: month_category.*_retrieve
+      tags:
+      - month_category.*
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthCategory'
+          description: ''
+  /summery_widgets.*:
+    get:
+      operationId: summery_widgets.*_retrieve
+      tags:
+      - summery_widgets.*
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummeryWidgets'
+          description: ''
+  /total_month_expenses.*:
+    get:
+      operationId: total_month_expenses.*_retrieve
+      tags:
+      - total_month_expenses.*
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalMonthExpenses'
+          description: ''
+  /user_accounts/:
+    get:
+      operationId: user_accounts_list
+      tags:
+      - user_accounts
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Credential'
+          description: ''
+    post:
+      operationId: user_accounts_create
+      tags:
+      - user_accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credential'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Credential'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Credential'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+          description: ''
+  /user_accounts/{id}/:
+    get:
+      operationId: user_accounts_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this credential.
+        required: true
+      tags:
+      - user_accounts
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+          description: ''
+    put:
+      operationId: user_accounts_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this credential.
+        required: true
+      tags:
+      - user_accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Credential'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Credential'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Credential'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+          description: ''
+    patch:
+      operationId: user_accounts_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this credential.
+        required: true
+      tags:
+      - user_accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCredential'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCredential'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCredential'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Credential'
+          description: ''
+    delete:
+      operationId: user_accounts_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this credential.
+        required: true
+      tags:
+      - user_accounts
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /user_recurring_transactions/:
+    get:
+      operationId: user_recurring_transactions_list
+      tags:
+      - user_recurring_transactions
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecurringTransaction'
+          description: ''
+    post:
+      operationId: user_recurring_transactions_create
+      tags:
+      - user_recurring_transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecurringTransaction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecurringTransaction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecurringTransaction'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringTransaction'
+          description: ''
+  /user_recurring_transactions/{id}/:
+    get:
+      operationId: user_recurring_transactions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recurring transaction.
+        required: true
+      tags:
+      - user_recurring_transactions
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringTransaction'
+          description: ''
+    put:
+      operationId: user_recurring_transactions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recurring transaction.
+        required: true
+      tags:
+      - user_recurring_transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecurringTransaction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecurringTransaction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecurringTransaction'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringTransaction'
+          description: ''
+    patch:
+      operationId: user_recurring_transactions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recurring transaction.
+        required: true
+      tags:
+      - user_recurring_transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecurringTransaction'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecurringTransaction'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecurringTransaction'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringTransaction'
+          description: ''
+    delete:
+      operationId: user_recurring_transactions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this recurring transaction.
+        required: true
+      tags:
+      - user_recurring_transactions
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /user_tags/:
+    get:
+      operationId: user_tags_list
+      tags:
+      - user_tags
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+          description: ''
+    post:
+      operationId: user_tags_create
+      tags:
+      - user_tags
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tag'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+  /user_tags/{id}/:
+    get:
+      operationId: user_tags_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this tag.
+        required: true
+      tags:
+      - user_tags
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    put:
+      operationId: user_tags_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this tag.
+        required: true
+      tags:
+      - user_tags
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tag'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    patch:
+      operationId: user_tags_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this tag.
+        required: true
+      tags:
+      - user_tags
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    delete:
+      operationId: user_tags_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this tag.
+        required: true
+      tags:
+      - user_tags
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /user_transactions/:
+    get:
+      operationId: user_transactions_list
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date__gt
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date__gte
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date__lt
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date__lte
+        schema:
+          type: string
+          format: date
+      tags:
+      - user_transactions
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionRest'
+          description: ''
+    post:
+      operationId: user_transactions_create
+      tags:
+      - user_transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransactionRest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransactionRest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionRest'
+          description: ''
+  /user_transactions/{id}/:
+    get:
+      operationId: user_transactions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - user_transactions
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionRest'
+          description: ''
+    put:
+      operationId: user_transactions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - user_transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransactionRest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransactionRest'
+        required: true
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionRest'
+          description: ''
+    patch:
+      operationId: user_transactions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - user_transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRest'
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionRest'
+          description: ''
+    delete:
+      operationId: user_transactions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - user_transactions
+      security:
+      - tokenAuth: []
+      responses:
+        '204':
+          description: No response body
+  /user_transactions_names:
+    get:
+      operationId: user_transactions_names_retrieve
+      tags:
+      - user_transactions_names
+      security:
+      - tokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTransactionsNames'
+          description: ''
+components:
+  schemas:
+    AccountSummary:
+      type: object
+      description: Account summary data.
+      properties:
+        account_id:
+          type: string
+        account_name:
+          type: string
+        account_type:
+          type: string
+        balance:
+          type: number
+          format: double
+          nullable: true
+        last_transaction_date:
+          type: string
+          format: date
+          nullable: true
+        transaction_count:
+          type: integer
+      required:
+      - account_id
+      - account_name
+      - account_type
+      - balance
+      - last_transaction_date
+      - transaction_count
+    BankInfo:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: number
+          format: double
+      required:
+      - key
+      - value
+    BudgetTarget:
+      type: object
+      description: Budget target data.
+      properties:
+        category:
+          type: string
+        target_amount:
+          type: number
+          format: double
+        current_spent:
+          type: number
+          format: double
+        remaining:
+          type: number
+          format: double
+        progress_percentage:
+          type: number
+          format: double
+      required:
+      - category
+      - current_spent
+      - progress_percentage
+      - remaining
+      - target_amount
+    ChatSendRequest:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+      - text
+    ChatSendResponse:
+      oneOf:
+      - $ref: '#/components/schemas/Message'
+      discriminator:
+        propertyName: content_type
+        mapping:
+          None: '#/components/schemas/Message'
+    ConversationContext:
+      type: object
+      description: User conversation context.
+      properties:
+        conversation_id:
+          type: integer
+        message_count:
+          type: integer
+        last_activity:
+          type: string
+          format: date-time
+        recent_topics:
+          type: array
+          items:
+            type: string
+      required:
+      - conversation_id
+      - last_activity
+      - message_count
+      - recent_topics
+    Credential:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        company:
+          type: string
+        type:
+          type: string
+        last_scanned:
+          type: string
+          format: date
+          nullable: true
+        additional_info: {}
+        balance:
+          type: string
+          readOnly: true
+      required:
+      - balance
+      - company
+      - id
+      - type
+    CredentialTypes:
+      type: object
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        fields:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+      required:
+      - fields
+      - key
+      - name
+    FinancialContext:
+      type: object
+      description: Complete financial context for a user.
+      properties:
+        transactions:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        category_mapping:
+          type: object
+          additionalProperties: {}
+        budget_targets:
+          type: object
+          additionalProperties: {}
+        budget_inputs:
+          type: object
+          additionalProperties: {}
+        user_id:
+          type: string
+        username:
+          type: string
+      required:
+      - budget_inputs
+      - budget_targets
+      - category_mapping
+      - transactions
+      - user_id
+      - username
+    Login:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+      - password
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        conversation:
+          type: integer
+        sender:
+          $ref: '#/components/schemas/SenderEnum'
+        content_type:
+          type: string
+          maxLength: 20
+        payload: {}
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          maxLength: 20
+      required:
+      - conversation
+      - id
+      - sender
+      - timestamp
+    MonthCategory:
+      type: object
+      properties:
+        category_id:
+          type: integer
+        category:
+          type: string
+        key:
+          type: string
+        value:
+          type: number
+          format: double
+        goal:
+          type: integer
+        type:
+          type: string
+        percent:
+          type: number
+          format: double
+        color:
+          type: string
+      required:
+      - category
+      - category_id
+      - color
+      - goal
+      - key
+      - percent
+      - type
+      - value
+    MonthTracking:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+      - text
+    PasswordChange:
+      type: object
+      properties:
+        new_password1:
+          type: string
+          maxLength: 128
+        new_password2:
+          type: string
+          maxLength: 128
+      required:
+      - new_password1
+      - new_password2
+    PasswordReset:
+      type: object
+      description: Serializer for requesting a password reset e-mail.
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    PasswordResetConfirm:
+      type: object
+      description: Serializer for confirming a password reset attempt.
+      properties:
+        new_password1:
+          type: string
+          maxLength: 128
+        new_password2:
+          type: string
+          maxLength: 128
+        uid:
+          type: string
+        token:
+          type: string
+      required:
+      - new_password1
+      - new_password2
+      - token
+      - uid
+    PatchedCredential:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        company:
+          type: string
+        type:
+          type: string
+        last_scanned:
+          type: string
+          format: date
+          nullable: true
+        additional_info: {}
+        balance:
+          type: string
+          readOnly: true
+    PatchedRecurringTransaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        date:
+          type: string
+          format: date
+        value:
+          type: number
+          format: double
+        user:
+          type: integer
+          nullable: true
+        credential:
+          type: integer
+          nullable: true
+    PatchedTag:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        key:
+          type: string
+          nullable: true
+          maxLength: 128
+        name:
+          type: string
+          maxLength: 128
+        expense:
+          type: boolean
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        user:
+          type: integer
+          nullable: true
+    PatchedTransactionRest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tag_name:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+          maxLength: 200
+        value:
+          type: number
+          format: double
+        month:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        month_date:
+          type: string
+          format: date
+          nullable: true
+        bank:
+          type: boolean
+        identifier:
+          type: string
+          nullable: true
+          maxLength: 64
+        user:
+          type: integer
+          nullable: true
+        credential:
+          type: integer
+          nullable: true
+        tag:
+          type: integer
+          nullable: true
+    PatchedUserDetails:
+      type: object
+      description: User model w/o password
+      properties:
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email address
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+    RecurringTransaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        date:
+          type: string
+          format: date
+        value:
+          type: number
+          format: double
+        user:
+          type: integer
+          nullable: true
+        credential:
+          type: integer
+          nullable: true
+      required:
+      - date
+      - id
+      - name
+      - value
+    Register:
+      type: object
+      properties:
+        username:
+          type: string
+          maxLength: 150
+          minLength: 1
+        email:
+          type: string
+          format: email
+        password1:
+          type: string
+          writeOnly: true
+        password2:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password1
+      - password2
+    ResendEmailVerification:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    RestAuthDetail:
+      type: object
+      properties:
+        detail:
+          type: string
+          readOnly: true
+      required:
+      - detail
+    SenderEnum:
+      enum:
+      - user
+      - agent
+      type: string
+      description: |-
+        * `user` - User
+        * `agent` - Agent
+    SummeryWidgets:
+      type: object
+      properties:
+        graphs:
+          type: object
+          additionalProperties: {}
+        average_expenses:
+          type: number
+          format: double
+        average_income:
+          type: number
+          format: double
+        number_of_months:
+          type: integer
+        average_bank_expenses:
+          type: number
+          format: double
+      required:
+      - average_bank_expenses
+      - average_expenses
+      - average_income
+      - graphs
+      - number_of_months
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        key:
+          type: string
+          nullable: true
+          maxLength: 128
+        name:
+          type: string
+          maxLength: 128
+        expense:
+          type: boolean
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+        user:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - name
+    TagGoal:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        value:
+          type: number
+          format: double
+        user:
+          type: integer
+          nullable: true
+        tag:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - value
+    Token:
+      type: object
+      description: Serializer for Token model.
+      properties:
+        key:
+          type: string
+          maxLength: 40
+      required:
+      - key
+    TotalMonthExpenses:
+      type: object
+      properties:
+        moving_average:
+          type: number
+          format: double
+        value:
+          type: number
+          format: double
+        text:
+          type: string
+        color:
+          type: string
+      required:
+      - color
+      - moving_average
+      - text
+      - value
+    Transaction:
+      type: object
+      description: Transaction data for agents.
+      properties:
+        transaction_id:
+          type: string
+        date:
+          type: string
+          format: date
+        description:
+          type: string
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+        account_id:
+          type: string
+        category:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+      required:
+      - account_id
+      - amount
+      - category
+      - currency
+      - date
+      - description
+      - tags
+      - transaction_id
+    TransactionRest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tag_name:
+          type: string
+          readOnly: true
+        date:
+          type: string
+          format: date
+        name:
+          type: string
+          maxLength: 200
+        value:
+          type: number
+          format: double
+        month:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        month_date:
+          type: string
+          format: date
+          nullable: true
+        bank:
+          type: boolean
+        identifier:
+          type: string
+          nullable: true
+          maxLength: 64
+        user:
+          type: integer
+          nullable: true
+        credential:
+          type: integer
+          nullable: true
+        tag:
+          type: integer
+          nullable: true
+      required:
+      - date
+      - id
+      - name
+      - tag_name
+      - value
+    TypeEnum:
+      enum:
+      - MONTHLY FIXED
+      - PERIODIC
+      - CONTINUOUS
+      type: string
+      description: |-
+        * `MONTHLY FIXED` - MONTHLY FIXED
+        * `PERIODIC` - PERIODIC
+        * `CONTINUOUS` - CONTINUOUS
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        password:
+          type: string
+          maxLength: 128
+        last_login:
+          type: string
+          format: date-time
+          nullable: true
+        is_superuser:
+          type: boolean
+          title: Superuser status
+          description: Designates that this user has all permissions without explicitly
+            assigning them.
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        is_staff:
+          type: boolean
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        is_active:
+          type: boolean
+          title: Active
+          description: Designates whether this user should be treated as active. Unselect
+            this instead of deleting accounts.
+        date_joined:
+          type: string
+          format: date-time
+        groups:
+          type: array
+          items:
+            type: integer
+          description: The groups this user belongs to. A user will get all permissions
+            granted to each of their groups.
+        user_permissions:
+          type: array
+          items:
+            type: integer
+          description: Specific permissions for this user.
+      required:
+      - id
+      - password
+      - username
+    UserDetails:
+      type: object
+      description: User model w/o password
+      properties:
+        pk:
+          type: integer
+          readOnly: true
+          title: ID
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email address
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - email
+      - pk
+      - username
+    UserTransactionsNames:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+      - name
+    VerifyEmail:
+      type: object
+      properties:
+        key:
+          type: string
+          writeOnly: true
+      required:
+      - key
+  securitySchemes:
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
