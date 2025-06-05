@@ -121,7 +121,7 @@ class FinanceDataClient:
         self.base_url = base_url
         self.timeout = timeout
         self._client = None
-        
+
     def _get_client(self, token: str) -> OpenAPIClientWrapper:
         """Get or create authenticated client instance wrapped for automatic UNSET handling."""
         if not self._client or getattr(self._client, 'token', None) != token:
@@ -133,6 +133,33 @@ class FinanceDataClient:
             )
             self._client = OpenAPIClientWrapper(auth_client)
         return self._client
+
+    def _sanitize_kwargs(self, func, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert ``None`` values to ``UNSET`` when the function type hints require it."""
+        sanitized = {}
+        try:
+            signature = inspect.signature(func)
+        except Exception:
+            return kwargs
+
+        for name, value in kwargs.items():
+            if value is None and name in signature.parameters:
+                param = signature.parameters[name]
+                annotation = param.annotation
+                if get_origin(annotation) is Union:
+                    args = get_args(annotation)
+                    has_unset = any(getattr(a, '__name__', None) == 'Unset' for a in args)
+                    has_none = type(None) in args
+                    if has_unset and not has_none:
+                        sanitized[name] = UNSET
+                        continue
+            sanitized[name] = value
+        return sanitized
+
+    async def _async_api_call(self, func, **kwargs):
+        """Helper to call async OpenAPI functions with sanitized ``kwargs``."""
+        sanitized = self._sanitize_kwargs(func, kwargs)
+        return await func(**sanitized)
     
     async def get_financial_context(
         self, 
@@ -154,10 +181,11 @@ class FinanceDataClient:
         try:
             client = self._get_client(token)
             
-            response: Response[FinancialContext] = await api_agent_financial_context_retrieve.asyncio_detailed(
+            response: Response[FinancialContext] = await self._async_api_call(
+                api_agent_financial_context_retrieve.asyncio_detailed,
                 client=client,
                 include_future_goals=include_future_goals,
-                limit_transactions=limit_transactions
+                limit_transactions=limit_transactions,
             )
             
             if response.status_code == 200:
@@ -214,14 +242,15 @@ class FinanceDataClient:
         try:
             client = self._get_client(token)
             
-            response: Response[List[Transaction]] = await api_agent_transactions_list.asyncio_detailed(
+            response: Response[List[Transaction]] = await self._async_api_call(
+                api_agent_transactions_list.asyncio_detailed,
                 client=client,
                 category=category,
                 start_date=start_date,
                 end_date=end_date,
                 min_amount=min_amount,
                 max_amount=max_amount,
-                limit=limit
+                limit=limit,
             )
             
             if response.status_code == 200:
@@ -257,9 +286,10 @@ class FinanceDataClient:
         try:
             client = self._get_client(token)
             
-            response: Response[List[BudgetTarget]] = await api_agent_budget_analysis_list.asyncio_detailed(
+            response: Response[List[BudgetTarget]] = await self._async_api_call(
+                api_agent_budget_analysis_list.asyncio_detailed,
                 client=client,
-                period=period
+                period=period,
             )
             
             if response.status_code == 200:
@@ -289,8 +319,9 @@ class FinanceDataClient:
         try:
             client = self._get_client(token)
             
-            response: Response[List[AccountSummary]] = await api_agent_account_summary_list.asyncio_detailed(
-                client=client
+            response: Response[List[AccountSummary]] = await self._async_api_call(
+                api_agent_account_summary_list.asyncio_detailed,
+                client=client,
             )
             
             if response.status_code == 200:
@@ -320,8 +351,9 @@ class FinanceDataClient:
         try:
             client = self._get_client(token)
             
-            response: Response[ConversationContext] = await api_agent_conversation_context_retrieve.asyncio_detailed(
-                client=client
+            response: Response[ConversationContext] = await self._async_api_call(
+                api_agent_conversation_context_retrieve.asyncio_detailed,
+                client=client,
             )
             
             if response.status_code == 200:
@@ -361,7 +393,6 @@ class SyncFinanceDataClient(FinanceDataClient):
         def run_in_new_thread():
             """Create a new event loop in a separate thread."""
             try:
-                # Create a new event loop for this thread
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 try:
@@ -369,20 +400,15 @@ class SyncFinanceDataClient(FinanceDataClient):
                     logger.debug("Successfully completed async operation in new thread")
                     return result
                 finally:
-                    # Properly close the loop
                     try:
-                        # Cancel any remaining tasks
                         pending = asyncio.all_tasks(loop)
                         for task in pending:
                             task.cancel()
-                        
-                        # Wait for cancelled tasks to complete
                         if pending:
                             loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-                    except Exception as cleanup_error:
-                        logger.warning(f"Error during event loop cleanup: {cleanup_error}")
                     finally:
                         loop.close()
+                        asyncio.set_event_loop(None)
             except Exception as thread_error:
                 logger.error(f"Error in async thread execution: {thread_error}", exc_info=True)
                 raise
