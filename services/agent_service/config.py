@@ -9,7 +9,7 @@ SERVICE_ROOT = Path(__file__).parent.absolute()
 ENV_FILE = SERVICE_ROOT / '.env'
 
 # Initialize config with explicit .env file path
-git config = Config(str(ENV_FILE))
+config = Config(str(ENV_FILE))
 
 # Database configuration
 DATABASE_URL = config('DATABASE_URL', default='postgresql://finance_user:finance_password@localhost:5432/finance')
