@@ -27,8 +27,23 @@ from .tools.finance_tools import (
     get_goal_progress
 )
 
-# Load environment variables
-os.environ.setdefault('GOOGLE_GENAI_USE_VERTEXAI', '0')
+# Load environment variables from config
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+try:
+    import config
+    # Ensure Google API key is available in environment
+    if hasattr(config, 'GOOGLE_API_KEY') and config.GOOGLE_API_KEY:
+        os.environ['GOOGLE_API_KEY'] = config.GOOGLE_API_KEY
+    if hasattr(config, 'GEMINI_API_KEY') and config.GEMINI_API_KEY:
+        os.environ['GEMINI_API_KEY'] = config.GEMINI_API_KEY
+    if hasattr(config, 'GOOGLE_GENAI_USE_VERTEXAI'):
+        os.environ['GOOGLE_GENAI_USE_VERTEXAI'] = str(int(config.GOOGLE_GENAI_USE_VERTEXAI))
+    else:
+        os.environ.setdefault('GOOGLE_GENAI_USE_VERTEXAI', '0')
+except ImportError:
+    # Fallback if config import fails
+    os.environ.setdefault('GOOGLE_GENAI_USE_VERTEXAI', '0')
 
 
 def create_reporting_agent() -> Agent:
