@@ -7,6 +7,10 @@ For comprehensive instructions on testing the ADK Finance Agent system, see:
 
 This guide covers all available testing scripts, scenarios, troubleshooting, and best practices.
 
+Unit tests for the agent service live under `services/agent_service/tests/unit`,
+component tests under `services/agent_service/tests/component`, and end-to-end tests under
+`services/agent_service/tests/e2e`.
+
 ## API Key Setup & Cost Efficiency Warning
 
 To use Gemini-powered features, you must set the `GEMINI_API_KEY` in your `.env` file:
