@@ -42,6 +42,30 @@ Alternatively you can run `docker-compose -f docker-compose.test.yml up --build 
 docker-compose -f docker-compose.test.yml down
 ```
 
+Tests for the `agent_service` are organized by type:
+
+- **Unit tests:** `services/agent_service/tests/unit`
+- **Component tests:** `services/agent_service/tests/component`
+- **End-to-end tests:** `services/agent_service/tests/e2e`
+
+Each service should be treated as an isolated environment. Install only the
+requirements listed for that service when running its tests. For example, the
+`agent_service` unit tests run with just the packages in
+`services/agent_service/requirements.txt` and should not require Django,
+Plotly or other dependencies from unrelated services. Run tests for a single
+service with:
+
+```bash
+pytest services/<service_name>/tests
+```
+
+Treat each directory under `services/` as its own microservice. Tests for a
+service must run in isolation using only the packages listed in that
+service's `requirements.txt`. If extra dependencies are needed solely for
+testing, add a `requirements-test.txt` (or similarly named file) inside the
+service directory. Global integration tests that cover multiple services live
+under `tests/`.
+
 ## Frontend
 The legacy React dashboard resides in `front/dashboard`. See its `README.md` for package.json scripts and development instructions.
 The new FinanceAgent app resides in `front/FinanceAgent`. See its `README.md` for Next.js/Expo usage and development instructions.

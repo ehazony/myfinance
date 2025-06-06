@@ -152,4 +152,5 @@ pip install -r requirements/all.txt
 pytest
 ```
 
-The tests rely on `pytest-django` and mock all LLM calls via `litellm`.
+Tests run with plain `pytest`. Each service provides stubs or mocks for
+external dependencies as needed.

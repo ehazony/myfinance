@@ -1,3 +1,2 @@
 # Packages required for running tests
 pytest
-pytest-django
