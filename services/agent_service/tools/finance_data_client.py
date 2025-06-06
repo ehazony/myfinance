@@ -37,75 +37,6 @@ from _client.errors import UnexpectedStatus
 logger = logging.getLogger(__name__)
 
 
-class OpenAPIClientWrapper:
-    """
-    Wrapper for OpenAPI client that automatically converts None values to UNSET.
-    This prevents errors when optional parameters are passed as None instead of UNSET.
-    Uses type inspection to determine which parameters should auto-convert based on their type annotations.
-    """
-    
-    def __init__(self, client):
-        self._client = client
-    
-    def _should_convert_none_to_unset(self, method, param_name: str) -> bool:
-        """
-        Determine if a parameter should have None converted to UNSET based on its type annotation.
-        Returns True if the parameter is typed as Union[Unset, SomeType] (None not allowed).
-        Returns False if the parameter is typed as Union[Unset, None, SomeType] (None allowed).
-        """
-        try:
-            signature = inspect.signature(method)
-            if param_name not in signature.parameters:
-                return False
-            
-            param = signature.parameters[param_name]
-            annotation = param.annotation
-            
-            # Check if it's a Union type
-            if get_origin(annotation) is Union:
-                args = get_args(annotation)
-                # If the Union includes UNSET but not None, convert None to UNSET
-                # If the Union includes both UNSET and None, preserve None
-                has_unset = any(getattr(arg, '__name__', None) == 'Unset' for arg in args)
-                has_none = type(None) in args
-                
-                if has_unset and not has_none:
-                    return True  # Convert None → UNSET
-                else:
-                    return False  # Preserve None
-            
-            return False  # Not a Union type, preserve as-is
-            
-        except Exception as e:
-            logger.debug(f"Could not inspect parameter {param_name}: {e}")
-            return False  # Conservative: preserve None on inspection failure
-    
-    def __getattr__(self, name):
-        # Get the original method from the client
-        original_method = getattr(self._client, name)
-        
-        # If it's not callable, return as-is (for properties, etc.)
-        if not callable(original_method):
-            return original_method
-        
-        # Return a wrapper function that processes kwargs
-        def wrapper(*args, **kwargs):
-            # Type-based conversion: inspect method signature to determine conversions
-            processed_kwargs = {}
-            for key, value in kwargs.items():
-                if value is None and self._should_convert_none_to_unset(original_method, key):
-                    # Convert to UNSET for parameters that don't accept None
-                    processed_kwargs[key] = UNSET
-                    logger.debug(f"Auto-converted None to UNSET for parameter '{key}' based on type annotation")
-                else:
-                    # Preserve None for parameters that explicitly allow it
-                    processed_kwargs[key] = value
-            
-            # Call the original method with processed kwargs
-            return original_method(*args, **processed_kwargs)
-        
-        return wrapper
-
 
 class FinanceDataClient:
     """Client for accessing finance data using generated OpenAPI client."""
@@ -122,20 +53,22 @@ class FinanceDataClient:
         self.timeout = timeout
         self._client = None
 
-    def _get_client(self, token: str) -> OpenAPIClientWrapper:
-        """Get or create authenticated client instance wrapped for automatic UNSET handling."""
+    def _get_client(self, token: str) -> AuthenticatedClient:
+        """Get or create authenticated client instance."""
         if not self._client or getattr(self._client, 'token', None) != token:
-            auth_client = AuthenticatedClient(
+            self._client = AuthenticatedClient(
                 base_url=self.base_url,
                 token=token,
                 prefix="Token",
                 timeout=self.timeout
             )
-            self._client = OpenAPIClientWrapper(auth_client)
         return self._client
 
     def _sanitize_kwargs(self, func, kwargs: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert ``None`` values to ``UNSET`` when the function type hints require it."""
+        """Convert ``None`` values to ``UNSET`` and handle type conversions for the OpenAPI client."""
+        from datetime import datetime, date
+        import re
+        
         sanitized = {}
         try:
             signature = inspect.signature(func)
@@ -143,6 +76,7 @@ class FinanceDataClient:
             return kwargs
 
         for name, value in kwargs.items():
+            # Handle None values
             if value is None and name in signature.parameters:
                 param = signature.parameters[name]
                 annotation = param.annotation
@@ -153,6 +87,43 @@ class FinanceDataClient:
                     if has_unset and not has_none:
                         sanitized[name] = UNSET
                         continue
+            
+            # Handle date string conversion for parameters typed as date
+            if value is not None and isinstance(value, str) and name in signature.parameters:
+                param = signature.parameters[name]
+                annotation = param.annotation
+                
+                # Check if this parameter is typed to accept date objects
+                is_date_param = False
+                if get_origin(annotation) is Union:
+                    args = get_args(annotation)
+                    is_date_param = any(arg == date for arg in args)
+                elif annotation == date:
+                    is_date_param = True
+                
+                if is_date_param:
+                    try:
+                        # Try to parse common date formats
+                        if re.match(r'^\d{4}-\d{2}-\d{2}$', value):
+                            # ISO format: YYYY-MM-DD
+                            sanitized[name] = datetime.strptime(value, '%Y-%m-%d').date()
+                            logger.debug(f"Converted string '{value}' to date object for parameter '{name}' based on type annotation")
+                            continue
+                        elif re.match(r'^\d{4}-\d{2}-\d{2}T', value):
+                            # ISO datetime format
+                            sanitized[name] = datetime.fromisoformat(value.replace('Z', '+00:00')).date()
+                            logger.debug(f"Converted datetime string '{value}' to date object for parameter '{name}' based on type annotation")
+                            continue
+                        else:
+                            # If it's not a recognizable date format, set to UNSET to avoid errors
+                            logger.warning(f"Could not parse date string '{value}' for parameter '{name}' (typed as date), setting to UNSET")
+                            sanitized[name] = UNSET
+                            continue
+                    except Exception as e:
+                        logger.warning(f"Failed to convert date string '{value}' for parameter '{name}' (typed as date): {e}, setting to UNSET")
+                        sanitized[name] = UNSET
+                        continue
+            
             sanitized[name] = value
         return sanitized
 
@@ -382,7 +353,7 @@ class SyncFinanceDataClient(FinanceDataClient):
     """Synchronous wrapper for FinanceDataClient."""
     
     def _run_async(self, coro):
-        """Run async coroutine in a thread to avoid event loop conflicts."""
+        """Run async coroutine, handling event loop properly."""
         import asyncio
         import threading
         import concurrent.futures
@@ -393,6 +364,7 @@ class SyncFinanceDataClient(FinanceDataClient):
         def run_in_new_thread():
             """Create a new event loop in a separate thread."""
             try:
+                # Ensure we have a clean thread-local event loop
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 try:
@@ -400,15 +372,24 @@ class SyncFinanceDataClient(FinanceDataClient):
                     logger.debug("Successfully completed async operation in new thread")
                     return result
                 finally:
+                    # Clean shutdown
                     try:
+                        # Cancel all pending tasks
                         pending = asyncio.all_tasks(loop)
-                        for task in pending:
-                            task.cancel()
                         if pending:
+                            for task in pending:
+                                task.cancel()
+                            # Wait for cancellation to complete
                             loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
+                    except Exception as cleanup_error:
+                        logger.warning(f"Error during task cleanup: {cleanup_error}")
                     finally:
-                        loop.close()
-                        asyncio.set_event_loop(None)
+                        try:
+                            loop.close()
+                        except Exception as close_error:
+                            logger.warning(f"Error closing loop: {close_error}")
+                        finally:
+                            asyncio.set_event_loop(None)
             except Exception as thread_error:
                 logger.error(f"Error in async thread execution: {thread_error}", exc_info=True)
                 raise
@@ -417,41 +398,48 @@ class SyncFinanceDataClient(FinanceDataClient):
             # Check if we're already in an event loop
             try:
                 current_loop = asyncio.get_running_loop()
-                logger.debug("Running loop detected, using thread executor")
-                
-                # If we have a running loop, use a thread executor
-                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                    future = executor.submit(run_in_new_thread)
-                    try:
-                        result = future.result(timeout=30)  # 30 second timeout
-                        return result
-                    except concurrent.futures.TimeoutError:
-                        logger.error("Async operation timed out after 30 seconds")
-                        raise
+                if current_loop and not current_loop.is_closed():
+                    logger.debug("Running loop detected, using thread executor")
+                    
+                    # Always use thread executor when there's a running loop
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="FinanceClient") as executor:
+                        future = executor.submit(run_in_new_thread)
+                        try:
+                            result = future.result(timeout=60)  # Increased timeout
+                            return result
+                        except concurrent.futures.TimeoutError:
+                            logger.error("Async operation timed out after 60 seconds")
+                            raise RuntimeError("Finance client operation timed out")
+                else:
+                    # Loop exists but is closed, use thread
+                    logger.debug("Closed loop detected, using thread executor")
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="FinanceClient") as executor:
+                        future = executor.submit(run_in_new_thread)
+                        return future.result(timeout=60)
                         
             except RuntimeError:
                 # No running loop, safe to use asyncio.run
                 logger.debug("No running loop detected, using asyncio.run")
                 try:
                     return asyncio.run(coro)
-                except RuntimeError as e:
-                    if "Event loop is closed" in str(e) or "cannot be called from a running event loop" in str(e):
-                        logger.warning(f"Event loop issue, falling back to thread: {e}")
-                        # Fallback to thread execution
-                        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-                            future = executor.submit(run_in_new_thread)
-                            return future.result(timeout=30)
-                    else:
-                        raise
+                except Exception as e:
+                    logger.warning(f"asyncio.run failed: {e}, falling back to thread")
+                    # Fallback to thread execution
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="FinanceClient") as executor:
+                        future = executor.submit(run_in_new_thread)
+                        return future.result(timeout=60)
                         
         except Exception as e:
             logger.error(f"Failed to execute async operation: {e}", exc_info=True)
-            # Last resort: try direct execution
+            # Last resort: try direct execution in thread
             try:
-                return run_in_new_thread()
+                logger.debug("All methods failed, trying last resort thread execution")
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1, thread_name_prefix="FinanceClientLastResort") as executor:
+                    future = executor.submit(run_in_new_thread)
+                    return future.result(timeout=60)
             except Exception as final_error:
                 logger.error(f"All async execution methods failed: {final_error}", exc_info=True)
-                raise final_error
+                raise RuntimeError(f"Failed to execute async operation: {final_error}") from final_error
     
     def get_financial_context_sync(self, token: str, **kwargs) -> Dict[str, Any]:
         """Synchronous wrapper for get_financial_context."""

@@ -1,6 +1,6 @@
-from dotenv import load_dotenv
-import os
-load_dotenv(os.path.join(os.path.dirname(__file__), "agents_adk/.env"))
+# Import config to load all environment variables
+import config
+
 from fastapi import FastAPI
 from api.chat import router as chat_router
 from api.health import router as health_router
