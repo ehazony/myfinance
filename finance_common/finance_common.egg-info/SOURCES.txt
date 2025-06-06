@@ -10,5 +10,6 @@ models/account.py
 models/conversation.py
 models/finance_models.py
 tests/__init__.py
+tests/debug_base.py
 tests/test_finance_common_models.py
 tests/test_utils.py

@@ -20,7 +20,7 @@ except ImportError:
 sys.path.append(os.path.dirname(__file__))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from agents_adk.tools.finance_tools import get_user_transactions
+from ..agents_adk.tools.finance_tools import get_user_transactions
 
 # Get token from environment or use placeholder
 TEST_TOKEN = os.environ.get('FINANCE_TEST_TOKEN', 'your_token_here')

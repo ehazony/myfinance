@@ -39,7 +39,7 @@ else:
     sys.exit(1)
 
 # Import agents after environment setup
-from agents_adk.agent import all_agents, finance_workflows
+from ..agents_adk.agent import all_agents, finance_workflows
 
 # Import ADK components for proper execution
 try:

@@ -39,7 +39,7 @@ def test_imports():
         print("✅ ADK imports successful")
         
         # Test our agents
-        from agents_adk.agent import all_agents
+        from ..agents_adk.agent import all_agents
         print(f"✅ Imported {len(all_agents)} agents successfully")
         
         return True
@@ -132,7 +132,7 @@ async def test_finance_agents():
     print("\n🧪 Testing finance agents...")
     
     try:
-        from agents_adk.agent import all_agents
+        from ..agents_adk.agent import all_agents
         
         expected_agents = [
             'orchestrator',

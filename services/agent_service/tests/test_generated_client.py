@@ -11,7 +11,7 @@ import os
 # Add the current directory to the path so we can import our modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from tools.finance_data_client import get_finance_client
+from ..tools.finance_data_client import get_finance_client
 
 
 async def test_generated_client():
@@ -73,7 +73,7 @@ async def test_generated_client():
         # Test 5: Test Finance Tools Integration
         print("\n🔧 Testing finance tools integration...")
         try:
-            from agents_adk.tools.finance_tools import get_user_transactions, get_user_account_summary
+            from ..agents_adk.tools.finance_tools import get_user_transactions, get_user_account_summary
             
             # Test finance tools
             transactions_result = get_user_transactions(test_token, limit=3)

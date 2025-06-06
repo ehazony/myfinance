@@ -29,7 +29,7 @@ if env_file.exists():
                 key, value = line.strip().split('=', 1)
                 os.environ[key] = value
 
-from agents_adk.agent import all_agents
+from ..agents_adk.agent import all_agents
 
 # Import ADK components for proper execution
 try:
