@@ -50,4 +50,5 @@ ADK_PROJECT_ID = config('ADK_PROJECT_ID', default='')
 ADK_REGION = config('ADK_REGION', default='us-central1')
 
 # Logging configuration
-LOG_FORMAT = '%(asctime)s - %(levelname)s - %(session)s - %(agent)s - %(message)s'
+LOG_FORMAT = '%(asctime)s [%(levelname)s] [%(session)s] [%(agent)s] %(message)s'
+

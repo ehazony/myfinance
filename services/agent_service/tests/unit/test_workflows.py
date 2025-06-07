@@ -1,6 +1,7 @@
 """Unit tests for simplified finance workflows."""
 
 import asyncio
+import logging
 from services.agent_service.agents_adk.workflows.finance_workflows import (
     OnboardingWorkflow,
     BudgetCreationWorkflow,
@@ -42,3 +43,11 @@ def test_workflow_handles_error(monkeypatch):
     assert result["success"] is False
     assert result["workflow"] == "user_onboarding"
     assert "fail" in result["error"]
+
+
+def test_workflow_emits_logs(caplog):
+    caplog.set_level(logging.INFO)
+    workflow = OnboardingWorkflow()
+    asyncio.run(workflow.run("u1"))
+    assert any("Starting workflow" in rec.message for rec in caplog.records)
+    assert any("Workflow completed" in rec.message for rec in caplog.records)
