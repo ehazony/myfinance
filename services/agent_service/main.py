@@ -1,10 +1,12 @@
 # Import config to load all environment variables
 import config
+from logging_utils import setup_logging
 
 from fastapi import FastAPI
 from api.chat import router as chat_router
 from api.health import router as health_router
 
+setup_logging()
 app = FastAPI(title="Agent Service API", version="1.0.0")
 
 app.include_router(chat_router, prefix="/api/chat")

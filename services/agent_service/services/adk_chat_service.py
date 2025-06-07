@@ -68,6 +68,10 @@ class ADKChatService:
             self.session_service = None
             
         logger.info("ADKChatService initialized with OpenAPI client integration and persistent session management")
+
+    def _get_logger(self, session_id: str, agent_name: str = "") -> logging.LoggerAdapter:
+        """Return a logger with session and agent context."""
+        return logging.LoggerAdapter(logger, {"session": session_id, "agent": agent_name})
     
     def _before_tool_callback(self, tool, args, tool_context):
         """
@@ -178,6 +182,7 @@ class ADKChatService:
             
             # Use consistent session ID
             session_id = f"session_{user_token}"
+            log = self._get_logger(session_id, agent.name)
             
             # Temporarily add our callback to the agent's existing callbacks
             original_callbacks = getattr(agent, 'before_tool_callback', [])
@@ -208,37 +213,37 @@ class ADKChatService:
                     new_message=user_message
                 ):
                     # Log ALL event types for debugging
-                    logger.info(f"ADK Event: type={type(event).__name__}, is_final={event.is_final_response() if hasattr(event, 'is_final_response') else 'N/A'}")
+                    log.info(f"ADK Event: type={type(event).__name__}, is_final={event.is_final_response() if hasattr(event, 'is_final_response') else 'N/A'}")
                     
                     # Log event details for debugging
                     if hasattr(event, 'content') and event.content and event.content.parts:
-                        logger.info(f"Event has {len(event.content.parts)} parts")
+                        log.info(f"Event has {len(event.content.parts)} parts")
                         for i, part in enumerate(event.content.parts):
                             if hasattr(part, 'function_call') and part.function_call:
                                 function_calls_made += 1
-                                logger.info(f"🔧 Function call #{function_calls_made}: {part.function_call.name} with args: {part.function_call.args}")
+                                log.info(f"🔧 Function call #{function_calls_made}: {part.function_call.name} with args: {part.function_call.args}")
                             elif hasattr(part, 'function_response') and part.function_response:
                                 function_responses_received += 1
-                                logger.info(f"📥 Function response #{function_responses_received} for: {part.function_response.name}: {part.function_response.response}")
+                                log.info(f"📥 Function response #{function_responses_received} for: {part.function_response.name}: {part.function_response.response}")
                             elif hasattr(part, 'text') and part.text:
-                                logger.info(f"💬 Text part #{i}: {part.text[:100]}...")
+                                log.info(f"💬 Text part #{i}: {part.text[:100]}...")
                             else:
-                                logger.info(f"❓ Unknown part type #{i}: {type(part).__name__}")
+                                log.info(f"❓ Unknown part type #{i}: {type(part).__name__}")
                     else:
-                        logger.info("Event has no content/parts")
+                        log.info("Event has no content/parts")
                     
                     # Wait for final response that includes text
                     if event.is_final_response() and event.content and event.content.parts:
-                        logger.info("Processing final response...")
+                        log.info("Processing final response...")
                         for part in event.content.parts:
                             if hasattr(part, 'text') and part.text:
                                 response_text = part.text
-                                logger.info(f"Final text extracted: {response_text[:100]}...")
+                                log.info(f"Final text extracted: {response_text[:100]}...")
                                 break
                         if response_text:
                             break
                 
-                logger.info(f"ADK agent {agent.name} made {function_calls_made} function calls, received {function_responses_received} responses, and generated response for user {user_token[:10]}...")
+                log.info(f"ADK agent {agent.name} made {function_calls_made} function calls, received {function_responses_received} responses, and generated response for user {user_token[:10]}...")
                 return response_text or "Agent processed the request but didn't generate a response."
                 
             finally:
@@ -246,11 +251,11 @@ class ADKChatService:
                 agent.before_tool_callback = original_callbacks
             
         except Exception as e:
-            logger.error(f"Error running ADK agent {agent.name}: {e}")
-            logger.error(f"Exception type: {type(e).__name__}")
-            logger.error(f"Exception details: {str(e)}")
+            log.error(f"Error running ADK agent {agent.name}: {e}")
+            log.error(f"Exception type: {type(e).__name__}")
+            log.error(f"Exception details: {str(e)}")
             import traceback
-            logger.error(f"Full traceback: {traceback.format_exc()}")
+            log.error(f"Full traceback: {traceback.format_exc()}")
             return f"I apologize, but I encountered an issue processing your request with the {agent.name} agent."
         finally:
             # Clean up the stored token
@@ -277,7 +282,7 @@ class ADKChatService:
             if not actual_token:
                 actual_token = user_token
             if not actual_token:
-                logger.error("No valid user token provided in context or user_token argument.")
+                log.error("No valid user token provided in context or user_token argument.")
                 return {
                     'content': 'Authentication error: No valid user token provided.',
                     'metadata': {'error': True, 'error_message': 'No valid user token provided.'}
@@ -285,9 +290,9 @@ class ADKChatService:
             
             # Log token usage for debugging
             if actual_token != user_token:
-                logger.info(f"Using token from context: {actual_token[:10]}... (different from parameter: {user_token[:10] if user_token else 'None'}...)")
+                log.info(f"Using token from context: {actual_token[:10]}... (different from parameter: {user_token[:10] if user_token else 'None'}...)")
             else:
-                logger.debug(f"Using consistent token: {actual_token[:10]}...")
+                log.debug(f"Using consistent token: {actual_token[:10]}...")
             
             # Periodic session cleanup (every 100 messages to avoid overhead)
             import random
@@ -295,10 +300,11 @@ class ADKChatService:
                 try:
                     self.cleanup_expired_sessions()
                 except Exception as cleanup_error:
-                    logger.warning(f"Session cleanup failed: {cleanup_error}")
+                    log.warning(f"Session cleanup failed: {cleanup_error}")
             
             # Get conversation state using the actual token
             conversation_state = self.get_conversation_state(actual_token)
+            log = self._get_logger(conversation_state.conversation_id)
             
             # Add user message to conversation
             conversation_state.add_message("user", message)
@@ -319,11 +325,11 @@ class ADKChatService:
                     'last_context_update': 'current'
                 })
                 
-                logger.debug(f"Successfully retrieved financial context for user {actual_token[:10]}...")
+                log.debug(f"Successfully retrieved financial context for user {actual_token[:10]}...")
                 
             except Exception as e:
                 if "401" in str(e) or "Unauthorized" in str(e):
-                    logger.warning(f"Authentication failed when fetching financial context for user {actual_token[:10]}...: {e}")
+                    log.warning(f"Authentication failed when fetching financial context for user {actual_token[:10]}...: {e}")
                     financial_context = {}
                     # Update context to indicate auth failure
                     conversation_state.update_context({
@@ -331,7 +337,7 @@ class ADKChatService:
                         'last_context_update': 'failed'
                     })
                 else:
-                    logger.warning(f"Could not fetch financial context for user {actual_token[:10]}...: {e}")
+                    log.warning(f"Could not fetch financial context for user {actual_token[:10]}...: {e}")
                     financial_context = {}
             
             # Always start with orchestrator for proper routing
@@ -352,7 +358,7 @@ class ADKChatService:
                 # EMERGENCY FALLBACK: If response asks for parameters but user wants transactions, call tool directly  
                 if (any(keyword in message.lower() for keyword in ['transaction', 'transactions']) and
                     ('date range' in response_content.lower() or 'category' in response_content.lower() or 'specify' in response_content.lower())):
-                    logger.warning("Agent failed to call transaction tool - executing directly as fallback")
+                    log.warning("Agent failed to call transaction tool - executing directly as fallback")
                     try:
                         from agents_adk.tools.finance_tools import get_user_transactions
                         from google.adk.tools.tool_context import ToolContext
@@ -391,10 +397,10 @@ class ADKChatService:
                             else:
                                 response_content = "No transactions found."
                         
-                        logger.info(f"Emergency fallback tool call successful for user {actual_token[:10]}...")
+                        log.info(f"Emergency fallback tool call successful for user {actual_token[:10]}...")
                         
                     except Exception as fallback_error:
-                        logger.error(f"Emergency fallback also failed: {fallback_error}")
+                        log.error(f"Emergency fallback also failed: {fallback_error}")
                         # Keep original response if fallback fails
                 
             else:
@@ -419,13 +425,13 @@ class ADKChatService:
                 }
             }
             
-            logger.info(f"Processed message for user {actual_token[:10]}...: {len(message)} chars -> {len(response['content'])} chars, session_persisted: {actual_token in self.adk_sessions}")
+            log.info(f"Processed message for user {actual_token[:10]}...: {len(message)} chars -> {len(response['content'])} chars, session_persisted: {actual_token in self.adk_sessions}")
             return response
-            
+
         except Exception as e:
-            logger.error(f"Error processing message for user {user_token}: {e}")
+            log.error(f"Error processing message for user {user_token}: {e}")
             import traceback
-            logger.error(f"Full traceback: {traceback.format_exc()}")
+            log.error(f"Full traceback: {traceback.format_exc()}")
             return {
                 'content': 'I apologize, but I encountered a technical issue. Please try again.',
                 'metadata': {

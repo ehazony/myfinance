@@ -7,6 +7,7 @@ httpx>=0.25.0
 google-adk
 google-genai
 python-dotenv
+colorlog
 
 # Note: finance_common is installed separately via setup script
 # Local shared library handled by setup script
