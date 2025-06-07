@@ -1,14 +1,23 @@
 import logging
 from colorlog import ColoredFormatter
-from config import AGENT_LOG_LEVEL
+from config import AGENT_LOG_LEVEL, LOG_FORMAT
+
+
+class SafeColoredFormatter(ColoredFormatter):
+    """Colored formatter that inserts default values for custom fields."""
+
+    def format(self, record: logging.LogRecord) -> str:  # type: ignore[override]
+        record.session = getattr(record, "session", "-")
+        record.agent = getattr(record, "agent", "-")
+        return super().format(record)
 
 
 def setup_logging() -> None:
     """Configure colored logging for the agent service."""
     level = getattr(logging, AGENT_LOG_LEVEL.upper(), logging.INFO)
 
-    formatter = ColoredFormatter(
-        fmt="%(log_color)s%(asctime)s [%(levelname)s] %(session)s %(agent)s %(message)s",
+    formatter = SafeColoredFormatter(
+        fmt=f"%(log_color)s{LOG_FORMAT}%(reset)s",
         datefmt="%H:%M:%S",
         log_colors={
             'DEBUG': 'cyan',
